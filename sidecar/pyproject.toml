@@ -3,11 +3,12 @@ name = "socratic-sidecar"
 version = "0.1.0"
 description = "Minimal Socratic tutor sidecar: search, pages, compute"
 requires-python = ">=3.12"
-license = { text = "AGPL-3.0-or-later" }
+license = { text = "MIT" }
 dependencies = [
   "fastapi>=0.110",
   "uvicorn>=0.29",
-  "pymupdf>=1.26",
+  "pypdfium2>=4.30",
+  "pillow>=10.0",
   "sympy>=1.13",
   # chapter-index logic lives in the published package (packages/classics-index);
   # until it is on PyPI, install it with: pip install -e packages/classics-index

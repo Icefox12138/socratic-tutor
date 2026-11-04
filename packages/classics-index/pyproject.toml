@@ -9,7 +9,7 @@ description = "Chapter indexes (卷 / 篇 / 回) for scanned Chinese books, buil
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "socratic-tutor contributors" }]
-keywords = ["chinese-classics", "scanned-books", "ocr", "table-of-contents", "pymupdf"]
+keywords = ["chinese-classics", "scanned-books", "ocr", "table-of-contents"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",
@@ -19,7 +19,7 @@ license = { text = "MIT" }
 dependencies = []
 
 [project.optional-dependencies]
-ocr = ["paddleocr>=3", "pillow", "pymupdf"]
+ocr = ["paddleocr>=3", "pillow"]
 
 [project.urls]
 Homepage = "https://github.com/Icefox12138/socratic-tutor/tree/main/packages/classics-index"

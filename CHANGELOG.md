@@ -3,6 +3,12 @@
 Three packages live in this repository and version independently. Sections are
 per package; dates are release dates, not commit dates.
 
+## Repository
+
+### Unreleased
+- `sidecar/` renders pages with **pypdfium2** instead of PyMuPDF. The whole
+  repository is MIT again: no AGPL dependency remains.
+
 ## classics-index
 
 ### 0.1.1 — 2026-11-04

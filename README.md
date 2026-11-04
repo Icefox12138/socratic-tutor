@@ -23,7 +23,7 @@ So the constraint here is inverted: **every claim must carry a locator (`book p.
 | Component | What it is | Status |
 |---|---|---|
 | `plugin-socratic` | DSH plugin, 12 tools: cited retrieval, chapter lookup, page images, math check, session review | [npm `dsh-socratic@0.2.0`](https://www.npmjs.com/package/dsh-socratic) |
-| `sidecar/` | FastAPI service: SQLite FTS5 + BGE-M3 embeddings + reranker + PyMuPDF page rendering | runs locally, not yet packaged |
+| `sidecar/` | FastAPI service: SQLite FTS5 + BGE-M3 embeddings + reranker + pypdfium2 page rendering | runs locally, not yet packaged |
 | `packages/classics-index` | Volume/chapter (`卷 / 篇 / 回`) indexer for scanned Chinese books, built from OCR of running headers | [PyPI `classics-index@0.1.0`](https://pypi.org/project/classics-index/) |
 | `packages/socratic-mcp` | The same capabilities as an MCP server, for any MCP host | [PyPI `socratic-mcp@0.1.0`](https://pypi.org/project/socratic-mcp/) |
 
@@ -99,7 +99,7 @@ DSH GUI / any MCP host
                           ├─ SQLite FTS5   (167k chunks, CJK bigrams)
                           ├─ BGE-M3 vectors (in-process matrix, no vector DB)
                           ├─ bge-reranker   (cross-encoder)
-                          └─ PyMuPDF        (renders book p.N on demand)
+                          └─ pypdfium2       (renders book p.N on demand)
         │
         └─ classics-index: OCR of running headers → 卷 / 篇 / 回 boundaries
 ```
@@ -164,14 +164,9 @@ Please note the licensing boundary: **code is MIT, books are not**. Never open a
 
 ## License
 
-Licensing is **per directory**, because the sidecar links PyMuPDF, which is AGPL-3.0:
-
-| Path | License | Why |
-|---|---|---|
-| `packages/classics-index`, `packages/socratic-mcp`, `plugin-socratic/`, `eval/`, `market/` | [MIT](LICENSE) | no AGPL dependency |
-| `sidecar/` | [AGPL-3.0-or-later](sidecar/LICENSE) | imports PyMuPDF (dual-licensed AGPL-3.0 / Artifex commercial) |
-
-If you deploy the sidecar as a network service, AGPL-3.0 §13 applies: users interacting with it over a network must be offered its corresponding source. Running it privately for yourself is unaffected.
+MIT — see [LICENSE](LICENSE). The whole repository is MIT, including the sidecar:
+page rendering uses [pypdfium2](https://github.com/pypdfium2-team/pypdfium2)
+(BSD-3-Clause), not AGPL-licensed PyMuPDF.
 
 Third-party model weights (BGE-M3, bge-reranker) are **not** redistributed here; download them yourself and respect their licenses.
 

@@ -1,8 +1,12 @@
-"""On-demand page rendering with a local LRU cache."""
+"""On-demand page rendering with a local LRU cache.
+
+Rendering uses pypdfium2 (Apache-2.0 / BSD-3-Clause), not PyMuPDF, so the whole
+repository can stay MIT.
+"""
 import hashlib
 import os
 
-import pymupdf
+import pypdfium2 as pdfium
 
 from . import config
 
@@ -73,9 +77,9 @@ def count(source: str, book: str) -> int:
     if source not in ROOTS:
         raise ValueError("unknown source")
     path = resolve(source, book)
-    doc = pymupdf.open(path)
+    doc = pdfium.PdfDocument(path)
     try:
-        _COUNTS[key] = doc.page_count
+        _COUNTS[key] = len(doc)
     finally:
         doc.close()
     return _COUNTS[key]
@@ -92,26 +96,30 @@ def render(source: str, book: str, page: int, dpi: int = 150, bbox=None) -> byte
         key += "_" + "_".join(f"{x:.3f}" for x in bbox)
     out = os.path.join(config.CACHE, key + ".png")
     if os.path.exists(out):
-        return open(out, "rb").read()
+        with open(out, "rb") as fh:
+            return fh.read()
 
     os.makedirs(config.CACHE, exist_ok=True)
-    doc = pymupdf.open(path)
+    doc = pdfium.PdfDocument(path)
     try:
-        if not (1 <= page <= doc.page_count):
-            raise ValueError(f"page out of 1..{doc.page_count}")
-        pg = doc.load_page(page - 1)
+        total = len(doc)
+        if not (1 <= page <= total):
+            raise ValueError(f"page out of 1..{total}")
+        pg = doc[page - 1]
+        crop = None
         if bbox:
             x0, y0, x1, y1 = bbox
             if not (0 <= x0 < x1 <= 1 and 0 <= y0 < y1 <= 1):
                 raise ValueError("bbox must be normalized [x0,y0,x1,y1]")
-            rect = pg.rect
-            clip = pymupdf.Rect(rect.x0 + x0 * rect.width, rect.y0 + y0 * rect.height,
-                                rect.x0 + x1 * rect.width, rect.y0 + y1 * rect.height)
-            pix = pg.get_pixmap(dpi=dpi, clip=clip)
-        else:
-            pix = pg.get_pixmap(dpi=dpi)
-        pix.save(out)
+            # pypdfium2's crop is an inset margin tuple (left, bottom, right, top)
+            # in points, measured from each edge — not an absolute rectangle.
+            w, h = pg.get_size()
+            crop = (x0 * w, (1 - y1) * h, (1 - x1) * w, y0 * h)
+        # pypdfium2 rejects crop=None, so only pass it when a box was given
+        bitmap = pg.render(scale=dpi / 72, **({"crop": crop} if crop else {}))
+        bitmap.to_pil().save(out, format="PNG", optimize=False)
     finally:
         doc.close()
     _evict()
-    return open(out, "rb").read()
+    with open(out, "rb") as fh:
+        return fh.read()

@@ -8,8 +8,8 @@ contributions are narrow and testable.
 - **Never include book pages.** No scanned images, no OCR dumps of copyrighted
   editions, no embeddings derived from them. This is the one rule that will get a
   pull request closed without discussion.
-- Code is MIT, but `sidecar/` is AGPL-3.0 (it links PyMuPDF). Contributions to
-  `sidecar/` are accepted under AGPL-3.0-or-later.
+- The whole repository is MIT. If you propose a dependency, check its license first —
+  we deliberately avoid AGPL libraries (this is why page rendering uses pypdfium2).
 
 ## What's most useful
 
