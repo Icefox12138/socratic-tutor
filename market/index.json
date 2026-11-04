@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "title": "Socratic Tutor",
+  "description": {
+    "en": "Citation-first tutoring over your own scanned books: every answer carries a locator that opens the page image.",
+    "zh": "对自己收藏的扫描本书库做引用优先的苏格拉底式教学：每个回答都带可回页的定位。"
+  },
+  "plugins": [
+    {
+      "name": "dsh-socratic",
+      "title": "Socratic Tutor",
+      "description": {
+        "en": "12 tools: cited search, chapter lookup (卷/篇/回), page images, math verification, session review. Needs a companion sidecar.",
+        "zh": "12 个工具：引用检索、章回定位、页图、公式校验、会话复盘。需配套 sidecar。"
+      },
+      "homepage": "https://github.com/Icefox12138/socratic-tutor/tree/main/plugin-socratic",
+      "author": "Icefox12138",
+      "versions": [
+        {
+          "version": "0.2.0",
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.2 <0.3.0-0"
+          },
+          "publishTimestamp": 1793760887
+        }
+      ]
+    }
+  ]
+}

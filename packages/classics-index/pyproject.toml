@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "classics-index"
-version = "0.1.0"
+version = "0.1.1"
 description = "Chapter indexes (卷 / 篇 / 回) for scanned Chinese books, built from OCR of the running header"
 readme = "README.md"
 requires-python = ">=3.10"

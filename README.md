@@ -65,6 +65,16 @@ pip install socratic-mcp            # MCP server (needs a sidecar)
 dsh plugin add dsh-socratic         # DSH plugin (needs a sidecar + a library)
 ```
 
+### Add it to the DSH plugin market
+
+DSH's Discover tab reads any index URL you give it. This repository hosts one:
+
+```
+https://raw.githubusercontent.com/Icefox12138/socratic-tutor/main/market/index.json
+```
+
+Paste that into **Settings → Plugins → Market indexes**, then install from Discover.
+
 ### Hook the MCP server into any host
 
 ```json
