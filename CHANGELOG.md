@@ -11,6 +11,10 @@ per package; dates are release dates, not commit dates.
 
 ## classics-index
 
+### 0.1.2 — 2026-11-04
+- The optional `ocr` extra no longer pulls PyMuPDF (AGPL); OCR helpers use
+  `paddleocr` + `pillow` only. Keyword list follows.
+
 ### 0.1.1 — 2026-11-04
 - Metadata only: `Homepage` / `Repository` / `Issues` now point at this repository
   (the package subdirectory), so the PyPI sidebar reaches the source.
@@ -33,6 +37,9 @@ per package; dates are release dates, not commit dates.
   a dropped connection.
 
 ## dsh-socratic
+
+### 0.2.2 — 2026-11-04
+- Metadata: `author` added.
 
 ### 0.2.1 — 2026-11-04
 - Metadata only: `repository.directory`, `homepage`, `bugs`.
