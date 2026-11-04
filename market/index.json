@@ -10,8 +10,8 @@
       "name": "dsh-socratic",
       "title": "Socratic Tutor",
       "description": {
-        "en": "12 tools: cited search, chapter lookup (卷/篇/回), page images, math verification, session review. Needs a companion sidecar.",
-        "zh": "12 个工具：引用检索、章回定位、页图、公式校验、会话复盘。需配套 sidecar。"
+        "en": "12 tools: cited search, chapter lookup (卷/篇/回), page images (optional), math verification, session review. Needs a sidecar and a RAG database that satisfies docs/RAG-DB-SCHEMA.md.",
+        "zh": "12 个工具：引用检索、章回定位、页图（可选）、公式校验、会话复盘。需配套 sidecar，以及符合 docs/RAG-DB-SCHEMA.md 的 RAG 数据库。"
       },
       "homepage": "https://github.com/Icefox12138/socratic-tutor/tree/main/plugin-socratic",
       "author": "Icefox12138",
