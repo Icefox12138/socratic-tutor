@@ -12,9 +12,9 @@ from . import config
 
 CACHE_CAP = 2 * 1024 ** 3
 ROOTS = {
-    "library": os.path.join(config.ROOT, "PDF"),
-    "steadman": os.path.join(config.ROOT, "PDF-new", "Steadman"),
-    "teubner_conte": os.path.join(config.ROOT, "teubner"),
+    "library": os.path.join(config.LIBRARY, "PDF"),
+    "steadman": os.path.join(config.LIBRARY, "PDF-new", "Steadman"),
+    "teubner_conte": os.path.join(config.LIBRARY, "teubner"),
 }
 
 

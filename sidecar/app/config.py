@@ -1,11 +1,37 @@
-"""Minimal sidecar configuration."""
+"""Minimal sidecar configuration.
+
+Two roots:
+  LIBRARY  the books (PDF, PDF-new, loeb, teubner) — never generated content
+  DATA     everything derived from them (indexes, vectors, experiments)
+
+Both fall back to the pre-2026-11 layout so an existing install keeps working.
+"""
 import os
 
+
+def _first_existing(*candidates):
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    return candidates[-1]
+
+
 ROOT = os.environ.get("SOCRATIC_ROOT", r"D:\Guo-Code")
-DB = os.environ.get(
-    "SOCRATIC_DB",
+LIBRARY = os.environ.get("SOCRATIC_LIBRARY", _first_existing(
+    os.path.join(ROOT, "library"),
+    ROOT,
+))
+# Derived data must live where the process can write: SQLite creates journal and
+# WAL files next to the database, so a read-only library directory cannot hold it.
+DATA = os.environ.get("SOCRATIC_DATA", _first_existing(
+    os.path.join(ROOT, "socratic-tutor", "data"),
+    os.path.join(ROOT, "socratic-tutor", "eval"),
+))
+
+DB = os.environ.get("SOCRATIC_DB", _first_existing(
+    os.path.join(DATA, "indexes", "search.db"),
     os.path.join(ROOT, "socratic-tutor", "eval", "p1", "ingest", "search.db"),
-)
+))
 CACHE = os.environ.get(
     "SOCRATIC_CACHE",
     os.path.join(ROOT, "socratic-tutor", "sidecar", "cache", "pages"),
@@ -22,14 +48,14 @@ BGE_MODEL = os.environ.get("SOCRATIC_BGE_MODEL", os.path.join(ROOT, "models", "b
 RERANK_MODEL = os.environ.get(
     "SOCRATIC_RERANK_MODEL", os.path.join(ROOT, "models", "bge-reranker-v2-m3")
 )
-BGE_VECTORS = os.environ.get(
-    "SOCRATIC_BGE_VECTORS",
+BGE_VECTORS = os.environ.get("SOCRATIC_BGE_VECTORS", _first_existing(
+    os.path.join(DATA, "vectors", "bge-vectors.npy"),
     os.path.join(ROOT, "socratic-tutor", "eval", "p1", "bge", "bge-vectors.npy"),
-)
-BGE_IDS = os.environ.get(
-    "SOCRATIC_BGE_IDS",
+))
+BGE_IDS = os.environ.get("SOCRATIC_BGE_IDS", _first_existing(
+    os.path.join(DATA, "vectors", "bge-ids.npy"),
     os.path.join(ROOT, "socratic-tutor", "eval", "p1", "bge", "bge-ids.npy"),
-)
+))
 RERANK_TOPK = int(os.environ.get("SOCRATIC_RERANK_TOPK", "50"))
 STATE_DB = os.environ.get(
     "SOCRATIC_STATE_DB",
