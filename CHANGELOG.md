@@ -46,6 +46,11 @@ per package; dates are release dates, not commit dates.
 
 ## dsh-socratic
 
+### 0.2.4 — 2026-11-04
+- `cite_verify` accepts an optional `quote`: with it the check runs against the
+  indexed text of that page (`/v1/verify`), so citations stay verifiable in a
+  text-only deployment where page rendering is switched off.
+
 ### 0.2.3 — 2026-11-04
 - README: prerequisite is a RAG database built elsewhere; a missing index yields
   `no_index` tool results instead of a crash.
