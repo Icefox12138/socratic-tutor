@@ -63,11 +63,26 @@ def _startup():
 
 @app.get("/health")
 def health():
+    """Liveness plus index status.
+
+    A fresh install has no RAG database yet. That is a normal state on the way
+    to a working deployment, not a broken service, so this always answers 200
+    and reports the reason in the body instead of failing the transport.
+    """
     try:
         info = search.health()
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"db unavailable: {e}")
-    return {"ok": True, "version": config.VERSION, **info,
+        return {
+            "ok": False,
+            "reason": "no_index",
+            "version": config.VERSION,
+            "db": config.DB,
+            "chunks": 0,
+            "detail": str(e)[:200],
+            "hint": "按 docs/RAG-DB-SCHEMA.md 建库，或用 SOCRATIC_DB 指向已有的库",
+            "cache": search.cache_stats(),
+        }
+    return {"ok": True, "available": True, "version": config.VERSION, **info,
             "cache": search.cache_stats()}
 
 
@@ -102,7 +117,9 @@ def v1_search(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=503, detail=str(e))
+        # no index yet is a precondition, not an internal error
+        raise HTTPException(status_code=503,
+                            detail={"code": "no_index", "detail": str(e)[:200]})
 
 
 @app.get("/v1/cache", dependencies=[Depends(require_token)])

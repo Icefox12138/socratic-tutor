@@ -68,6 +68,8 @@ def main():
     ap.add_argument("--token", default="")
     ap.add_argument("--expect-auth", action="store_true",
                     help="also assert that a request without the token is rejected")
+    ap.add_argument("--require-data", action="store_true",
+                    help="fail when the service has no RAG database yet (fresh install)")
     ap.add_argument("--query", default="the", help="probe query (use a word your corpus has)")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
@@ -81,8 +83,21 @@ def main():
         rep.add("required endpoints", not missing, ", ".join(missing) or "all present")
 
     status, health = request(args.base, "/health", args.token)
-    rep.add("health", status == 200 and health.get("ok") is True,
-            "HTTP %s chunks=%s" % (status, health.get("chunks")))
+    alive = status == 200 and isinstance(health, dict)
+    has_data = bool(alive and health.get("ok") is True)
+    if has_data:
+        rep.add("health", True, "HTTP %s chunks=%s" % (status, health.get("chunks")))
+    else:
+        reason = (health or {}).get("reason") if isinstance(health, dict) else None
+        detail = "HTTP %s reason=%s" % (status, reason or "unknown")
+        if args.require_data:
+            rep.add("health", False, detail + " (--require-data)")
+        else:
+            rep.add("health", alive, detail + " — 服务在跑，但还没有 RAG 数据库")
+        print("     hint: %s" % ((health or {}).get("hint", "")))
+        if not args.require_data:
+            print("SKIP 数据相关检查（无索引）")
+            return 0 if rep.ok else 1
 
     status, search = request(args.base, "/v1/search?" + urllib.parse.urlencode(
         {"q": args.query, "limit": 3}), args.token)

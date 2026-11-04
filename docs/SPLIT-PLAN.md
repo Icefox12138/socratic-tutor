@@ -78,9 +78,9 @@
 
 | # | 改动 | 理由 | 验收 |
 |---|---|---|---|
-| 1 | `/health` 在库不可用时返回 **200 + `{"ok":false,"reason":"no_index"}`** | "用户还没建库"是正常初态 | 停用 DB 后 health 不 503 |
-| 2 | `toc` 读取来源可配置（`state.db` 或 `search.db`） | 章回索引属于数据 | 两种来源都能出 `/v1/toc` |
-| 3 | `config.DATA` 默认值改为"必须由用户指定或缺失即可" | 仓库不再自带数据 | 无 `data/` 时服务能起 |
+| 1 | `/health` 在库不可用时返回 **200 + `{"ok":false,"reason":"no_index"}`** | ✅ 已完成 | 无库时 contract_check 打 SKIP 而非 FAIL |
+| 2 | `toc` 读取来源可配置（`state.db` 或 `search.db`） | ✅ 已完成（`SOCRATIC_TOC_IN` / `SOCRATIC_TOC_DB`） | 两种来源都能出 `/v1/toc` |
+| 3 | `config.DATA` 不再回退到 `eval/` | ✅ 已完成 | 无 `data/` 时服务能起，且不会误读旧管线 |
 | 4 | README/三个包的说明加前置条件 | 对外承诺变准 | 三处文案一致 |
 
 ## 5. 新工程形态（私有、无 git）

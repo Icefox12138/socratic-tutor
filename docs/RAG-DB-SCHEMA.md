@@ -113,12 +113,15 @@ CREATE TABLE toc (
 | 库存在但为空 | `/health` 显示 `chunks: 0`；检索返回空结果，**不是错误** |
 | 库文件不存在 | `/health` 应报告 `no_index`（见 §6 迁移项），服务不崩 |
 
-## 6. 拆分前必须完成的两处代码改动
+## 6. 拆分前必须完成的两处代码改动（**已完成**，2026-11-04）
 
-| 改动 | 原因 |
-|---|---|
-| `/health` 在 DB 不可用时返回 **200 + `{"ok": false, "reason": "no_index"}`**，而不是 503 | 拆分后"用户还没建库"是正常初态 |
-| `toc` 的读取来源可配置（`state.db` / `search.db`） | 章回索引属于**数据**，不应只存在于运行时库 |
+| 改动 | 状态 | 实现 |
+|---|---|---|
+| `/health` 在 DB 不可用时返回 **200 + `{"ok": false, "reason": "no_index"}`** | ✅ | `main.health()` 捕获后返回 200；`/v1/search` 返回 503 + `{"code": "no_index"}` |
+| `toc` 的读取来源可配置 | ✅ | `SOCRATIC_TOC_IN=state\|search` 或 `SOCRATIC_TOC_DB=<path>`，见 `config.toc_db()` |
+
+副作用：`scripts/contract_check.py` 现在把"无索引"视为**可接受状态**（打印 SKIP 并继续检查服务面），
+需要强制要求数据时加 `--require-data`。
 
 ## 7. 自检清单
 

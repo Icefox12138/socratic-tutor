@@ -23,15 +23,11 @@ LIBRARY = os.environ.get("SOCRATIC_LIBRARY", _first_existing(
 ))
 # Derived data must live where the process can write: SQLite creates journal and
 # WAL files next to the database, so a read-only library directory cannot hold it.
-DATA = os.environ.get("SOCRATIC_DATA", _first_existing(
-    os.path.join(ROOT, "socratic-tutor", "data"),
-    os.path.join(ROOT, "socratic-tutor", "eval"),
-))
+# There is deliberately no fallback to eval/: that directory was the old ingestion
+# pipeline and now belongs to a separate project.
+DATA = os.environ.get("SOCRATIC_DATA", os.path.join(ROOT, "socratic-tutor", "data"))
 
-DB = os.environ.get("SOCRATIC_DB", _first_existing(
-    os.path.join(DATA, "indexes", "search.db"),
-    os.path.join(ROOT, "socratic-tutor", "eval", "p1", "ingest", "search.db"),
-))
+DB = os.environ.get("SOCRATIC_DB", os.path.join(DATA, "indexes", "search.db"))
 CACHE = os.environ.get(
     "SOCRATIC_CACHE",
     os.path.join(ROOT, "socratic-tutor", "sidecar", "cache", "pages"),
@@ -48,16 +44,25 @@ BGE_MODEL = os.environ.get("SOCRATIC_BGE_MODEL", os.path.join(ROOT, "models", "b
 RERANK_MODEL = os.environ.get(
     "SOCRATIC_RERANK_MODEL", os.path.join(ROOT, "models", "bge-reranker-v2-m3")
 )
-BGE_VECTORS = os.environ.get("SOCRATIC_BGE_VECTORS", _first_existing(
-    os.path.join(DATA, "vectors", "bge-vectors.npy"),
-    os.path.join(ROOT, "socratic-tutor", "eval", "p1", "bge", "bge-vectors.npy"),
-))
-BGE_IDS = os.environ.get("SOCRATIC_BGE_IDS", _first_existing(
-    os.path.join(DATA, "vectors", "bge-ids.npy"),
-    os.path.join(ROOT, "socratic-tutor", "eval", "p1", "bge", "bge-ids.npy"),
-))
+BGE_VECTORS = os.environ.get("SOCRATIC_BGE_VECTORS",
+                             os.path.join(DATA, "vectors", "bge-vectors.npy"))
+BGE_IDS = os.environ.get("SOCRATIC_BGE_IDS",
+                         os.path.join(DATA, "vectors", "bge-ids.npy"))
 RERANK_TOPK = int(os.environ.get("SOCRATIC_RERANK_TOPK", "50"))
 STATE_DB = os.environ.get(
     "SOCRATIC_STATE_DB",
     os.path.join(ROOT, "socratic-tutor", "sidecar", "state.db"),
 )
+
+# The chapter index is data, not runtime state. SOCRATIC_TOC_IN=search reads it
+# from the RAG database; the default keeps it in state.db for compatibility.
+# Resolution stays dynamic so tests (and callers) can repoint STATE_DB at runtime.
+TOC_IN = os.environ.get("SOCRATIC_TOC_IN", "state").lower()
+TOC_DB_OVERRIDE = os.environ.get("SOCRATIC_TOC_DB") or None
+
+
+def toc_db():
+    """Which SQLite file holds the chapter index."""
+    if TOC_DB_OVERRIDE:
+        return TOC_DB_OVERRIDE
+    return DB if TOC_IN == "search" else STATE_DB

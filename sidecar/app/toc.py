@@ -27,7 +27,8 @@ except ImportError:  # running from a checkout without the package installed
 
 
 def _conn(path=None):
-    con = sqlite3.connect(path or config.STATE_DB)
+    # Chapter rows are data, so they may live in the RAG database (config.toc_db())
+    con = sqlite3.connect(path or config.toc_db())
     con.execute(
         "CREATE TABLE IF NOT EXISTS toc ("
         "source TEXT, book TEXT, ord INTEGER, level INTEGER, title TEXT,"
