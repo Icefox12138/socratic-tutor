@@ -17,6 +17,16 @@
       "author": "Icefox12138",
       "versions": [
         {
+          "version": "0.2.1",
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.2 <0.3.0-0"
+          },
+          "publishTimestamp": 1793764122
+        },
+        {
           "version": "0.2.0",
           "source": {
             "type": "npm"
