@@ -56,7 +56,48 @@ def health():
             "vectors": config.BGE_VECTORS, "ids": config.BGE_IDS,
             "toc": config.toc_db(),
             "chunks": total, "tutor": tutor, "answer_key": secret,
+            "render": config.render_status(),
             "bge": bge_status(), **policy.health()}
+
+
+_NORM = None
+
+
+def _norm(text):
+    """Strip everything that OCR or a human might render differently."""
+    global _NORM
+    if _NORM is None:
+        import re as _re
+        _NORM = _re.compile(r"[^\w\u4e00-\u9fff]+", _re.UNICODE)
+    return _NORM.sub("", (text or "").lower())
+
+
+def verify(book, page, quote, source=None):
+    """Does `quote` appear in the stored text of that page?
+
+    Deliberately independent of rendering: it answers the citation question
+    from the index alone.
+    """
+    sql = ("SELECT text FROM chunks WHERE book = ? AND page = ? "
+           "AND visibility = 'tutor'")
+    params = [book, page]
+    if source:
+        sql += " AND source = ?"
+        params.append(source)
+    con = _connect()
+    try:
+        rows = con.execute(sql, params).fetchall()
+    finally:
+        con.close()
+    page_text = _norm("".join(r["text"] for r in rows))
+    needle = _norm(quote)
+    if not page_text:
+        return {"verified": False, "method": "text", "page": page,
+                "reason": "no text indexed for that page", "chunks": 0}
+    ok = needle in page_text if needle else False
+    return {"verified": ok, "method": "text", "page": page,
+            "chunks": len(rows),
+            "reason": "" if ok else "quote not found on that page"}
 
 
 def bge_status():
@@ -195,7 +236,10 @@ def _fts_rows(query, view, limit, source, lang, book=None, pages=None):
 
 
 def _row_result(row, score):
-    image = f"/v1/pages?source={quote(row['source'])}&book={quote(row['book'])}&page={row['page']}"
+    image = None
+    if config.render_enabled():
+        image = (f"/v1/pages?source={quote(row['source'])}"
+                 f"&book={quote(row['book'])}&page={row['page']}")
     score = round(float(score), 4)
     # Community-compatible aliases (RAGFlow/Onyx style) next to the native
     # fields: document_id / similarity / positions. bbox is null because chunks
@@ -359,7 +403,11 @@ def search(query: str, view: str = "student", limit: int = 8,
             }], turn=turn, step=step, call_id=call_id)
         return payload
 
-    key = (query, vis, limit, source, lang, book, pages, config.BGE)
+    # render mode belongs in the key: the same query returns citations with or
+    # without a page image depending on it, and the cache must not leak one mode
+    # into the other.
+    key = (query, vis, limit, source, lang, book, pages, config.BGE,
+           config.render_enabled())
     hit = _cache_get(key)
     if hit is not None:
         _cite(hit, session_id, turn, step, call_id)

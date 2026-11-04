@@ -99,6 +99,26 @@ def ui():
     return FileResponse(p, media_type="text/html")
 
 
+@app.get("/v1/verify", dependencies=[Depends(require_token)])
+def v1_verify(
+    book: str = Query(..., min_length=1),
+    page: int = Query(..., ge=1),
+    quote: str = Query(..., min_length=1, max_length=400),
+    source: Optional[str] = None,
+):
+    """Check a quotation against the stored text of one page.
+
+    Works without PDFs or PDFium: it answers "does this string appear on that
+    page in the index", which catches fabricated or misplaced citations even
+    when page images are unavailable.
+    """
+    try:
+        return search.verify(book=book, page=page, quote=quote, source=source)
+    except Exception as e:
+        raise HTTPException(status_code=503,
+                            detail={"code": "no_index", "detail": str(e)[:200]})
+
+
 @app.get("/v1/search", dependencies=[Depends(require_token)])
 def v1_search(
     q: str = Query(..., min_length=1, max_length=200),
@@ -170,6 +190,12 @@ def v1_pages(
     dpi: int = Query(150, ge=72, le=300),
     bbox: Optional[str] = None,
 ):
+    if not config.render_enabled():
+        raise HTTPException(status_code=501, detail={
+            "code": "page_rendering_disabled",
+            "detail": "SOCRATIC_RENDER=off (or the library/PDFium is missing); "
+                      "citations carry a locator but no page image",
+        })
     box = None
     if bbox:
         try:

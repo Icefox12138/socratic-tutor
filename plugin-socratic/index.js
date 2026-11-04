@@ -329,18 +329,30 @@ export function apply(ctx, config) {
 
   ctx.tools.register(tool(
     "cite_verify",
-    "核验引用：按 source/book/page 取页图，返回状态与字节数；S 级引用必须核验。",
+    "核验引用。给 quote 时按页内文本比对（不需要 PDF，纯文本模式也能用）；" +
+      "不给 quote 时取页图核对（渲染关闭时返回 page_rendering_disabled）。",
     {
       type: "object",
       properties: {
         source: { type: "string" },
         book: { type: "string" },
         page: { type: "integer", minimum: 1 },
+        quote: { type: "string", maxLength: 400 },
         dpi: { type: "integer", minimum: 72, maximum: 300 },
       },
       required: ["source", "book", "page"],
     },
     async (args, exec) => {
+      if (args.quote) {
+        const q = new URLSearchParams({
+          book: String(args.book),
+          page: String(args.page),
+          quote: String(args.quote),
+        });
+        if (args.source) q.set("source", String(args.source));
+        return JSON.stringify(await call(config, "/v1/verify?" + q.toString(),
+          { signal: exec?.signal }));
+      }
       const q = new URLSearchParams({
         source: String(args.source),
         book: String(args.book),

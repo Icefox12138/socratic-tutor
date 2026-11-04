@@ -57,6 +57,40 @@ STATE_DB = os.environ.get(
 # The chapter index is data, not runtime state. SOCRATIC_TOC_IN=search reads it
 # from the RAG database; the default keeps it in state.db for compatibility.
 # Resolution stays dynamic so tests (and callers) can repoint STATE_DB at runtime.
+# Page rendering is optional: a deployment that keeps only text + vectors does
+# not need PDFium or the PDFs themselves.
+RENDER = os.environ.get("SOCRATIC_RENDER", "auto").lower()   # auto | on | off
+
+
+def _pdfium_available():
+    import importlib.util
+    return importlib.util.find_spec("pypdfium2") is not None
+
+
+def render_enabled():
+    """Whether /v1/pages can actually render.
+
+    auto: on when the library directory exists and PDFium imports.
+    on:   required — a missing dependency is the operator's problem, surfaced early.
+    off:  text-only deployment; page images are simply absent.
+    """
+    if RENDER == "on":
+        return True
+    if RENDER == "off":
+        return False
+    return os.path.isdir(os.path.join(LIBRARY, "PDF")) and _pdfium_available()
+
+
+def render_status():
+    if RENDER == "off":
+        return "off"
+    if not _pdfium_available():
+        return "missing: pypdfium2 not installed"
+    if RENDER == "auto" and not os.path.isdir(os.path.join(LIBRARY, "PDF")):
+        return "off: no library directory at " + os.path.join(LIBRARY, "PDF")
+    return "on"
+
+
 TOC_IN = os.environ.get("SOCRATIC_TOC_IN", "state").lower()
 TOC_DB_OVERRIDE = os.environ.get("SOCRATIC_TOC_DB") or None
 

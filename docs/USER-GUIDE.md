@@ -79,6 +79,29 @@ curl http://127.0.0.1:8765/health
 
 浏览器界面：<http://127.0.0.1:8765/ui>（可加 `?q=关键词` 直接检索）。
 
+### 4.1 纯文本模式（不保留 PDF）
+
+如果你已经彻底向量化、不打算保留 PDF，可以关掉页图渲染：
+
+```powershell
+$env:SOCRATIC_RENDER='off'     # auto（默认）/ on / off
+```
+
+| 模式 | 行为 |
+|---|---|
+| `auto` | 有书库目录且装了 pypdfium2 → 开；否则关 |
+| `on` | 强制开；缺依赖会尽早暴露 |
+| `off` | `/v1/pages` 返回 501 `{"code": "page_rendering_disabled"}`，citation 的 `page_image` 为 `null` |
+
+关掉渲染后，引用核验仍然可用——改用**页内文本比对**：
+
+```bash
+GET /v1/verify?book=<书名>&page=73&quote=随机过程
+# {"verified": true, "method": "text", "page": 73, "chunks": 4}
+```
+
+它检查"这句话是否真的出现在该页的索引文本里"，能抓住编造与错页，但看不到原页影像。
+
 ## 5. 接入 Agent
 
 ### 5.1 DSH 插件
@@ -121,7 +144,7 @@ pip install socratic-mcp
 | `kb_search` | 检索并返回 citation + 页图 URL；可带 `book` / `chapter` 收窄 |
 | `kb_read` | 按 chunk id 读原文 |
 | `chapter_lookup` | 「卷3」「第7回」或标题片段 → 页码范围；给 page 则反查章回 |
-| `cite_verify` | 校验某个引用是否真存在于该页 |
+| `cite_verify` | 校验引用：给 `quote` 走页内文本比对（纯文本模式可用）；不给则取页图 |
 | `compute_math` | SymPy 校验（不是口算） |
 | `ptc_calc` | 沙箱里执行计算代码 |
 | `review_session` | 冻结会话并复盘：结论判定、错误分类、练习 |
@@ -161,6 +184,7 @@ pip install socratic-mcp
 | `SOCRATIC_CACHE` | `sidecar/cache/pages` | 页图缓存 |
 | `SOCRATIC_TOKEN` / `_REQUIRE_AUTH` | 空 / `0` | 鉴权（两种头都收：`Authorization: Bearer` 与 `X-Sidecar-Token`） |
 | `SOCRATIC_STATE_DB` | `sidecar/state.db` | 会话/复盘/章回状态 |
+| `SOCRATIC_RENDER` | `auto` | `auto` / `on` / `off`：是否渲染页图，见 §4.1 |
 
 ## 8. 排查
 

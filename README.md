@@ -16,7 +16,7 @@
 
 Textbook chatbots answer from memory and cite nothing. For someone reading scanned editions — a punctuated `史記`, a Loeb volume, a 19th-century physics treatise — an answer you cannot check against the page is worthless, and a fabricated citation is worse than no citation.
 
-So the constraint here is inverted: **every claim must carry a locator (`book p.N`) that resolves to a rendered page image**, and the retrieval layer is checked on whether that locator actually contains the text it claims. When the system cannot ground an answer, it is designed to say so rather than to improvise.
+So the constraint here is inverted: **every claim must carry a locator (`book p.N`)**. With rendering enabled (the default) that locator resolves to a page image you can open; with `SOCRATIC_RENDER=off` it resolves to the indexed text of that page. Either way the citation is checkable, and the retrieval layer is verified against whether that page actually contains the text it claims. When the system cannot ground an answer, it is designed to say so rather than to improvise.
 
 ## What's in the box
 

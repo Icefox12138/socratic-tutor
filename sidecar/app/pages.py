@@ -6,9 +6,19 @@ repository can stay MIT.
 import hashlib
 import os
 
-import pypdfium2 as pdfium
-
 from . import config
+
+
+class RendererUnavailable(RuntimeError):
+    """Page rendering is switched off, or pypdfium2 is not installed."""
+
+
+def _pdfium():
+    try:
+        import pypdfium2
+    except ImportError as e:      # pragma: no cover - depends on the install
+        raise RendererUnavailable("pypdfium2 is not installed: %s" % e)
+    return pypdfium2
 
 CACHE_CAP = 2 * 1024 ** 3
 ROOTS = {
@@ -77,7 +87,7 @@ def count(source: str, book: str) -> int:
     if source not in ROOTS:
         raise ValueError("unknown source")
     path = resolve(source, book)
-    doc = pdfium.PdfDocument(path)
+    doc = _pdfium().PdfDocument(path)
     try:
         _COUNTS[key] = len(doc)
     finally:
@@ -100,7 +110,7 @@ def render(source: str, book: str, page: int, dpi: int = 150, bbox=None) -> byte
             return fh.read()
 
     os.makedirs(config.CACHE, exist_ok=True)
-    doc = pdfium.PdfDocument(path)
+    doc = _pdfium().PdfDocument(path)
     try:
         total = len(doc)
         if not (1 <= page <= total):

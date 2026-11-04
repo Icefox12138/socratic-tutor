@@ -107,6 +107,16 @@ CREATE TABLE toc (
 `level`：1 = 卷/篇，2 = 篇/回（与 `classics-index` 的输出一致）。
 `ord`：同书内递增，从 0 开始。
 
+## 4b. 引用形状与渲染开关
+
+`citation.page_image` 在两处条件下为 `null`（而不是字符串）：
+
+- `SOCRATIC_RENDER=off`；
+- `auto` 模式下没有书库目录或没装 pypdfium2。
+
+此时 `citation.locator` 仍然存在，核验改走 `/v1/verify`（页内文本比对）。
+契约要求的是 **locator 必须可核验**，页图是"渲染可用时的增强"。
+
 ## 5. 最小可用与降级
 
 | 提供情况 | sidecar 行为 |
