@@ -11,9 +11,17 @@ per package; dates are release dates, not commit dates.
 
 ## classics-index
 
+### 0.1.3 — 2026-11-04
+- README: states that this package is the build-time dependency of the separate
+  private ingestion project, and that ingestion code does not live here.
+
 ### 0.1.2 — 2026-11-04
 - The optional `ocr` extra no longer pulls PyMuPDF (AGPL); OCR helpers use
   `paddleocr` + `pillow` only. Keyword list follows.
+
+### 0.1.2 — 2026-11-04
+- README: the prerequisite is a database that satisfies `docs/RAG-DB-SCHEMA.md`;
+  ingestion is not part of this repository.
 
 ### 0.1.1 — 2026-11-04
 - Metadata only: `Homepage` / `Repository` / `Issues` now point at this repository
@@ -37,6 +45,10 @@ per package; dates are release dates, not commit dates.
   a dropped connection.
 
 ## dsh-socratic
+
+### 0.2.3 — 2026-11-04
+- README: prerequisite is a RAG database built elsewhere; a missing index yields
+  `no_index` tool results instead of a crash.
 
 ### 0.2.2 — 2026-11-04
 - Metadata: `author` added.

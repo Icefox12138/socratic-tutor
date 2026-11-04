@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "socratic-mcp"
-version = "0.1.1"
+version = "0.1.2"
 description = "MCP server exposing a Socratic sidecar (kb_search, chapters, review) to any agent host"
 readme = "README.md"
 requires-python = ">=3.10"

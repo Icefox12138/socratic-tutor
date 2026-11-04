@@ -17,6 +17,13 @@ SOCRATIC_SIDECAR_URL=http://127.0.0.1:8765 python -m socratic_mcp.server
 | `socratic_state` | 读教学状态机 |
 | `socratic_health` | sidecar 是否可达 + 索引统计 |
 
+## 前置：一个符合契约的数据库
+
+sidecar 读的库不属于本仓库，需按
+[`docs/RAG-DB-SCHEMA.md`](https://github.com/Icefox12138/socratic-tutor/blob/main/docs/RAG-DB-SCHEMA.md)
+自行构建（或取得）。没有库时服务仍能启动，`/health` 返回
+`{"ok": false, "reason": "no_index"}`，工具会得到 `no_index` 而不是崩掉。
+
 ## 配置
 
 | 环境变量 | 默认 | 说明 |

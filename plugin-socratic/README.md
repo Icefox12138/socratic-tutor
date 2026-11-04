@@ -5,7 +5,10 @@
 
 ## 前置
 
-1. sidecar 已启动：`http://127.0.0.1:8765`
+1. **一个符合契约的 RAG 数据库**：库由使用者自建，格式见
+   [`docs/RAG-DB-SCHEMA.md`](https://github.com/Icefox12138/socratic-tutor/blob/main/docs/RAG-DB-SCHEMA.md)；
+   OCR/切块/向量化不在本仓库。没有库时工具会返回 `no_index`，不会崩。
+2. sidecar 已启动：`http://127.0.0.1:8765`
 2. DSH profile `tutor`（base + headless）
 
 ## 安装

@@ -1,6 +1,6 @@
 {
   "name": "dsh-socratic",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": false,
   "description": "Socratic tutor tools for DSH: cited retrieval, page images, chapter index, session review",
   "keywords": [

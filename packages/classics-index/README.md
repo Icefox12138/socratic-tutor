@@ -10,6 +10,9 @@ classics-index hui     --ocr hui.jsonl --names "1=西游记,2=水浒传" --out h
 classics-index find    --toc toc.json --q 卷3
 ```
 
+> **与数据管线的关系**：本包是私有工程 `rag-build`（OCR → 切块 → 向量 → RAG 数据库）的构建依赖。
+> 数据管线的代码不在 socratic-tutor 仓库里，本包可独立使用，也可被任何索引管线复用。
+
 ## 它解决什么问题
 
 点校本、影印本没有文本层，目录页也常常 OCR 不可用。但**每一页的页眉都印着卷次**（"史記卷二"）或回目（"灵根育孕源流出心性修持大道生"）。于是：
