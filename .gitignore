@@ -56,3 +56,7 @@ eval/p2/*/out/
 *.npy
 *.npz
 *.pdf
+
+# scratch dirs/files that tests used to leave behind
+tmp*/
+tmp_*.py

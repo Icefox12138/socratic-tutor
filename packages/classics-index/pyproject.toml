@@ -21,6 +21,11 @@ dependencies = []
 [project.optional-dependencies]
 ocr = ["paddleocr>=3", "pillow", "pymupdf"]
 
+[project.urls]
+Homepage = "https://github.com/Icefox12138/socratic-tutor/tree/main/packages/classics-index"
+Repository = "https://github.com/Icefox12138/socratic-tutor"
+Issues = "https://github.com/Icefox12138/socratic-tutor/issues"
+
 [project.scripts]
 classics-index = "classics_index.cli:main"
 

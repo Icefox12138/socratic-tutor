@@ -3,7 +3,13 @@
   "version": "0.2.0",
   "private": false,
   "description": "Socratic tutor tools for DSH: cited retrieval, page images, chapter index, session review",
-  "keywords": ["dsh-plugin", "tutor", "rag", "citations", "chinese-classics"],
+  "keywords": [
+    "dsh-plugin",
+    "tutor",
+    "rag",
+    "citations",
+    "chinese-classics"
+  ],
   "license": "MIT",
   "type": "module",
   "main": "index.js",
@@ -29,5 +35,14 @@
   },
   "engines": {
     "dsh": ">=0.2.1-rc.2 <0.3.0-0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Icefox12138/socratic-tutor.git",
+    "directory": "plugin-socratic"
+  },
+  "homepage": "https://github.com/Icefox12138/socratic-tutor/tree/main/plugin-socratic#readme",
+  "bugs": {
+    "url": "https://github.com/Icefox12138/socratic-tutor/issues"
   }
 }

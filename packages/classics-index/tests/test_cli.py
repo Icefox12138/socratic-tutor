@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import tempfile
 import unittest
 
@@ -11,7 +12,8 @@ EX = os.path.join(HERE, "examples")
 
 class TestCliOnExamples(unittest.TestCase):
     def test_volumes_and_pian_match_expected(self):
-        tmp = tempfile.mkdtemp()
+        tmp = tempfile.mkdtemp(dir=tempfile.gettempdir())
+        self.addCleanup(shutil.rmtree, tmp, True)
         toc = os.path.join(tmp, "toc.json")
         idx = os.path.join(tmp, "index.json")
         cli.main(["volumes", "--headers", os.path.join(EX, "demo-headers.jsonl"),
@@ -27,7 +29,8 @@ class TestCliOnExamples(unittest.TestCase):
             self.assertEqual(g["level"], w["level"])
 
     def test_find_and_at(self):
-        tmp = tempfile.mkdtemp()
+        tmp = tempfile.mkdtemp(dir=tempfile.gettempdir())
+        self.addCleanup(shutil.rmtree, tmp, True)
         toc = os.path.join(tmp, "toc.json")
         cli.main(["volumes", "--headers", os.path.join(EX, "demo-headers.jsonl"), "--out", toc])
         rows = json.load(open(toc, encoding="utf-8"))["chapters"]

@@ -18,6 +18,11 @@ classifiers = [
 license = { text = "MIT" }
 dependencies = []
 
+[project.urls]
+Homepage = "https://github.com/Icefox12138/socratic-tutor/tree/main/packages/socratic-mcp"
+Repository = "https://github.com/Icefox12138/socratic-tutor"
+Issues = "https://github.com/Icefox12138/socratic-tutor/issues"
+
 [project.scripts]
 socratic-mcp = "socratic_mcp.server:main"
 

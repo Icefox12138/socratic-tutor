@@ -45,7 +45,7 @@ These five images are **generated**, not scanned: see `eval/p3/make_sample_pages
 ### Run the demo corpus (no books needed)
 
 ```bash
-git clone <repo-url> socratic-tutor && cd socratic-tutor
+git clone https://github.com/Icefox12138/socratic-tutor.git && cd socratic-tutor
 python eval/p3/make_demo_corpus.py          # builds a 5-page synthetic book + index
 
 SOCRATIC_ROOT="$PWD/samples" \
