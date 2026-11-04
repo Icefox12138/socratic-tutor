@@ -39,6 +39,7 @@
 | [P3-1-review.md](P3-1-review.md) | 复盘 v1：逐条判定、8 类错误、归因、复练（86.7%） |
 | [P3-6-chapter-retrieval.md](P3-6-chapter-retrieval.md) | 检索接入章回：`book`+`chapter`、扫描本回页图 |
 | [OPEN-SOURCE.md](OPEN-SOURCE.md) | 开源价值评估：哪些代码可发布、哪些不能 |
+| [USER-GUIDE.md](USER-GUIDE.md) | **安装与使用说明**：装包、起服务、接 Agent、排查 |
 | [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md) | **数据库契约**：自建 RAG 库的形状 |
 | [SPLIT-PLAN.md](SPLIT-PLAN.md) | 拆分计划：运行时 / 数据工程、docs 归属 |
 | [SIDECAR-CONTRACT.md](SIDECAR-CONTRACT.md) | 插件 ↔ sidecar 的 9 组端点契约与降级规则 |
