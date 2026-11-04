@@ -1,0 +1,57 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  packages:
+    name: packages (py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: classics-index
+        working-directory: packages/classics-index
+        run: python -m unittest discover -s tests -p "test_*.py" -t .
+      - name: socratic-mcp
+        working-directory: packages/socratic-mcp
+        run: python -m unittest discover -s tests -p "test_*.py" -t .
+      - name: publish lint
+        run: python scripts/publish_lint.py
+
+  sidecar:
+    name: sidecar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e packages/classics-index
+      - run: pip install fastapi pydantic pymupdf sympy
+      - name: tests
+        working-directory: sidecar
+        env:
+          SOCRATIC_BGE: "0"
+        run: python -m unittest discover -s tests -p "test_*.py"
+
+  plugin:
+    name: dsh-socratic plugin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: contract tests
+        working-directory: plugin-socratic
+        run: node --test test/plugin.test.mjs
+      - name: syntax check
+        working-directory: plugin-socratic
+        run: node --check index.js && node --check client.js && node --check lib/transport.js

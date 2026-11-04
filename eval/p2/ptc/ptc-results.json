@@ -1,0 +1,131 @@
+{
+ "tasks": 10,
+ "correct": 10,
+ "avg_direct_ms": 21,
+ "avg_ptc_ms": 5,
+ "escapes": [
+  {
+   "code": "process.exit(1)",
+   "ok": false,
+   "error": "banned construct: /\\bprocess\\b/"
+  },
+  {
+   "code": "require('fs')",
+   "ok": false,
+   "error": "banned construct: /\\brequire\\s*\\(/"
+  },
+  {
+   "code": "await fetch('http://example.com')",
+   "ok": false,
+   "error": "banned construct: /\\bfetch\\s*\\(/"
+  },
+  {
+   "code": "globalThis.process",
+   "ok": false,
+   "error": "banned construct: /\\bprocess\\b/"
+  },
+  {
+   "code": "Function('return process')()",
+   "ok": false,
+   "error": "banned construct: /\\bprocess\\b/"
+  },
+  {
+   "code": "while(true){}",
+   "ok": false,
+   "error": "Script execution timed out after 8000ms"
+  }
+ ],
+ "escape_ok": 0,
+ "rows": [
+  {
+   "name": "diff",
+   "direct": "3*x**2",
+   "ptc": "3*x**2",
+   "same": true,
+   "direct_ms": 36,
+   "ptc_ms": 5,
+   "ptc_calls": 1
+  },
+  {
+   "name": "integrate",
+   "direct": "x**3/3",
+   "ptc": "x**3/3",
+   "same": true,
+   "direct_ms": 5,
+   "ptc_ms": 4,
+   "ptc_calls": 1
+  },
+  {
+   "name": "solve",
+   "direct": "[-2, 2]",
+   "ptc": "[-2, 2]",
+   "same": true,
+   "direct_ms": 5,
+   "ptc_ms": 4,
+   "ptc_calls": 1
+  },
+  {
+   "name": "limit",
+   "direct": "1",
+   "ptc": "1",
+   "same": true,
+   "direct_ms": 4,
+   "ptc_ms": 4,
+   "ptc_calls": 1
+  },
+  {
+   "name": "simplify",
+   "direct": "x + 1",
+   "ptc": "x + 1",
+   "same": true,
+   "direct_ms": 128,
+   "ptc_ms": 7,
+   "ptc_calls": 1
+  },
+  {
+   "name": "diff+value",
+   "direct": "2.0*x",
+   "ptc": "2.0*x",
+   "same": true,
+   "direct_ms": 6,
+   "ptc_ms": 5,
+   "ptc_calls": 2
+  },
+  {
+   "name": "integrate+diff",
+   "direct": "2*x",
+   "ptc": "2*x",
+   "same": true,
+   "direct_ms": 4,
+   "ptc_ms": 4,
+   "ptc_calls": 2
+  },
+  {
+   "name": "solve-linear",
+   "direct": "[2]",
+   "ptc": "[2]",
+   "same": true,
+   "direct_ms": 2,
+   "ptc_ms": 3,
+   "ptc_calls": 1
+  },
+  {
+   "name": "identity",
+   "direct": "1",
+   "ptc": "1",
+   "same": true,
+   "direct_ms": 16,
+   "ptc_ms": 11,
+   "ptc_calls": 1
+  },
+  {
+   "name": "latex",
+   "direct": "x**2 + 1",
+   "ptc": "x**2 + 1",
+   "same": true,
+   "direct_ms": 2,
+   "ptc_ms": 2,
+   "ptc_calls": 1
+  }
+ ]
+}

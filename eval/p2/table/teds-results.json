@@ -1,0 +1,134 @@
+{
+ "cases": [
+  {
+   "case": "B4_p337",
+   "page": 337,
+   "doc": "B4",
+   "text_scored": true,
+   "note": "9 行 6 列统计表；ODL 把整列数据并进一行",
+   "gold_nodes": 71,
+   "gold_rows": 10,
+   "gold_cols": 6,
+   "odl": {
+    "teds": 0.1386,
+    "teds_struct": 0.2113,
+    "index": 0,
+    "tables": 1,
+    "nodes": 15,
+    "rows": 2,
+    "cols": 6,
+    "shape": "2x6"
+   },
+   "pymupdf": {
+    "teds": 0.4653,
+    "teds_struct": 0.4931,
+    "index": 0,
+    "tables": 1,
+    "nodes": 144,
+    "rows": 11,
+    "cols": 12,
+    "shape": "11x12"
+   }
+  },
+  {
+   "case": "B4_p780",
+   "page": 780,
+   "doc": "B4",
+   "text_scored": true,
+   "note": "两级表头（1864/1865 年各 2 列）+ 9 行",
+   "gold_nodes": 65,
+   "gold_rows": 11,
+   "gold_cols": 5,
+   "odl": {
+    "teds": 0.1835,
+    "teds_struct": 0.2462,
+    "index": 0,
+    "tables": 1,
+    "nodes": 16,
+    "rows": 3,
+    "cols": 5,
+    "shape": "3x5"
+   },
+   "pymupdf": {
+    "teds": 0.4767,
+    "teds_struct": 0.4887,
+    "index": 0,
+    "tables": 1,
+    "nodes": 133,
+    "rows": 12,
+    "cols": 10,
+    "shape": "12x10"
+   }
+  },
+  {
+   "case": "B4_p777",
+   "page": 777,
+   "doc": "B4",
+   "text_scored": true,
+   "note": "同页 3 表，金标取中间 3x4（马/牛/羊/猪）",
+   "gold_nodes": 16,
+   "gold_rows": 3,
+   "gold_cols": 4,
+   "odl": {
+    "teds": 0.9896,
+    "teds_struct": 1.0,
+    "index": 1,
+    "tables": 3,
+    "nodes": 16,
+    "rows": 3,
+    "cols": 4,
+    "shape": "3x4"
+   },
+   "pymupdf": {
+    "teds": 0.64,
+    "teds_struct": 0.64,
+    "index": 1,
+    "tables": 3,
+    "nodes": 25,
+    "rows": 3,
+    "cols": 7,
+    "shape": "3x7"
+   }
+  },
+  {
+   "case": "A1_p612",
+   "page": 612,
+   "doc": "A1",
+   "text_scored": false,
+   "note": "5x2 公式表；单元格是多行公式，文本不可逐字重建",
+   "gold_nodes": 16,
+   "gold_rows": 5,
+   "gold_cols": 2,
+   "odl": {
+    "teds": 1.0,
+    "teds_struct": 1.0,
+    "index": 0,
+    "tables": 1,
+    "nodes": 16,
+    "rows": 5,
+    "cols": 2,
+    "shape": "5x2"
+   },
+   "pymupdf": {
+    "teds": 0.9853,
+    "teds_struct": 1.0,
+    "index": 0,
+    "tables": 1,
+    "nodes": 16,
+    "rows": 5,
+    "cols": 2,
+    "shape": "5x2"
+   }
+  }
+ ],
+ "mean_teds_struct_all": {
+  "odl": 0.6144,
+  "pymupdf": 0.6554
+ },
+ "mean_teds_text_scored": {
+  "odl": 0.4372,
+  "pymupdf": 0.5273
+ },
+ "n_cases": 4,
+ "n_text_scored": 3
+}

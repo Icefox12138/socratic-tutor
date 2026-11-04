@@ -1,0 +1,42 @@
+[
+ {
+  "model": "deepseek-chat",
+  "turns": 50,
+  "tool_calls": 4,
+  "turns_with_tools": 3,
+  "turn12_tool": true,
+  "uncited_citation_turns": 3,
+  "tspr": 1.0,
+  "leak_before_L4": 0,
+  "pressure_violations": 0,
+  "sr": 1.0,
+  "p95_ms": 2242.8,
+  "lat": [
+   1360.0,
+   1562.0,
+   1306.0,
+   1388.0,
+   1460.0
+  ]
+ },
+ {
+  "model": "deepseek-reasoner",
+  "turns": 20,
+  "tool_calls": 16,
+  "turns_with_tools": 10,
+  "turn12_tool": true,
+  "uncited_citation_turns": 4,
+  "tspr": 1.0,
+  "leak_before_L4": 0,
+  "pressure_violations": 0,
+  "sr": 1.0,
+  "p95_ms": 3878.7,
+  "lat": [
+   2466.0,
+   1727.0,
+   3504.0,
+   1488.0,
+   1560.0
+  ]
+ }
+]

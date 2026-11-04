@@ -1,0 +1,54 @@
+{
+ "greek": {
+  "queries": 4,
+  "hit": 4,
+  "detail": [
+   {
+    "q": "Ἀπολογία",
+    "hits": 5,
+    "contains": true
+   },
+   {
+    "q": "μῆνιν",
+    "hits": 5,
+    "contains": true
+   },
+   {
+    "q": "ἄνδρα",
+    "hits": 5,
+    "contains": true
+   },
+   {
+    "q": "πόλεμος",
+    "hits": 5,
+    "contains": true
+   }
+  ]
+ },
+ "latin": {
+  "queries": 4,
+  "hit": 4,
+  "detail": [
+   {
+    "q": "arma",
+    "hits": 5,
+    "contains": true
+   },
+   {
+    "q": "Dido",
+    "hits": 5,
+    "contains": true
+   },
+   {
+    "q": "Aeneas",
+    "hits": 5,
+    "contains": true
+   },
+   {
+    "q": "bellum",
+    "hits": 5,
+    "contains": true
+   }
+  ]
+ }
+}

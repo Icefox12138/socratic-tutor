@@ -1,0 +1,33 @@
+{
+  "name": "dsh-socratic",
+  "version": "0.2.0",
+  "private": false,
+  "description": "Socratic tutor tools for DSH: cited retrieval, page images, chapter index, session review",
+  "keywords": ["dsh-plugin", "tutor", "rag", "citations", "chinese-classics"],
+  "license": "MIT",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "client.js",
+    "ptc.js",
+    "lib/",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "engines": {
+    "dsh": ">=0.2.1-rc.2 <0.3.0-0"
+  }
+}

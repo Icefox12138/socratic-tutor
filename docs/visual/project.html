@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>苏格拉底教学 Agent · 项目全景（v2.12）</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --card:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#e3e8f0;
+    --indigo:#4f46e5; --indigo-soft:#eef2ff; --emerald:#059669; --emerald-soft:#ecfdf5;
+    --amber:#b45309; --amber-soft:#fffbeb; --rose:#be123c; --rose-soft:#fff1f2;
+    --slate:#334155; --shadow:0 10px 30px rgba(23,32,51,.07);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+    line-height:1.65}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+  header.hero{padding:56px 0 34px;background:
+    radial-gradient(900px 320px at 12% 0%, #e0e7ff 0%, transparent 60%),
+    radial-gradient(700px 300px at 92% 10%, #d1fae5 0%, transparent 55%);
+    border-bottom:1px solid var(--line)}
+  .eyebrow{font-size:13px;letter-spacing:.14em;color:var(--indigo);font-weight:700;text-transform:uppercase}
+  h1{font-size:clamp(28px,4vw,46px);line-height:1.2;margin:10px 0 12px;letter-spacing:-.02em}
+  .sub{font-size:17px;color:var(--muted);max-width:820px}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .badge{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;
+    font-size:13px;font-weight:700;border:1px solid var(--line);background:#fff}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--emerald)}
+  nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.9);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;gap:6px;overflow-x:auto;padding-top:8px;padding-bottom:8px}
+  nav a{white-space:nowrap;font-size:14px;color:var(--muted);padding:7px 12px;border-radius:9px}
+  nav a:hover{background:var(--indigo-soft);color:var(--indigo)}
+  nav a.active{background:var(--indigo);color:#fff}
+  main{padding:34px 0 70px}
+  section{margin:0 0 52px;scroll-margin-top:70px}
+  h2{font-size:25px;margin:0 0 6px;letter-spacing:-.01em}
+  .lead{color:var(--muted);margin:0 0 20px;font-size:15px}
+  .grid{display:grid;gap:16px}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+  .kpi .n{font-size:30px;font-weight:800;letter-spacing:-.03em}
+  .kpi .l{font-size:13px;color:var(--muted);margin-top:2px}
+  .kpi .tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:3px}
+  .ok{background:var(--emerald-soft);color:var(--emerald)}
+  .warn{background:var(--amber-soft);color:var(--amber)}
+  .bad{background:var(--rose-soft);color:var(--rose)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+  .two{grid-template-columns:1.15fr .85fr}
+  .three{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .arch{display:grid;gap:12px}
+  .layer{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:#fff;position:relative}
+  .layer h3{margin:0 0 4px;font-size:16px}
+  .layer p{margin:0;color:var(--muted);font-size:13.5px}
+  .layer.l3{border-left:6px solid var(--indigo)}
+  .layer.l2{border-left:6px solid var(--emerald)}
+  .layer.l1{border-left:6px solid var(--amber)}
+  .arrow{text-align:center;color:var(--muted);font-size:18px;line-height:1}
+  .pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+  .pill{font-size:12px;padding:3px 9px;border-radius:7px;background:#f1f5f9;color:var(--slate)}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;counter-reset:s}
+  .step{background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px;position:relative}
+  .step:before{counter-increment:s;content:counter(s);position:absolute;top:-11px;left:14px;
+    width:24px;height:24px;border-radius:50%;background:var(--indigo);color:#fff;font-size:12px;
+    display:flex;align-items:center;justify-content:center;font-weight:800}
+  .step h4{margin:6px 0 3px;font-size:14px}
+  .step p{margin:0;font-size:12.5px;color:var(--muted)}
+  .branch{border-left:6px solid;padding:16px}
+  .branch h4{margin:0;font-size:16px}
+  .branch .v{font-size:12px;font-weight:800;padding:2px 8px;border-radius:6px;display:inline-block;margin:7px 0}
+  .branch ul{margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13px}
+  .branch li{margin:2px 0}
+  .a{border-color:var(--amber)} .b{border-color:var(--rose)} .c{border-color:var(--rose)} .d{border-color:var(--emerald)}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);
+    border-radius:12px;overflow:hidden;font-size:13.5px}
+  th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#f8fafc;font-size:12.5px;color:var(--muted);font-weight:700}
+  tr:last-child td{border-bottom:none}
+  .bar{height:10px;background:#eef2f7;border-radius:99px;overflow:hidden}
+  .bar span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--indigo),#818cf8)}
+  .bar.green span{background:linear-gradient(90deg,var(--emerald),#34d399)}
+  .bar.rose span{background:linear-gradient(90deg,var(--rose),#fb7185)}
+  .metric{margin:14px 0}
+  .metric .top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+  .metric .top b{font-variant-numeric:tabular-nums}
+  .timeline{display:grid;gap:12px}
+  .phase{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:start;
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .phase .w{font-size:12.5px;color:var(--muted);font-weight:700}
+  .phase h4{margin:0 0 4px;font-size:15px}
+  .phase p{margin:0;font-size:13px;color:var(--muted)}
+  .hint{border-left:4px solid var(--indigo);background:var(--indigo-soft);
+    padding:12px 15px;border-radius:0 10px 10px 0;font-size:13.5px;color:#3730a3}
+  .risk{display:grid;gap:10px}
+  .risk .item{display:grid;grid-template-columns:26px 1fr;gap:10px;font-size:13.5px}
+  .risk .n{font-weight:800;color:var(--indigo)}
+  footer{border-top:1px solid var(--line);padding:26px 0;color:var(--muted);font-size:12.5px}
+  @media (max-width:820px){.two{grid-template-columns:1fr}.phase{grid-template-columns:1fr}}
+  @media print{nav{display:none}body{background:#fff}.card,.kpi,.step,.phase{box-shadow:none}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Socratic Tutor · Project Overview</div>
+    <h1>苏格拉底教学 Agent<br>项目全景与实测状态</h1>
+    <p class="sub">DSH 插件 + Python sidecar · 古典语言与人文优先 · 答案隔离第一契约 · P0/P1 已完成，判定“收窄 GO”。</p>
+    <div class="badges">
+      <span class="badge"><span class="dot"></span>DESIGN lite v1.2</span>
+      <span class="badge">判定：收窄 GO</span>
+      <span class="badge">排期：393 h</span>
+      <span class="badge">P0：16 天 · P1：8 项完成</span>
+      <span class="badge">目标机：6800HS / 16 GB</span>
+    </div>
+  </div>
+</header>
+
+<nav><div class="wrap">
+  <a href="#overview">概览</a>
+  <a href="#architecture">架构</a>
+  <a href="#pipeline">数据管线</a>
+  <a href="#p0">P0 分支</a>
+  <a href="#p1">P1 结果</a>
+  <a href="#evals">检索评估</a>
+  <a href="#routes">备选路线</a>
+  <a href="#ptc">PTC</a>
+  <a href="#hardware">硬件与云</a>
+  <a href="#roadmap">路线图</a>
+  <a href="#risks">风险</a>
+</div></nav>
+
+<main class="wrap">
+
+<section id="overview">
+  <h2>一页概览</h2>
+  <p class="lead">管线已跑通；教学与复盘仍在纸面；排期已按实测加缓冲。</p>
+  <div class="grid kpis">
+    <div class="kpi"><div class="n">801</div><div class="l">馆藏 PDF · 27.46 GB</div></div>
+    <div class="kpi"><div class="n">361,862</div><div class="l">总页数 · 91.3% 影印</div></div>
+    <div class="kpi"><div class="n">167,192</div><div class="l">检索 chunks · 295.9 MB</div></div>
+    <div class="kpi"><div class="n">100<span class="tag ok">S 级</span></div><div class="l">引用抽检可回页</div></div>
+    <div class="kpi"><div class="n">0.82</div><div class="l">混合检索 recall@10 <span class="tag warn">未达 0.85</span></div></div>
+    <div class="kpi"><div class="n">393 h</div><div class="l">P0–P3 总排期</div></div>
+  </div>
+  <div class="hint" style="margin-top:18px">
+    <b>核心判断：</b>数据/检索/引用机制可行；跨语言检索、竖排 OCR、教学与复盘是四个未闭合口。MVP 收窄为“古典语言 + 理工正文 + 中文页图检索”。
+  </div>
+</section>
+
+<section id="architecture">
+  <h2>三层架构</h2>
+  <p class="lead">DSH 只做编排与展示；解析、检索、计算、复盘都在 sidecar；答案隔离在数据层。</p>
+  <div class="grid two">
+    <div class="card arch">
+      <div class="layer l3">
+        <h3>L3 · DSH Host 插件 <span class="pill">dsh-socratic</span></h3>
+        <p>状态机、提示阶梯、critic、复盘、来源策略；注册工具与钩子。</p>
+        <div class="pills"><span class="pill">kb_search</span><span class="pill">compute</span><span class="pill">tutor_state</span><span class="pill">cite_verify</span></div>
+      </div>
+      <div class="arrow">↓ HTTP / SSE</div>
+      <div class="layer l2">
+        <h3>L2 · Python sidecar <span class="pill">FastAPI</span></h3>
+        <p>编目、解析、OCR、检索、计算、复盘；崩溃隔离，可独立测试。</p>
+        <div class="pills"><span class="pill">parse</span><span class="pill">search</span><span class="pill">compute</span><span class="pill">review</span></div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="layer l1">
+        <h3>L1 · 存储与索引</h3>
+        <p>SQLite catalog、FTS5 bigram、Qdrant 向量、页图缓存。</p>
+        <div class="pills"><span class="pill">catalog.db</span><span class="pill">search.db</span><span class="pill">vectors</span><span class="pill">pages/</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">第一契约：答案隔离</h3>
+      <p style="color:var(--muted);font-size:13.5px">
+        <code>visibility=answer_key</code> 的 chunk 在 L1 的 SQL/向量层被过滤，不依赖提示词。
+      </p>
+      <table>
+        <tr><th>测试</th><th>结果</th></tr>
+        <tr><td>student 检索 canary</td><td><b style="color:var(--emerald)">0</b></td></tr>
+        <tr><td>tutor 检索 canary</td><td><b style="color:var(--emerald)">0</b></td></tr>
+        <tr><td>answer_key 直查</td><td>1（证明过滤生效）</td></tr>
+        <tr><td>transsheets 隔离</td><td>18,930 chunks</td></tr>
+      </table>
+      <div class="hint" style="margin-top:14px">对话层 canary 尚未测，已列为 P2 Gate 2 硬门。</div>
+    </div>
+  </div>
+</section>
+
+<section id="pipeline">
+  <h2>数据管线</h2>
+  <p class="lead">从 PDF 到可引用页图；文字层与影印件分流，公式只做页图。</p>
+  <div class="steps">
+    <div class="step"><h4>编目</h4><p>801 本 / 哈希 / 去重 / 20 本基准</p></div>
+    <div class="step"><h4>路由</h4><p>text / digital / scan_h / scan_v / vlm</p></div>
+    <div class="step"><h4>解析</h4><p>文本层 93.4%；扫描 OCR 2.2 s/页</p></div>
+    <div class="step"><h4>切分</h4><p>400–600 字；bigram 中文索引</p></div>
+    <div class="step"><h4>检索</h4><p>FTS5 + RRF；p95 8.2 ms</p></div>
+    <div class="step"><h4>引用</h4><p>页图按需渲染；热缓存 0 ms</p></div>
+  </div>
+  <div class="grid three" style="margin-top:16px">
+    <div class="card"><b>61</b> 本文本版<br><span style="color:var(--muted)">24,142 有文本页 · 87,566 chunks</span></div>
+    <div class="card"><b>100</b> 卷 Steadman<br><span style="color:var(--muted)">77,820 chunks · 52 卷有原文</span></div>
+    <div class="card"><b>48</b> 卷 commentary_only<br><span style="color:var(--muted)">只做词表/注释，不排原文</span></div>
+  </div>
+</section>
+
+<section id="p0">
+  <h2>P0 四分支：哪些能引用，哪些只能看页图</h2>
+  <p class="lead">2 支通过（A 降级、D 条件）→ 收窄 GO；失败只砍分支，不拖垮全局。</p>
+  <div class="grid two">
+    <div class="card branch a">
+      <h4>A · 理工</h4><span class="v warn">降级通过</span>
+      <ul>
+        <li>文字层 964 字/页，但公式结构丢失</li>
+        <li>OCR 公式不可用；SymPy 10/10</li>
+        <li>公式改“页图 + VLM 高置信 LaTeX”</li>
+      </ul>
+    </div>
+    <div class="card branch b">
+      <h4>B · 现代汉语</h4><span class="v bad">FAIL · CER</span>
+      <ul>
+        <li>OCR CER 12.1%（200dpi）/ 10.5%（300dpi）</li>
+        <li>脚注混排，224 行注未分离</li>
+        <li>OCR 只做检索；引用回页图</li>
+      </ul>
+    </div>
+    <div class="card branch c">
+      <h4>C · 繁体竖排</h4><span class="v bad">FAIL · 注文/OCR</span>
+      <ul>
+        <li>列序 18/18 正确</li>
+        <li>正文/三家注同列，未分离</li>
+        <li>竖排只做页图 + 卷次索引</li>
+      </ul>
+    </div>
+    <div class="card branch d">
+      <h4>D · 古典语言</h4><span class="v ok">条件通过</span>
+      <ul>
+        <li>拉丁行级 0.64%、希腊句级 6.07%</li>
+        <li>Teubner Conte 1.9%、身份 4/4</li>
+        <li>三流准确率待 100 条金标</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="p1">
+  <h2>P1 七项结果</h2>
+  <p class="lead">入库、检索、页图、质量闸门与评估集已落地；BGE-M3 与三引擎 OCR 对照待环境。</p>
+  <table>
+    <tr><th>项</th><th>结果</th><th>状态</th></tr>
+    <tr><td>P1-0 LLM 准入</td><td>strict 50 轮：未引用 0/50、SR 100%、p95 1.98 s</td><td><span class="tag ok">主模型准入</span></td></tr>
+    <tr><td>P1-1 Steadman</td><td>100 卷 / 77,820 chunks；transsheets 18,930 隔离</td><td><span class="tag ok">PASS</span></td></tr>
+    <tr><td>P1-2 文字版</td><td>61 本 / 87,566 chunks；trigram 2 字失效 → bigram 修复</td><td><span class="tag ok">PASS</span></td></tr>
+    <tr><td>P1-3 合并检索</td><td>167,192 chunks；D4 词项 recall 1.00，p95 8.2 ms</td><td><span class="tag ok">PASS</span></td></tr>
+    <tr><td>P1-3b BGE-M3</td><td>混合 RRF 0.72；中文 93%，跨语言 42–55%</td><td><span class="tag warn">未达 0.85</span></td></tr>
+    <tr><td>P1-3b2 Reranker/翻译</td><td>0.82；中文 95%、跨语言 68.8%</td><td><span class="tag warn">过 0.80，未达 0.85</span></td></tr>
+    <tr><td>P1-3c OCR 对照</td><td>RapidOCR 基线 60/60；三引擎待环境</td><td><span class="tag warn">harness</span></td></tr>
+    <tr><td>P1-3d 解析器对照</td><td>PyMuPDF 4/4；OpenDataLoader 待 Java/模块</td><td><span class="tag warn">harness</span></td></tr>
+    <tr><td>P1-4 页图</td><td>冷 16–134 ms；热 0 ms；2 GB LRU</td><td><span class="tag ok">PASS</span></td></tr>
+    <tr><td>P1-5 质量闸门</td><td>100/100 可回页；S 级 20/20；canary 0</td><td><span class="tag ok">PASS</span></td></tr>
+    <tr><td>P1-6 评估集</td><td>100 条问句；page recall 0.60</td><td><span class="tag warn">基线</span></td></tr>
+  </table>
+</section>
+
+<section id="evals">
+  <h2>检索评估：词项 1.0 vs 问句 0.82</h2>
+  <p class="lead">“能找到”不等于“问得像人”；跨语言是当前最大缺口。</p>
+  <div class="grid two">
+    <div class="card">
+      <div class="metric">
+        <div class="top"><span>词项查询（D4 20 条）</span><b>1.00</b></div>
+        <div class="bar green"><span style="width:100%"></span></div>
+      </div>
+      <div class="metric">
+        <div class="top"><span>问句：FTS 基线</span><b>0.60</b></div>
+        <div class="bar"><span style="width:60%"></span></div>
+      </div>
+      <div class="metric">
+        <div class="top"><span>问句：BGE-M3</span><b>0.65</b></div>
+        <div class="bar"><span style="width:65%"></span></div>
+      </div>
+      <div class="metric">
+        <div class="top"><span>问句：BGE + RRF 混合</span><b>0.72</b></div>
+        <div class="bar"><span style="width:72%"></span></div>
+      </div>
+      <div class="metric">
+        <div class="top"><span>问句：+ Reranker</span><b>0.77</b></div>
+        <div class="bar"><span style="width:77%"></span></div>
+      </div>
+      <div class="metric">
+        <div class="top"><span>问句：+ 查询翻译（最终）</span><b>0.82</b></div>
+        <div class="bar green"><span style="width:82%"></span></div>
+      </div>
+      <div class="metric">
+        <div class="top"><span>中文（58 条，最终）</span><b>95%</b></div>
+        <div class="bar green"><span style="width:95%"></span></div>
+      </div>
+      <div class="metric">
+        <div class="top"><span>拉丁（20 条，最终）</span><b>75%</b></div>
+        <div class="bar rose"><span style="width:75%"></span></div>
+      </div>
+      <div class="metric">
+        <div class="top"><span>希腊（12 条，最终）</span><b>58%</b></div>
+        <div class="bar rose"><span style="width:58%"></span></div>
+      </div>
+      <div class="metric">
+        <div class="top"><span>英文（10 条，最终）</span><b>50%</b></div>
+        <div class="bar rose"><span style="width:50%"></span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">解读</h3>
+      <p style="color:var(--muted);font-size:13.5px">
+        中文 bigram 已够用；希腊/拉丁的英文提问靠 BGE + reranker + 查询翻译拉到 58–75%。
+        总体 0.82 已过 P1-3b2 的 0.80，但距 0.85 与跨语言 0.70 还差一点。
+      </p>
+      <div class="hint">
+        P1-3b2：BGE+RRF + reranker/查询翻译（16 h）；单语 ≥0.85、跨语言 ≥0.70。当前 0.72，中文 93%、跨语言 42–55%。
+      </div>
+      <table style="margin-top:14px">
+        <tr><th>里程碑</th><th>目标</th></tr>
+        <tr><td>单语中文</td><td>≥ 0.85</td></tr>
+        <tr><td>跨语言希/拉</td><td>≥ 0.70</td></tr>
+        <tr><td>引用可回页</td><td>100%</td></tr>
+        <tr><td>canary</td><td>0</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="routes">
+  <h2>备选教学路线：借角色，不借自治</h2>
+  <p class="lead">多 Agent、TraceBack、dsh-teacher、dsh-openmaic 逐条评估；主干仍是“单模型 + 确定性状态机 + sidecar”。</p>
+  <div class="grid two">
+    <div class="card">
+      <table>
+        <tr><th>路线</th><th>结论</th><th>理由</th></tr>
+        <tr><td>多 Agent<br><span style="color:var(--muted)">Planner/Diagnoser/Tutor</span></td><td><span class="tag warn">只借角色</span></td><td>误差放大、状态多源、泄漏面扩大、成本 ×3；P1-0 单模型已 SR 100%</td></tr>
+        <tr><td>TraceBack<br><span style="color:var(--muted)">LangGraph+Milvus+LlamaIndex</span></td><td><span class="tag">参考架构</span></td><td>Milvus 对 167k 过重；LangGraph 与状态机双源；只借诊断报告/路径图</td></tr>
+        <tr><td>dsh-teacher</td><td><span class="tag warn">P4 借件</span></td><td>FSRS/gap/quiz 可借；要求 DSH rc.6+（当前 rc.3）；无 RAG/PDF/`view`</td></tr>
+        <tr><td>dsh-openmaic</td><td><span class="tag warn">P4 UI</span></td><td>只做呈现层；依赖 open.maic.chat 云服务，数据出境，内容不保证忠于原文</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">多 Agent 的具体判断</h3>
+      <ul style="color:var(--muted);font-size:13.5px;padding-left:18px">
+        <li><b>Planner</b> 每轮跑 → 路径抖动；改离线课程图（概念 DAG）。</li>
+        <li><b>Diagnoser</b> 自由文本 → 不可回归；改约束 JSON（判定 + 误区 + 置信度），状态机决定是否采信。</li>
+        <li><b>Tutor</b> 仍单模型；Diagnoser 不看 `answer_key`。</li>
+        <li>若必须多 Agent：<b>supervisor 是确定性状态机</b>，Agent 只是工具，禁止自由 handoff。</li>
+      </ul>
+      <div class="hint" style="margin-top:14px">一句话：P1-0 单模型 + 显式摘要已 50 轮 SR 100%、未引用 0/50；多 Agent 没有证据超过它，却确定增加状态源与攻击面。</div>
+    </div>
+  </div>
+</section>
+
+<section id="ptc">
+  <h2>PTC：计算编排器，不是计算引擎</h2>
+  <p class="lead">模型写 <code>run_code</code>，代码调用工具；SymPy/NumPy/Mathematica/LEAN 仍由 sidecar 执行。</p>
+  <div class="grid two">
+    <div class="card">
+      <table>
+        <tr><th>场景</th><th>选择</th></tr>
+        <tr><td>单题求导/积分/解方程</td><td>直接 <code>compute_python</code></td></tr>
+        <tr><td>多步推导 / 参数扫描 / 批量</td><td><b style="color:var(--emerald)">PTC</b></td></tr>
+        <tr><td>学生答案验证（解析→等价→反例）</td><td><b style="color:var(--emerald)">PTC</b></td></tr>
+        <tr><td>LEAN 编译（分钟级）</td><td>job + 轮询，PTC 只提交</td></tr>
+        <tr><td>逐轮苏格拉底决策</td><td><b style="color:var(--rose)">状态机，不用 PTC</b></td></tr>
+      </table>
+      <div class="hint" style="margin-top:12px">P2-8（8 h）：10 道题对比直接调用 vs PTC；正确率 10/10、逃逸/泄漏 0、延迟 ≤ +20%、token 省 ≥30%。</div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">六条护栏</h3>
+      <ol style="color:var(--muted);font-size:13.5px;padding-left:18px">
+        <li>只调白名单门面工具；禁止直连 DB/文件/网络。</li>
+        <li>sidecar 仍是最终沙箱；`view` 与子进程限制不可绕过。</li>
+        <li><code>post-execute</code> 标泄漏/未引用；hint&lt;4 剥离最终答案。</li>
+        <li>代码 + 依赖版本 + 种子写凭证；禁止无种子随机。</li>
+        <li>输出设上限；大结果落 artifact。</li>
+        <li>子调用写 <code>tool/ptc-dispatch</code>；canary 验证零泄漏。</li>
+      </ol>
+      <div class="hint" style="margin-top:14px">0.2.1-rc.3 是否默认启用 <code>run_code</code> 未验证；P2-8 先探针，未启用就退回直接调用。</div>
+    </div>
+  </div>
+</section>
+
+<section id="hardware">
+  <h2>硬件与云：6800HS 日常，4090 按小时</h2>
+  <p class="lead">瓶颈排序：显存 &gt; 内存 &gt; 磁盘 &gt; CPU；不买卡、不租常驻 GPU、不整库上云。</p>
+  <div class="grid two">
+    <div class="card">
+      <h3 style="margin-top:0">本机 · 6800HS</h3>
+      <table>
+        <tr><th>项</th><th>判断</th></tr>
+        <tr><td>8C/16T</td><td>文本/OCR 4–6 并发够用</td></tr>
+        <tr><td>16 GB</td><td><b style="color:var(--rose)">最紧</b>；OCR 与嵌入分时</td></tr>
+        <tr><td>512 GB</td><td>够；保留 ≥100 GB</td></tr>
+        <tr><td>680M 核显</td><td>ONNX OCR 可；BGE-M3/3B VLM 不现实</td></tr>
+      </table>
+      <div class="hint" style="margin-top:12px">日常：sidecar + FTS + 页图 + DeepSeek API。</div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">云 burst</h3>
+      <table>
+        <tr><th>用途</th><th>配置</th></tr>
+        <tr><td>BGE-M3 嵌入</td><td>RTX 4090 24 GB · 10–20 min</td></tr>
+        <tr><td>MinerU / OCRFlux</td><td>4090 / L4 24 GB</td></tr>
+        <tr><td>全量 OCR</td><td>16 vCPU / 32 GB CPU</td></tr>
+        <tr><td>备份</td><td>Cloudflare R2</td></tr>
+      </table>
+      <div class="hint" style="margin-top:12px">成本量级：嵌入 $0.1–0.3；60 页对照 $0.2–0.5；全量 OCR $5–15。</div>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <h2>路线图</h2>
+  <p class="lead">单人、每周 15–20 h；每阶段有 Gate，不通过不进入下一阶段。</p>
+  <div class="timeline">
+    <div class="phase"><div class="w">第 1–3 周</div><div><h4>P0 否决性实验 · 56 h <span class="tag ok">已完成</span></h4><p>20 本 × 4 分支；检索、解析、隔离、引用；收窄 GO。</p></div></div>
+    <div class="phase"><div class="w">第 4–12 周</div><div><h4>P1 入库与检索 · 150 h <span class="tag warn">进行中</span></h4><p>Steadman + 文字版 + 合并检索 + 页图 + 质量闸门 + 评估集 + BGE/reranker。</p></div></div>
+    <div class="phase"><div class="w">第 13–19 周</div><div><h4>P2 教学闭环 · 114 h</h4><p>状态机 + 显式摘要 + critic + 学习者模型 + 100 段对话 + PTC 计算试点；对话层 canary 硬门。</p></div></div>
+    <div class="phase"><div class="w">第 20–23 周</div><div><h4>P3 复盘与竖排 · 73 h</h4><p>复盘 v1（有证据的断言）+ 页图/章回索引；不再做竖排逐字。</p></div></div>
+    <div class="phase"><div class="w">第 24–27 周</div><div><h4>P4 规模化（可选）</h4><p>二十四史批量、公式 VLM、第二语言包。</p></div></div>
+  </div>
+</section>
+
+<section id="risks">
+  <h2>风险与未闭合项</h2>
+  <div class="grid two">
+    <div class="card">
+      <div class="risk">
+        <div class="item"><span class="n">1</span><div><b>跨语言检索未达标</b><br><span style="color:var(--muted)">希腊 17%、拉丁 35%；BGE-M3 未跑。</span></div></div>
+        <div class="item"><span class="n">2</span><div><b>竖排注文未分离</b><br><span style="color:var(--muted)">C 分支 FAIL；只做页图 + 卷次索引。</span></div></div>
+        <div class="item"><span class="n">3</span><div><b>中文 OCR 12% CER</b><br><span style="color:var(--muted)">只做检索；引用必须回页图。</span></div></div>
+        <div class="item"><span class="n">4</span><div><b>对话层隔离未测</b><br><span style="color:var(--muted)">无出站钩子；P2 Gate 2 加 canary。</span></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="risk">
+        <div class="item"><span class="n">5</span><div><b>复盘准确率未知</b><br><span style="color:var(--muted)">未实现；v1 只判有证据的断言。</span></div></div>
+        <div class="item"><span class="n">6</span><div><b>安全沙箱未测</b><br><span style="color:var(--muted)">6 类攻击未跑；P2 前补。</span></div></div>
+        <div class="item"><span class="n">7</span><div><b>16 GB 内存约束</b><br><span style="color:var(--muted)">OCR 与嵌入分时；页图缓存 1 GB。</span></div></div>
+        <div class="item"><span class="n">8</span><div><b>排期仍可能偏乐观</b><br><span style="color:var(--muted)">P2/P3 未动；已加 40%/30% 缓冲。</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer><div class="wrap">
+  苏格拉底教学 Agent · 项目可视化 · 数据截至 2026-11-02 · DESIGN lite v1.2（full v2.14） · 生成文件：docs/visual/project.html
+</div></footer>
+
+<script>
+  const links = [...document.querySelectorAll('nav a')];
+  const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, {rootMargin: '-30% 0px -60% 0px', threshold: 0});
+  sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>

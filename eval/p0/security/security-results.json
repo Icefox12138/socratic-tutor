@@ -1,0 +1,59 @@
+{
+ "cases": [
+  {
+   "name": "越权 view=answer_key",
+   "ok": true,
+   "detail": {
+    "status": 400
+   }
+  },
+  {
+   "name": "无 token 访问检索",
+   "ok": true,
+   "detail": {
+    "status": 401
+   }
+  },
+  {
+   "name": "伪造 token",
+   "ok": true,
+   "detail": {
+    "status": 401
+   }
+  },
+  {
+   "name": "路径穿越",
+   "ok": true,
+   "detail": {
+    "status": 404,
+    "bytes": 27,
+    "png": false
+   }
+  },
+  {
+   "name": "代码注入 __import__",
+   "ok": true,
+   "detail": {
+    "status": 400
+   }
+  },
+  {
+   "name": "资源耗尽（超长表达式）",
+   "ok": true,
+   "detail": {
+    "status": 400
+   }
+  },
+  {
+   "name": "跨会话状态隔离",
+   "ok": true,
+   "detail": {
+    "s1": 200,
+    "s2": 404
+   }
+  }
+ ],
+ "ok": true,
+ "n": 7,
+ "passed": 7
+}

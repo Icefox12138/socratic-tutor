@@ -1,0 +1,41 @@
+{
+ "book1_lines": 755,
+ "matched_lines": 728,
+ "coverage": 0.964,
+ "matched_chars": 26868,
+ "weighted_cer": 0.0064,
+ "median_line_cer": 0.0,
+ "p90_line_cer": 0.027,
+ "worst_lines": [
+  [
+   0.28,
+   701,
+   "dantfamulimanibuslymphascereremquecanistris",
+   "dantmanibusfamulilymphascereremquecanistris"
+  ],
+  [
+   0.21,
+   668,
+   "litoraiacteturodiisiunonisiniquae",
+   "mlitoraiacteturodiisiunonisacerba"
+  ],
+  [
+   0.14,
+   427,
+   "hicportusaliieffodiunthicaltatheatris",
+   "umhicportusaliieffodiunthicaittheatri"
+  ],
+  [
+   0.14,
+   49,
+   "praetereaautsupplexarisimponethonorem",
+   "praetereaautsypplexarlfeimponethonore"
+  ],
+  [
+   0.11,
+   656,
+   "haecceleransitaadnavestendebatachates",
+   "aecceleransiteradnavistendebatachates"
+  ]
+ ]
+}

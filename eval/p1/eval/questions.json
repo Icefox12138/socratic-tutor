@@ -1,0 +1,902 @@
+[
+ {
+  "id": 1,
+  "chunk_id": 2938,
+  "source": "steadman",
+  "book": "euripides-bacchae__bacchae.translationsheets",
+  "lang": "greek",
+  "page": 16,
+  "question": "What does the speaker intend to achieve by overturning everything \"up and down\" with the trident and levers?"
+ },
+ {
+  "id": 2,
+  "chunk_id": 27920,
+  "source": "steadman",
+  "book": "platos-apology__apology.04jan25",
+  "lang": "greek",
+  "page": 74,
+  "question": "What is the function of the duplicated μέν…δέ construction in the temporal clause?"
+ },
+ {
+  "id": 3,
+  "chunk_id": 14548,
+  "source": "steadman",
+  "book": "herodotus-7__herodotus7-beta-aug20121",
+  "lang": "greek",
+  "page": 132,
+  "question": "What role did the three divisions of Xerxes' forces play, and why did the fleet sail through the Athos canal?"
+ },
+ {
+  "id": 4,
+  "chunk_id": 11889,
+  "source": "steadman",
+  "book": "files-republic-i__plato.republicbk1.04jan25",
+  "lang": "greek",
+  "page": 29,
+  "question": "What does the phrase \"being so disposed\" refer to in this passage?"
+ },
+ {
+  "id": 5,
+  "chunk_id": 38575,
+  "source": "steadman",
+  "book": "thucydides__thuc.book6_.8aug22",
+  "lang": "greek",
+  "page": 82,
+  "question": "What does the speaker propose the troops should do if the situation does not seem favorable?"
+ },
+ {
+  "id": 6,
+  "chunk_id": 11030,
+  "source": "steadman",
+  "book": "files-odyssey-9-12__odyssey9_12.05jan25",
+  "lang": "greek",
+  "page": 172,
+  "question": "What does the iterative force of φάσκε suggest about how often she claimed to have slept with Poseidon?"
+ },
+ {
+  "id": 7,
+  "chunk_id": 11498,
+  "source": "steadman",
+  "book": "files-odyssey-9-12__odyssey9_12.05jan25",
+  "lang": "greek",
+  "page": 232,
+  "question": "What does Odysseus recall being warned about regarding the island of Helios?"
+ },
+ {
+  "id": 8,
+  "chunk_id": 35909,
+  "source": "steadman",
+  "book": "sophocles-antigone__antigone.05jan25",
+  "lang": "greek",
+  "page": 95,
+  "question": "What does the archer's action of shooting at the pieces of flesh illustrate about the heart?"
+ },
+ {
+  "id": 9,
+  "chunk_id": 30779,
+  "source": "steadman",
+  "book": "platos-meno__meno.10jan25",
+  "lang": "greek",
+  "page": 46,
+  "question": "What does the passage suggest about whether providing material goods counts as virtue?"
+ },
+ {
+  "id": 10,
+  "chunk_id": 15394,
+  "source": "steadman",
+  "book": "herodotus-7__herodotus7-beta-aug20121",
+  "lang": "greek",
+  "page": 232,
+  "question": "What did the Pythia prophesy to the Spartans when they consulted her at the very beginning of the war?"
+ },
+ {
+  "id": 11,
+  "chunk_id": 12033,
+  "source": "steadman",
+  "book": "files-republic-i__plato.republicbk1.04jan25",
+  "lang": "greek",
+  "page": 48,
+  "question": "If harm makes each kind of creature worse only in its own specific excellence, does that same principle apply to humans with respect to justice?"
+ },
+ {
+  "id": 12,
+  "chunk_id": 37869,
+  "source": "steadman",
+  "book": "sophocles__oedipus.05jan25",
+  "lang": "greek",
+  "page": 146,
+  "question": "What does the text mean when it says that hubris \"plants\" a tyrant?"
+ },
+ {
+  "id": 13,
+  "chunk_id": 53143,
+  "source": "steadman",
+  "book": "cicero-de-officiis-book-1__Cicero.DeOff_.Bk1_.21Aug26",
+  "lang": "latin",
+  "page": 82,
+  "question": "What does Cicero identify as the most splendid of the four sources from which moral goodness and duty arise?"
+ },
+ {
+  "id": 14,
+  "chunk_id": 55284,
+  "source": "steadman",
+  "book": "ciceros-1st-catilinarian__Cicero.Cat1_.17Aug26",
+  "lang": "latin",
+  "page": 102,
+  "question": "What does the abbreviation \"abl\" next to the entry for abūtor indicate about how that verb is used?"
+ },
+ {
+  "id": 15,
+  "chunk_id": 51335,
+  "source": "steadman",
+  "book": "ap-vergil-usa__collegevergil.2e.20may25-1",
+  "lang": "latin",
+  "page": 108,
+  "question": "What does \"tener\" describe in this passage?"
+ },
+ {
+  "id": 16,
+  "chunk_id": 74900,
+  "source": "steadman",
+  "book": "sallust__Sallust.Cat_.22May26",
+  "lang": "latin",
+  "page": 89,
+  "question": "What role does the sworn oath with the conspirators' seals play in the plan to convey information to the citizens?"
+ },
+ {
+  "id": 17,
+  "chunk_id": 55398,
+  "source": "steadman",
+  "book": "ciceros-1st-catilinarian__cicerocat-transoutline",
+  "lang": "latin",
+  "page": 1,
+  "question": "What is the main topic of this passage?"
+ },
+ {
+  "id": 18,
+  "chunk_id": 68859,
+  "source": "steadman",
+  "book": "petronius__petronius.mar2025",
+  "lang": "latin",
+  "page": 110,
+  "question": "What were the oxycomina doing in the basket, and why did some people improperly take three handfuls of them?"
+ },
+ {
+  "id": 19,
+  "chunk_id": 54382,
+  "source": "steadman",
+  "book": "cicero-de-officiis-book-1__cicero.deoff_.bk2_.samp_.03jan26",
+  "lang": "latin",
+  "page": 8,
+  "question": "What does the vocabulary list suggest about the thematic focus of the passage these words are drawn from?"
+ },
+ {
+  "id": 20,
+  "chunk_id": 61162,
+  "source": "steadman",
+  "book": "livy__Livy.Bk1_.10Oct26",
+  "lang": "latin",
+  "page": 59,
+  "question": "What did the crowd believe had happened to the person carried off by the storm?"
+ },
+ {
+  "id": 21,
+  "chunk_id": 75477,
+  "source": "steadman",
+  "book": "sallust__Sallust.Cat_.22May26",
+  "lang": "latin",
+  "page": 154,
+  "question": "What case and meaning does the entry \"causa, -ae f.\" give for the ablative form \"causā\"?"
+ },
+ {
+  "id": 22,
+  "chunk_id": 71385,
+  "source": "steadman",
+  "book": "ritchies-fabulae-faciles__ritchie.mar2024",
+  "lang": "latin",
+  "page": 137,
+  "question": "What method did the author use to count how often each word appears?"
+ },
+ {
+  "id": 23,
+  "chunk_id": 57685,
+  "source": "steadman",
+  "book": "college-caesar__collegecaesar.2page.23oct24",
+  "lang": "latin",
+  "page": 16,
+  "question": "What does the asyndeton in Caesar's orders suggest about his character?"
+ },
+ {
+  "id": 24,
+  "chunk_id": 57601,
+  "source": "steadman",
+  "book": "college-caesar__collegecaesar.2page.23oct24",
+  "lang": "latin",
+  "page": 12,
+  "question": "What three ablatives of respect are listed, and what verb must be supplied with Garumna flūmen?"
+ },
+ {
+  "id": 25,
+  "chunk_id": 87902,
+  "source": "library",
+  "book": "数学\\抽象代数\\代数学讲义 李文威.pdf",
+  "lang": "zh",
+  "page": 56,
+  "question": "ZFC 为什么无法进一步解释“集合”到底是什么？"
+ },
+ {
+  "id": 26,
+  "chunk_id": 90268,
+  "source": "library",
+  "book": "数学\\抽象代数\\近世代数引论_第四版(扫描清晰+书签+纠偏) -- 冯克勤, 李尚志, 章璞 -- 4 ban, He fei, 2018 -- 合肥：中国科学技术大学出版社 -- isbn13 9787312045141 -- d94dc448f58cda388cde77fa119063f1 -- Anna’s Archive.pdf",
+  "lang": "zh",
+  "page": 39,
+  "question": "置换a写成不相交轮换的积后结果是什么？"
+ },
+ {
+  "id": 27,
+  "chunk_id": 140087,
+  "source": "library",
+  "book": "计算机\\操作系统 Linux\\Linux命令行与shell脚本编程大全.第3版.pdf",
+  "lang": "zh",
+  "page": 199,
+  "question": "在普通模式下，除了用方向键，还可以用哪些命令来移动光标？"
+ },
+ {
+  "id": 28,
+  "chunk_id": 120275,
+  "source": "library",
+  "book": "计算机\\Java Spring Android\\Spring Cloud微服务实战.pdf",
+  "lang": "zh",
+  "page": 277,
+  "question": "这段配置里，bootstrap.properties 中指定的 config-server 地址和 eureka-server 地址分别对应哪个端口？"
+ },
+ {
+  "id": 29,
+  "chunk_id": 92384,
+  "source": "library",
+  "book": "物理\\普通物理学\\赵凯华 新概念物理教程\\3新概念物理教程 电磁学（第3版）思考题和习题答案.pdf",
+  "lang": "zh",
+  "page": 23,
+  "question": "q1和q2之间为什么没有相互作用力？"
+ },
+ {
+  "id": 30,
+  "chunk_id": 115236,
+  "source": "library",
+  "book": "计算机\\C C++\\C程序设计语言(第2版·新版) -- Brian W_ Kernighan, Dennis M_ Ritchie -- 2004 -- 机械工业出版社 -- 3a1b5525d7af632fa9ecddd34276a07e -- Anna’s Archive.pdf",
+  "lang": "zh",
+  "page": 8,
+  "question": "C语言的标准制定后，如何保证程序在不同计算机和操作系统之间移植时不需要修改？"
+ },
+ {
+  "id": 31,
+  "chunk_id": 93608,
+  "source": "library",
+  "book": "物理\\普通物理学\\赵凯华 新概念物理教程\\5新概念物理教程 量子物理.pdf",
+  "lang": "zh",
+  "page": 129,
+  "question": "为什么早期量子力学理论只能符合到第三位有效数字，而引入电子反常磁矩和量子电动力学修正后就能符合到第六位？"
+ },
+ {
+  "id": 32,
+  "chunk_id": 136560,
+  "source": "library",
+  "book": "计算机\\操作系统 Linux\\Linux-UNIX系统编程手册（下册）.pdf",
+  "lang": "zh",
+  "page": 397,
+  "question": "客户端在什么情况下也需要用 bind() 给自己的 socket 绑定地址？"
+ },
+ {
+  "id": 33,
+  "chunk_id": 98178,
+  "source": "library",
+  "book": "物理\\朗道 理论物理学教程\\4882-朗道理论物理教程(卷08)-连续媒质电动力学[www.hejizhan.com].pdf",
+  "lang": "zh",
+  "page": 403,
+  "question": "介质填充后，共振器的本征频率为什么会按那个比例整体降低？"
+ },
+ {
+  "id": 34,
+  "chunk_id": 157599,
+  "source": "library",
+  "book": "马列主义\\马恩选集\\马克思恩格斯选集第三卷.pdf",
+  "lang": "zh",
+  "page": 711,
+  "question": "商品的价值为什么必须通过另一种商品来相对表现，而不能直接用劳动小时来计量？"
+ },
+ {
+  "id": 35,
+  "chunk_id": 155722,
+  "source": "library",
+  "book": "马列主义\\马恩选集\\马克思恩格斯选集第三卷.pdf",
+  "lang": "zh",
+  "page": 51,
+  "question": "德国资产阶级为什么宁愿放弃政权也要换取社会解放？"
+ },
+ {
+  "id": 36,
+  "chunk_id": 79587,
+  "source": "library",
+  "book": "数学\\实变函数 泛函分析\\泛函分析讲义（第二版）上 张恭庆.pdf",
+  "lang": "zh",
+  "page": 44,
+  "question": "这段内容里，空间s上定义的那个量为什么能成为准范数？"
+ },
+ {
+  "id": 37,
+  "chunk_id": 122098,
+  "source": "library",
+  "book": "计算机\\其他\\InterviewGuide第四版By阿秀.pdf",
+  "lang": "zh",
+  "page": 88,
+  "question": "构造函数只接受一个参数时，为什么就可能带来隐式类型转换？"
+ },
+ {
+  "id": 38,
+  "chunk_id": 88405,
+  "source": "library",
+  "book": "数学\\抽象代数\\代数学讲义 李文威.pdf",
+  "lang": "zh",
+  "page": 206,
+  "question": "这段证明里，为什么要先构造一个具体的非零行列式映射，才能得到 dim D_V = 1？"
+ },
+ {
+  "id": 39,
+  "chunk_id": 147429,
+  "source": "library",
+  "book": "计算机\\计算机网络\\计算机网络-自顶向下方法第七版.pdf",
+  "lang": "zh",
+  "page": 376,
+  "question": "ZigBee的超帧里，活跃周期和非活跃周期各自的作用是什么？"
+ },
+ {
+  "id": 40,
+  "chunk_id": 99161,
+  "source": "library",
+  "book": "物理\\物理学史科普\\上帝掷骰子吗——量子物理史话(曹天元).pdf",
+  "lang": "zh",
+  "page": 83,
+  "question": "狄拉克为什么没去参加那场卡皮察俱乐部的聚会？"
+ },
+ {
+  "id": 41,
+  "chunk_id": 116167,
+  "source": "library",
+  "book": "计算机\\C C++\\C程序设计语言(第2版·新版) -- Brian W_ Kernighan, Dennis M_ Ritchie -- 2004 -- 机械工业出版社 -- 3a1b5525d7af632fa9ecddd34276a07e -- Anna’s Archive.pdf",
+  "lang": "zh",
+  "page": 245,
+  "question": "realloc 在缩小内存时，新空间的内容是否会被初始化？"
+ },
+ {
+  "id": 42,
+  "chunk_id": 116545,
+  "source": "library",
+  "book": "计算机\\C C++\\Linux多线程服务端编程：使用muduo C++网络库.pdf",
+  "lang": "zh",
+  "page": 52,
+  "question": "muduo 的 net 目录下包含哪几个子模块？"
+ },
+ {
+  "id": 43,
+  "chunk_id": 89909,
+  "source": "library",
+  "book": "数学\\抽象代数\\代数学讲义 李文威.pdf",
+  "lang": "zh",
+  "page": 647,
+  "question": "当E=F时，Hermite形式与反Hermite形式分别对应什么？"
+ },
+ {
+  "id": 44,
+  "chunk_id": 151343,
+  "source": "library",
+  "book": "马列主义\\列宁选集\\列宁选集第四卷.pdf",
+  "lang": "zh",
+  "page": 687,
+  "question": "作者为什么对新经济政策的成就还“不那么深信无疑”？"
+ },
+ {
+  "id": 45,
+  "chunk_id": 107524,
+  "source": "library",
+  "book": "物理\\量子场论\\初识经典场论 陈童 东华理工大学.pdf",
+  "lang": "zh",
+  "page": 44,
+  "question": "电荷量子化里说的“基本电荷e”具体指什么？"
+ },
+ {
+  "id": 46,
+  "chunk_id": 144842,
+  "source": "library",
+  "book": "计算机\\操作系统 Linux\\现代操作系统原理与实现.pdf",
+  "lang": "zh",
+  "page": 375,
+  "question": "半虚拟化减少下陷次数的主要机制是什么？"
+ },
+ {
+  "id": 47,
+  "chunk_id": 101605,
+  "source": "library",
+  "book": "物理\\理论力学\\经典力学新讲 陈童 东华理工大学.pdf",
+  "lang": "zh",
+  "page": 31,
+  "question": "把离散指标换成连续指标后，为什么求和会变成积分？"
+ },
+ {
+  "id": 48,
+  "chunk_id": 85031,
+  "source": "library",
+  "book": "数学\\抽象代数\\代数学方法-1 李文威.pdf",
+  "lang": "zh",
+  "page": 336,
+  "question": "为什么所有超越基的基数都相同？"
+ },
+ {
+  "id": 49,
+  "chunk_id": 146473,
+  "source": "library",
+  "book": "计算机\\计算机网络\\计算机网络-自顶向下方法第七版.pdf",
+  "lang": "zh",
+  "page": 150,
+  "question": "既然在应用层自己实现可靠性这么麻烦，为什么有些应用还宁愿选UDP而不直接用TCP呢？"
+ },
+ {
+  "id": 50,
+  "chunk_id": 141766,
+  "source": "library",
+  "book": "计算机\\操作系统 Linux\\操作系统导论.pdf",
+  "lang": "zh",
+  "page": 54,
+  "question": "操作系统具体是如何借助时钟中断，从正在运行的用户进程手中重新拿回 CPU 控制权的？"
+ },
+ {
+  "id": 51,
+  "chunk_id": 105716,
+  "source": "library",
+  "book": "物理\\量子力学\\量子力学新讲 陈童 东华理工大学.pdf",
+  "lang": "zh",
+  "page": 22,
+  "question": "经典物理预言电子会迅速坠入原子核，那为什么实际观测到的原子却能保持稳定？"
+ },
+ {
+  "id": 52,
+  "chunk_id": 80500,
+  "source": "library",
+  "book": "数学\\布尔巴基\\法兰西数学精品译丛14-线性与非线性泛函分析及其应用  上（修订版）,菲立普.G.希阿雷,北京：高等教育出版社_14295239.pdf",
+  "lang": "zh",
+  "page": 84,
+  "question": "这段内容里，为什么先讨论非负函数的情形，再回到一般情况时要把区域分成 f>0 和 f<0 两部分？"
+ },
+ {
+  "id": 53,
+  "chunk_id": 90657,
+  "source": "library",
+  "book": "数学\\抽象代数\\近世代数引论_第四版(扫描清晰+书签+纠偏) -- 冯克勤, 李尚志, 章璞 -- 4 ban, He fei, 2018 -- 合肥：中国科学技术大学出版社 -- isbn13 9787312045141 -- d94dc448f58cda388cde77fa119063f1 -- Anna’s Archive.pdf",
+  "lang": "zh",
+  "page": 139,
+  "question": "伽罗瓦的遗稿为什么过了14年才被刊印？"
+ },
+ {
+  "id": 54,
+  "chunk_id": 78178,
+  "source": "library",
+  "book": "数学\\其他\\随机过程\\随机过程 方兆本.pdf",
+  "lang": "zh",
+  "page": 104,
+  "question": "在线性最佳预报里，若H由有限个随机变量生成，那ˆE(X|H)具体怎样用这些随机变量的线性组合表示？"
+ },
+ {
+  "id": 55,
+  "chunk_id": 114120,
+  "source": "library",
+  "book": "西方文史哲\\拉丁语\\拉丁语语法新编（第二版未定稿）Allen&Greenough著 顾枝鹰译.pdf",
+  "lang": "zh",
+  "page": 355,
+  "question": "“habēre virō”这种结构在古典散文里为什么很少见？"
+ },
+ {
+  "id": 56,
+  "chunk_id": 119073,
+  "source": "library",
+  "book": "计算机\\Java Spring Android\\Android编程权威指南 第3版.pdf",
+  "lang": "zh",
+  "page": 572,
+  "question": "使用MapView时为什么必须转发生命周期方法？"
+ },
+ {
+  "id": 57,
+  "chunk_id": 144032,
+  "source": "library",
+  "book": "计算机\\操作系统 Linux\\现代操作系统原理与实现.pdf",
+  "lang": "zh",
+  "page": 169,
+  "question": "根据这段内容，EAS在调节CPU核心频率以满足负载之后，具体是怎样结合能耗模型来为任务选择目标核心的？"
+ },
+ {
+  "id": 58,
+  "chunk_id": 146892,
+  "source": "library",
+  "book": "计算机\\计算机网络\\计算机网络-自顶向下方法第七版.pdf",
+  "lang": "zh",
+  "page": 249,
+  "question": "“匹配加动作”范式具体能对协议栈中哪些不同层次的字段进行匹配？"
+ },
+ {
+  "id": 59,
+  "chunk_id": 86103,
+  "source": "library",
+  "book": "数学\\抽象代数\\代数学方法-2 李文威.pdf",
+  "lang": "zh",
+  "page": 192,
+  "question": "为什么需要先证明 \\(d_I^{n-1}\\beta_{n-1}\\) 在 \\(\\ker(d_Y^{n-1})\\) 上为零，才能定义 \\(\\beta_n\\)？"
+ },
+ {
+  "id": 60,
+  "chunk_id": 133445,
+  "source": "library",
+  "book": "计算机\\操作系统 Linux\\Linux-UNIX系统编程手册（上册）.pdf",
+  "lang": "zh",
+  "page": 96,
+  "question": "为什么当whence为SEEK_SET时，offset必须是非负数？"
+ },
+ {
+  "id": 61,
+  "chunk_id": 145235,
+  "source": "library",
+  "book": "计算机\\计算机网络\\网络是怎样连接的.pdf",
+  "lang": "zh",
+  "page": 129,
+  "question": "当一台计算机有多块网卡时，发送方IP地址是根据什么来确定的？"
+ },
+ {
+  "id": 62,
+  "chunk_id": 157964,
+  "source": "library",
+  "book": "马列主义\\马恩选集\\马克思恩格斯选集第三卷.pdf",
+  "lang": "zh",
+  "page": 842,
+  "question": "俄国现实中的农民为何无法像英国那样被直接剥夺土地？"
+ },
+ {
+  "id": 63,
+  "chunk_id": 91667,
+  "source": "library",
+  "book": "物理\\广义相对论 宇宙学\\引力论讲义 陈童 东华理工大学.pdf",
+  "lang": "zh",
+  "page": 205,
+  "question": "基林向量场为什么一定也满足共形基林方程？"
+ },
+ {
+  "id": 64,
+  "chunk_id": 150103,
+  "source": "library",
+  "book": "马列主义\\列宁选集\\列宁选集第四卷.pdf",
+  "lang": "zh",
+  "page": 411,
+  "question": "这个“临时”机关被要求在多长时间内转入正常状态？"
+ },
+ {
+  "id": 65,
+  "chunk_id": 154540,
+  "source": "library",
+  "book": "马列主义\\马恩选集\\马克思恩格斯选集第一卷.pdf",
+  "lang": "zh",
+  "page": 724,
+  "question": "巴罗—法卢内阁的解散为什么会让秩序党失去维持议会制度的关键支柱？"
+ },
+ {
+  "id": 66,
+  "chunk_id": 99691,
+  "source": "library",
+  "book": "物理\\物理学史科普\\上帝掷骰子吗——量子物理史话(曹天元).pdf",
+  "lang": "zh",
+  "page": 210,
+  "question": "如果微观粒子可以同时处于多种状态，为什么由它们组成的宏观物体却不会出现这种叠加现象？"
+ },
+ {
+  "id": 67,
+  "chunk_id": 133676,
+  "source": "library",
+  "book": "计算机\\操作系统 Linux\\Linux-UNIX系统编程手册（上册）.pdf",
+  "lang": "zh",
+  "page": 161,
+  "question": "既然salt只有两个字符、总共4096种可能，那破解程序为什么不直接对这4096种情况逐一尝试，而说预先加密整部字典不可行？"
+ },
+ {
+  "id": 68,
+  "chunk_id": 96376,
+  "source": "library",
+  "book": "物理\\朗道 理论物理学教程\\4878-朗道理论物理教程(卷04)-量子电动力学[www.hejizhan.com].pdf",
+  "lang": "zh",
+  "page": 486,
+  "question": "弗里定理为什么能让那些图求和后为零，但单个图本身却不等于零？"
+ },
+ {
+  "id": 69,
+  "chunk_id": 98188,
+  "source": "library",
+  "book": "物理\\朗道 理论物理学教程\\4882-朗道理论物理教程(卷08)-连续媒质电动力学[www.hejizhan.com].pdf",
+  "lang": "zh",
+  "page": 406,
+  "question": "波导中E波和H波的根本区别是什么？"
+ },
+ {
+  "id": 70,
+  "chunk_id": 113744,
+  "source": "library",
+  "book": "西方文史哲\\拉丁语\\拉丁语语法新编（第二版未定稿）Allen&Greenough著 顾枝鹰译.pdf",
+  "lang": "zh",
+  "page": 261,
+  "question": "-ne 加在其他单词上时，通常不再有 nōnne 的否定含义，那它最初“难道不”的意思是怎样逐渐消失的？"
+ },
+ {
+  "id": 71,
+  "chunk_id": 98894,
+  "source": "library",
+  "book": "物理\\物理学史科普\\上帝掷骰子吗——量子物理史话(曹天元).pdf",
+  "lang": "zh",
+  "page": 19,
+  "question": "阿拉果为什么拒绝在菲涅耳那部分论文上署名？"
+ },
+ {
+  "id": 72,
+  "chunk_id": 110285,
+  "source": "library",
+  "book": "物理\\量子场论\\量子场论第三卷.pdf",
+  "lang": "zh",
+  "page": 96,
+  "question": "这个四阶项展开式里，哪些项对应可观测的规范不变密度贡献？"
+ },
+ {
+  "id": 73,
+  "chunk_id": 135786,
+  "source": "library",
+  "book": "计算机\\操作系统 Linux\\Linux-UNIX系统编程手册（下册）.pdf",
+  "lang": "zh",
+  "page": 159,
+  "question": "LD_PRELOAD 覆盖函数时，如果多个预加载库都定义了同名函数，动态链接器会优先使用哪一个？"
+ },
+ {
+  "id": 74,
+  "chunk_id": 158243,
+  "source": "library",
+  "book": "马列主义\\马恩选集\\马克思恩格斯选集第三卷.pdf",
+  "lang": "zh",
+  "page": 942,
+  "question": "这段文本把判断分成四类，其中第二类和第三类都被归为“特殊的判断”，这两类判断在分类依据上具体有什么区别？"
+ },
+ {
+  "id": 75,
+  "chunk_id": 83226,
+  "source": "library",
+  "book": "数学\\微分几何\\黎曼几何初步-伍鸿熙 沈纯理 虞言林.pdf",
+  "lang": "en",
+  "page": 89,
+  "question": "What contradiction arises from assuming a nonzero point where the Jacobi field vanishes?"
+ },
+ {
+  "id": 76,
+  "chunk_id": 125577,
+  "source": "library",
+  "book": "计算机\\其他\\重构 改善既有代码的设计 = Refactoring _ improving the design of -- 福勒 (Fowler, Martin) -- 1, 2022 -- 北京：人民邮电出版社 -- isbn13 9787115508652 -- efa53bb595772b34653f0c51be45dd38 -- Anna’s Archive.pdf",
+  "lang": "en",
+  "page": 411,
+  "question": "What is the purpose of extracting a superclass in this refactoring example?"
+ },
+ {
+  "id": 77,
+  "chunk_id": 124303,
+  "source": "library",
+  "book": "计算机\\其他\\重构 改善既有代码的设计 = Refactoring _ improving the design of -- 福勒 (Fowler, Martin) -- 1, 2022 -- 北京：人民邮电出版社 -- isbn13 9787115508652 -- efa53bb595772b34653f0c51be45dd38 -- Anna’s Archive.pdf",
+  "lang": "en",
+  "page": 48,
+  "question": "What does the `format` function do with the number passed to it?"
+ },
+ {
+  "id": 78,
+  "chunk_id": 83526,
+  "source": "library",
+  "book": "数学\\微分几何\\黎曼几何初步-伍鸿熙 沈纯理 虞言林.pdf",
+  "lang": "en",
+  "page": 176,
+  "question": "What role does the condition \\(T(k)=T(k)\\) play in extending \\(T\\) from \\(L^1_+(M)\\) to \\(L^1(M)\\)?"
+ },
+ {
+  "id": 79,
+  "chunk_id": 124806,
+  "source": "library",
+  "book": "计算机\\其他\\重构 改善既有代码的设计 = Refactoring _ improving the design of -- 福勒 (Fowler, Martin) -- 1, 2022 -- 北京：人民邮电出版社 -- isbn13 9787115508652 -- efa53bb595772b34653f0c51be45dd38 -- Anna’s Archive.pdf",
+  "lang": "en",
+  "page": 176,
+  "question": "What is the main purpose of combining functions into a class according to this passage?"
+ },
+ {
+  "id": 80,
+  "chunk_id": 83174,
+  "source": "library",
+  "book": "数学\\微分几何\\黎曼几何初步-伍鸿熙 沈纯理 虞言林.pdf",
+  "lang": "en",
+  "page": 73,
+  "question": "What role does the reflection map ϕ play in relating the spheres Sn and S2?"
+ },
+ {
+  "id": 81,
+  "chunk_id": 124649,
+  "source": "library",
+  "book": "计算机\\其他\\重构 改善既有代码的设计 = Refactoring _ improving the design of -- 福勒 (Fowler, Martin) -- 1, 2022 -- 北京：人民邮电出版社 -- isbn13 9787115508652 -- efa53bb595772b34653f0c51be45dd38 -- Anna’s Archive.pdf",
+  "lang": "en",
+  "page": 130,
+  "question": "What role do producers play in the process described?"
+ },
+ {
+  "id": 82,
+  "chunk_id": 103694,
+  "source": "library",
+  "book": "物理\\统计力学\\初识统计物理 陈童 东华理工大学.pdf",
+  "lang": "en",
+  "page": 22,
+  "question": "What does the equation dU = TdS − pdV represent in this thermodynamic context?"
+ },
+ {
+  "id": 83,
+  "chunk_id": 103894,
+  "source": "library",
+  "book": "物理\\统计力学\\热力学与统计物理-刘川v2.0.pdf",
+  "lang": "en",
+  "page": 27,
+  "question": "What do the contributions of Clausius and Kelvin/Thomson establish about the second law of thermodynamics?"
+ },
+ {
+  "id": 84,
+  "chunk_id": 83422,
+  "source": "library",
+  "book": "数学\\微分几何\\黎曼几何初步-伍鸿熙 沈纯理 虞言林.pdf",
+  "lang": "en",
+  "page": 144,
+  "question": "What does Klingenberg's theorem say about the injectivity radius when the sectional curvature lies between 1/4 and 1?"
+ },
+ {
+  "id": 85,
+  "chunk_id": 165801,
+  "source": "teubner_conte",
+  "book": "conte_aeneis",
+  "lang": "latin",
+  "page": 103,
+  "question": "What does the falling star's path and the smoking sulfur trail signify?"
+ },
+ {
+  "id": 86,
+  "chunk_id": 165459,
+  "source": "teubner_conte",
+  "book": "conte_aeneis",
+  "lang": "latin",
+  "page": 21,
+  "question": "What evidence would make the author reconsider rejecting a common archetype despite the widespread contamination?"
+ },
+ {
+  "id": 87,
+  "chunk_id": 166028,
+  "source": "teubner_conte",
+  "book": "conte_aeneis",
+  "lang": "latin",
+  "page": 159,
+  "question": "Why does Juno send Iris to release Dido's struggling soul before Proserpina has claimed her hair?"
+ },
+ {
+  "id": 88,
+  "chunk_id": 166517,
+  "source": "teubner_conte",
+  "book": "conte_aeneis",
+  "lang": "latin",
+  "page": 279,
+  "question": "What textual evidence supports choosing \"dirae\" over \"diuae\" at line 701?"
+ },
+ {
+  "id": 89,
+  "chunk_id": 166590,
+  "source": "teubner_conte",
+  "book": "conte_aeneis",
+  "lang": "latin",
+  "page": 297,
+  "question": "What does Nisus offer to do when he shouts to the Rutulians?"
+ },
+ {
+  "id": 90,
+  "chunk_id": 166684,
+  "source": "teubner_conte",
+  "book": "conte_aeneis",
+  "lang": "latin",
+  "page": 319,
+  "question": "What does the poet say about the founding and ancestry of Mantua?"
+ },
+ {
+  "id": 91,
+  "chunk_id": 165578,
+  "source": "teubner_conte",
+  "book": "conte_aeneis",
+  "lang": "latin",
+  "page": 46,
+  "question": "What material was the Ambrosianus manuscript reused for?"
+ },
+ {
+  "id": 92,
+  "chunk_id": 166726,
+  "source": "teubner_conte",
+  "book": "conte_aeneis",
+  "lang": "latin",
+  "page": 329,
+  "question": "What does Hercules do when he hears the young man's plea?"
+ },
+ {
+  "id": 93,
+  "chunk_id": 84500,
+  "source": "library",
+  "book": "数学\\抽象代数\\代数学方法-1 李文威.pdf",
+  "lang": "zh",
+  "page": 187,
+  "question": "多项式环的泛性质中，为什么要求f和g的像在S中满足交换条件？"
+ },
+ {
+  "id": 94,
+  "chunk_id": 106978,
+  "source": "library",
+  "book": "物理\\量子力学\\量子力学新讲 陈童 东华理工大学.pdf",
+  "lang": "zh",
+  "page": 334,
+  "question": "从单色波过渡到连续叠加时，为什么要用 u(ω)dω 替换原来的能量密度表达式？"
+ },
+ {
+  "id": 95,
+  "chunk_id": 158999,
+  "source": "library",
+  "book": "马列主义\\马恩选集\\马克思恩格斯选集第三卷.pdf",
+  "lang": "zh",
+  "page": 1156,
+  "question": "这段内容描述的是哪位历史人物？"
+ },
+ {
+  "id": 96,
+  "chunk_id": 97201,
+  "source": "library",
+  "book": "物理\\朗道 理论物理学教程\\4882-朗道理论物理教程(卷08)-连续媒质电动力学[www.hejizhan.com].pdf",
+  "lang": "zh",
+  "page": 106,
+  "question": "压电体与普通各向同性介电体的电致伸缩效应在应力与电场的关系上有何本质区别？"
+ },
+ {
+  "id": 97,
+  "chunk_id": 95652,
+  "source": "library",
+  "book": "物理\\朗道 理论物理学教程\\4878-朗道理论物理教程(卷04)-量子电动力学[www.hejizhan.com].pdf",
+  "lang": "zh",
+  "page": 275,
+  "question": "弹性散射情形下，t 和 u 用 cosθₛ 表示的公式里，那个 cosθₛ 具体是哪个参考系中哪两个动量之间的夹角？"
+ },
+ {
+  "id": 98,
+  "chunk_id": 138709,
+  "source": "library",
+  "book": "计算机\\操作系统 Linux\\LinuxProbe.pdf",
+  "lang": "zh",
+  "page": 375,
+  "question": "把监听地址改成any后，为什么还要单独保留IPv6那行的::1？"
+ },
+ {
+  "id": 99,
+  "chunk_id": 136295,
+  "source": "library",
+  "book": "计算机\\操作系统 Linux\\Linux-UNIX系统编程手册（下册）.pdf",
+  "lang": "zh",
+  "page": 317,
+  "question": "mq_getattr()和mq_setattr()分别用来做什么？"
+ },
+ {
+  "id": 100,
+  "chunk_id": 137766,
+  "source": "library",
+  "book": "计算机\\操作系统 Linux\\LinuxProbe.pdf",
+  "lang": "zh",
+  "page": 120,
+  "question": "通配符和转义字符在 Shell 中处理输入时有什么本质区别？"
+ }
+]

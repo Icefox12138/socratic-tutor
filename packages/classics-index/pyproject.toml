@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "classics-index"
+version = "0.1.0"
+description = "Chapter indexes (卷 / 篇 / 回) for scanned Chinese books, built from OCR of the running header"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "socratic-tutor contributors" }]
+keywords = ["chinese-classics", "scanned-books", "ocr", "table-of-contents", "pymupdf"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Text Processing :: Linguistic",
+]
+license = { text = "MIT" }
+dependencies = []
+
+[project.optional-dependencies]
+ocr = ["paddleocr>=3", "pillow", "pymupdf"]
+
+[project.scripts]
+classics-index = "classics_index.cli:main"
+
+[tool.setuptools]
+packages = ["classics_index"]

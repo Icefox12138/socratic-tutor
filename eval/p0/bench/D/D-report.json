@@ -1,0 +1,43 @@
+{
+ "branch": "D_classics",
+ "date": "2026-10-30",
+ "streams": {
+  "K1_apology": {"text": 0.475, "gloss": 0.425, "note": 0.088, "lineno": 0.012},
+  "K2_college_vergil": {"text": 0.0, "gloss": 0.762, "note": 0.227, "lineno": 0.01},
+  "K3_herodotus": {"text": 0.484, "gloss": 0.377, "note": 0.133, "lineno": 0.006},
+  "K4_livy": {"text": 0.0, "gloss": 0.663, "note": 0.327, "lineno": 0.01},
+  "finding": "K2/K4 sampled pages contain no main text -> commentary/vocab-only volumes; per-volume check required"
+ },
+ "identity": [
+  {"id": "L036", "l_number": "L036", "title": "Plato: Euthyphro, Apology, Crito, Phaedo, Phaedrus", "year": "1914", "verdict": "identity_ok"},
+  {"id": "L063N", "l_number": "L063N", "title": "Virgil: Aeneid I-VI (revised)", "year": "1916", "verdict": "identity_ok"},
+  {"id": "K7", "l_number": "Teubner", "title": "P. Vergili Maronis Aeneis (Conte)", "year": "2009", "verdict": "identity_ok"},
+  {"id": "K8", "l_number": "Teubner", "title": "Homerus: Ilias (West), vol. I", "year": "1998", "verdict": "identity_ok"}
+ ],
+ "cer": {
+  "latin_line": {"ref_lines": 755, "matched": 728, "coverage": 0.964, "weighted_cer": 0.0064, "p90": 0.027},
+  "greek_sentence": {"ref_sentences": 344, "matched": 304, "coverage": 0.884, "weighted_cer": 0.0607, "p90": 0.129},
+  "latin_sentence": {"ref_sentences": 3036, "matched": 1392, "coverage": 0.458, "weighted_cer": 0.0136},
+  "teubner_conte_line": {"lines": 755, "matched": 755, "coverage": 1.0, "weighted_cer": 0.019, "p90": 0.054}
+ },
+ "canary": {
+  "total_chunks": 109229,
+  "canary_rows": 1,
+  "view_student_hits": 0,
+  "view_tutor_hits": 0,
+  "view_answer_key_hits": 1,
+  "sql_unfiltered_hits": 1
+ },
+ "llm_stress": {"status": "deferred", "reason": "P1-0 owns 50-turn x 3-model admission; D14 only runs search-level canary"},
+ "gate": {
+  "three_streams_95": "unverified (heuristic font/Unicode split; no gold labels)",
+  "diacritics_99": "unverified (text layer preserves polytonic chars; not measured)",
+  "line_alignment_90": "pass (Latin coverage 96.4%)",
+  "loeb_latin_2": "pass (0.64%)",
+  "loeb_greek_8": "pass (6.07%)",
+  "teubner_2_5": "pass (1.9%)",
+  "identity_100": "pass (4/4 identity_ok)"
+ },
+ "verdict": "conditional_pass",
+ "caveats": ["K2/K4 commentary-only; check each Steadman volume before scheduling", "three-stream accuracy needs gold labels in P1", "LLM stress deferred to P1-0"]
+}

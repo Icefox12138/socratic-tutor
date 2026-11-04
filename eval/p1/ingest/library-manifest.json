@@ -1,0 +1,606 @@
+{
+ "summary": {
+  "books_csv": 61,
+  "books_ingested": 61,
+  "pages": 25839,
+  "text_pages": 24142,
+  "chunks": 87566,
+  "queries": {
+   "total": 8,
+   "hit": 2,
+   "detail": [
+    {
+     "q": "微分",
+     "hits": 0,
+     "contains": false
+    },
+    {
+     "q": "极限",
+     "hits": 0,
+     "contains": false
+    },
+    {
+     "q": "矩阵",
+     "hits": 0,
+     "contains": false
+    },
+    {
+     "q": "帝国主义",
+     "hits": 3,
+     "contains": true
+    },
+    {
+     "q": "剩余价值",
+     "hits": 5,
+     "contains": true
+    },
+    {
+     "q": "资本",
+     "hits": 0,
+     "contains": false
+    },
+    {
+     "q": "函数",
+     "hits": 0,
+     "contains": false
+    },
+    {
+     "q": "革命",
+     "hits": 0,
+     "contains": false
+    }
+   ]
+  }
+ },
+ "books": [
+  {
+   "rel": "数学\\其他\\随机过程\\随机过程 方兆本.pdf",
+   "pages": 177,
+   "text_pages": 169,
+   "chars": 172533,
+   "book_id": "c7e73ee533738d80",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "数学\\复变函数\\复变函数-史济怀 -- 史济怀 & 刘太顺(向禹重排) -- 2025 -- 合肥：中国科学技术大学出版社 -- isbn13 9787312009990 -- 624157317fc5094ac4d5afe5fbb6315f -- Anna’s Archive.pdf",
+   "pages": 289,
+   "text_pages": 287,
+   "chars": 269538,
+   "book_id": "815740ebe919a9f4",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "数学\\实变函数 泛函分析\\泛函分析讲义（第二版）上 张恭庆.pdf",
+   "pages": 330,
+   "text_pages": 321,
+   "chars": 205786,
+   "book_id": "d684e8cdc934eb40",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "数学\\布尔巴基\\法兰西数学精品译丛14-线性与非线性泛函分析及其应用  上（修订版）,菲立普.G.希阿雷,北京：高等教育出版社_14295239.pdf",
+   "pages": 538,
+   "text_pages": 520,
+   "chars": 637882,
+   "book_id": "e6733f36239495d7",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "数学\\常微分方程\\国外教材\\常微分方程 -- V_I_阿诺尔德 , 沈家联, 周宝熙, 卢亭鹤 -- 数学名著译丛, 2001 -- 科学出版社 -- 3abd39833a97b5eebc288a4424d39065 -- Anna’s Archive.pdf",
+   "pages": 302,
+   "text_pages": 296,
+   "chars": 209721,
+   "book_id": "9e0570c12c82382f",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "数学\\微分几何\\黎曼几何初步-伍鸿熙 沈纯理 虞言林.pdf",
+   "pages": 279,
+   "text_pages": 275,
+   "chars": 272213,
+   "book_id": "f58f579b5c33f25a",
+   "lang": "en",
+   "status": "ingested"
+  },
+  {
+   "rel": "数学\\抽象代数\\代数学方法-1 李文威.pdf",
+   "pages": 445,
+   "text_pages": 435,
+   "chars": 454794,
+   "book_id": "14f976305e67c92d",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "数学\\抽象代数\\代数学方法-2 李文威.pdf",
+   "pages": 652,
+   "text_pages": 635,
+   "chars": 680038,
+   "book_id": "d21cdd2cda2bbe97",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "数学\\抽象代数\\代数学讲义 李文威.pdf",
+   "pages": 709,
+   "text_pages": 693,
+   "chars": 737111,
+   "book_id": "0d906902a98f89ba",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "数学\\抽象代数\\近世代数引论_第四版(扫描清晰+书签+纠偏) -- 冯克勤, 李尚志, 章璞 -- 4 ban, He fei, 2018 -- 合肥：中国科学技术大学出版社 -- isbn13 9787312045141 -- d94dc448f58cda388cde77fa119063f1 -- Anna’s Archive.pdf",
+   "pages": 202,
+   "text_pages": 199,
+   "chars": 206424,
+   "book_id": "15fb594f4b4f117c",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "数学\\数论\\国外教材\\华章数学译丛42-初等数论及其应用(中文版.原书第5版)-[美]Kenneth.H.Rosen-机械工业出版社-2009.pdf",
+   "pages": 488,
+   "text_pages": 13,
+   "chars": 13194,
+   "book_id": "5759c71dc96a5f16",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\固体物理 凝聚态物理\\固体物理学-黄昆-教材扫描版(高清)_含目录.pdf",
+   "pages": 618,
+   "text_pages": 4,
+   "chars": 1652,
+   "book_id": "c504d67e114139cd",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\广义相对论 宇宙学\\引力论讲义 陈童 东华理工大学.pdf",
+   "pages": 362,
+   "text_pages": 352,
+   "chars": 362720,
+   "book_id": "c11293c1b77f42b5",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\普通物理学\\赵凯华 新概念物理教程\\1新概念物理教程 力学 习题答案.pdf",
+   "pages": 17,
+   "text_pages": 17,
+   "chars": 23494,
+   "book_id": "0aed96f0206cff4d",
+   "lang": "en",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\普通物理学\\赵凯华 新概念物理教程\\3新概念物理教程 电磁学（第3版）思考题和习题答案.pdf",
+   "pages": 169,
+   "text_pages": 169,
+   "chars": 172536,
+   "book_id": "35e9a8031dc112b9",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\普通物理学\\赵凯华 新概念物理教程\\4新概念物理教程 光学 思考题解答.pdf",
+   "pages": 78,
+   "text_pages": 76,
+   "chars": 58771,
+   "book_id": "12bcac6884187f4a",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\普通物理学\\赵凯华 新概念物理教程\\5新概念物理教程 量子物理.pdf",
+   "pages": 478,
+   "text_pages": 467,
+   "chars": 455494,
+   "book_id": "b9b3e2af22014b3e",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\朗道 理论物理学教程\\4878-朗道理论物理教程(卷04)-量子电动力学[www.hejizhan.com].pdf",
+   "pages": 646,
+   "text_pages": 632,
+   "chars": 539833,
+   "book_id": "719b1f38c440d1d2",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\朗道 理论物理学教程\\4882-朗道理论物理教程(卷08)-连续媒质电动力学[www.hejizhan.com].pdf",
+   "pages": 595,
+   "text_pages": 589,
+   "chars": 489542,
+   "book_id": "00e1ce3ea6d281f0",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\物理学史科普\\上帝掷骰子吗——量子物理史话(曹天元).pdf",
+   "pages": 249,
+   "text_pages": 245,
+   "chars": 302839,
+   "book_id": "7af325c778c7385b",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\理论力学\\初识经典力学 陈童 东华理工大学.pdf",
+   "pages": 64,
+   "text_pages": 64,
+   "chars": 51545,
+   "book_id": "296e64ff2abc1e5d",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\理论力学\\经典力学 高显(2022).pdf",
+   "pages": 373,
+   "text_pages": 368,
+   "chars": 380478,
+   "book_id": "bb3080fc5cd091f9",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\理论力学\\经典力学新讲 陈童 东华理工大学.pdf",
+   "pages": 152,
+   "text_pages": 143,
+   "chars": 144210,
+   "book_id": "d2951dc00939071c",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\理论力学\\经典力学讲义-高显(2020).pdf",
+   "pages": 263,
+   "text_pages": 262,
+   "chars": 276273,
+   "book_id": "8e2bddc1b2e4ea28",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\电动力学\\电动力学讲义 陶鑫.pdf",
+   "pages": 140,
+   "text_pages": 137,
+   "chars": 163697,
+   "book_id": "22bc3d82e2a1e888",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\统计力学\\初识统计物理 陈童 东华理工大学.pdf",
+   "pages": 52,
+   "text_pages": 50,
+   "chars": 54211,
+   "book_id": "a4865f8ccf8f435b",
+   "lang": "en",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\统计力学\\热力学与统计物理-刘川v2.0.pdf",
+   "pages": 197,
+   "text_pages": 183,
+   "chars": 179488,
+   "book_id": "e00ecb455b538afc",
+   "lang": "en",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\统计力学\\统计物理新讲 陈童 东华理工大学.pdf",
+   "pages": 186,
+   "text_pages": 177,
+   "chars": 180061,
+   "book_id": "5d44580fc292a9c4",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\量子力学\\初识量子力学 陈童 东华理工大学.pdf",
+   "pages": 154,
+   "text_pages": 153,
+   "chars": 131063,
+   "book_id": "cf7403cc9f7a014d",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\量子力学\\量子力学新讲 陈童 东华理工大学.pdf",
+   "pages": 444,
+   "text_pages": 428,
+   "chars": 523930,
+   "book_id": "0b74a068d16c9115",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\量子场论\\初识经典场论 陈童 东华理工大学.pdf",
+   "pages": 58,
+   "text_pages": 57,
+   "chars": 43599,
+   "book_id": "622139d0d6e1b2f4",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\量子场论\\经典场论新讲 陈童 东华理工大学.pdf",
+   "pages": 136,
+   "text_pages": 130,
+   "chars": 125808,
+   "book_id": "e5827f5bd586a16f",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\量子场论\\量子场论第一卷（二校）.pdf",
+   "pages": 455,
+   "text_pages": 441,
+   "chars": 571103,
+   "book_id": "60e517394fcde71e",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\量子场论\\量子场论第三卷.pdf",
+   "pages": 304,
+   "text_pages": 297,
+   "chars": 414666,
+   "book_id": "075f0937fe580133",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "物理\\量子场论\\量子场论第二卷.pdf",
+   "pages": 354,
+   "text_pages": 346,
+   "chars": 475925,
+   "book_id": "8986c7b0470a6636",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "西方文史哲\\拉丁语\\拉丁语语法新编（第二版未定稿）Allen&Greenough著 顾枝鹰译.pdf",
+   "pages": 574,
+   "text_pages": 570,
+   "chars": 888398,
+   "book_id": "6a1b92019623db5c",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\C C++\\C程序设计语言(第2版·新版) -- Brian W_ Kernighan, Dennis M_ Ritchie -- 2004 -- 机械工业出版社 -- 3a1b5525d7af632fa9ecddd34276a07e -- Anna’s Archive.pdf",
+   "pages": 296,
+   "text_pages": 289,
+   "chars": 328995,
+   "book_id": "900c7c9cd687db18",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\C C++\\Linux多线程服务端编程：使用muduo C++网络库.pdf",
+   "pages": 151,
+   "text_pages": 144,
+   "chars": 180033,
+   "book_id": "f3bec0cb8040c2e0",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\Java Spring Android\\Android编程权威指南 第3版.pdf",
+   "pages": 597,
+   "text_pages": 588,
+   "chars": 660043,
+   "book_id": "fed92744f6c708bc",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\Java Spring Android\\Spring Cloud微服务实战.pdf",
+   "pages": 442,
+   "text_pages": 439,
+   "chars": 519179,
+   "book_id": "4d537d7f0d1ef4c2",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\Java Spring Android\\SpringBoot实战.pdf",
+   "pages": 225,
+   "text_pages": 218,
+   "chars": 275875,
+   "book_id": "352ce42cfbaaad98",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\其他\\InterviewGuide第四版By阿秀.pdf",
+   "pages": 420,
+   "text_pages": 397,
+   "chars": 400893,
+   "book_id": "099ad07855024c0a",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\其他\\Pro.Git中文版.pdf",
+   "pages": 241,
+   "text_pages": 235,
+   "chars": 263084,
+   "book_id": "461bdf75928b2432",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\其他\\重构 改善既有代码的设计 = Refactoring _ improving the design of -- 福勒 (Fowler, Martin) -- 1, 2022 -- 北京：人民邮电出版社 -- isbn13 9787115508652 -- efa53bb595772b34653f0c51be45dd38 -- Anna’s Archive.pdf",
+   "pages": 460,
+   "text_pages": 451,
+   "chars": 518360,
+   "book_id": "e48b1a90232adf68",
+   "lang": "en",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\嵌入式\\[野火]《Linux基础与应用开发实战指南——基于STM32MP157开发板》.pdf",
+   "pages": 651,
+   "text_pages": 563,
+   "chars": 405977,
+   "book_id": "fa74d181d3321afb",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\嵌入式\\[野火®]《FreeRTOS 内核实现与应用开发实战—基于STM32》.pdf",
+   "pages": 466,
+   "text_pages": 459,
+   "chars": 765881,
+   "book_id": "f49aa22ef3a97f8f",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\嵌入式\\[野火®]《RT-Thread 内核实现与应用开发实战—基于STM32》.pdf",
+   "pages": 374,
+   "text_pages": 366,
+   "chars": 567856,
+   "book_id": "757e220acfb5f33f",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\嵌入式\\嵌入式Linux应用开发完全手册.pdf",
+   "pages": 593,
+   "text_pages": 583,
+   "chars": 697200,
+   "book_id": "7a31f6f37dddcaa4",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\操作系统 Linux\\Linux-UNIX系统编程手册（上册）.pdf",
+   "pages": 602,
+   "text_pages": 571,
+   "chars": 631289,
+   "book_id": "b1f6e381baa96379",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\操作系统 Linux\\Linux-UNIX系统编程手册（下册）.pdf",
+   "pages": 622,
+   "text_pages": 581,
+   "chars": 642197,
+   "book_id": "a69621e860189472",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\操作系统 Linux\\LinuxProbe.pdf",
+   "pages": 552,
+   "text_pages": 523,
+   "chars": 658152,
+   "book_id": "07ce61788860e57c",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\操作系统 Linux\\Linux命令行与shell脚本编程大全.第3版.pdf",
+   "pages": 621,
+   "text_pages": 609,
+   "chars": 649382,
+   "book_id": "caaf605de082bb4c",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\操作系统 Linux\\操作系统导论.pdf",
+   "pages": 492,
+   "text_pages": 490,
+   "chars": 589964,
+   "book_id": "6e28d1395f109382",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\操作系统 Linux\\现代操作系统原理与实现.pdf",
+   "pages": 390,
+   "text_pages": 388,
+   "chars": 411774,
+   "book_id": "7464b40ea8bda775",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\计算机网络\\网络是怎样连接的.pdf",
+   "pages": 362,
+   "text_pages": 350,
+   "chars": 239028,
+   "book_id": "9de26f287708c264",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "计算机\\计算机网络\\计算机网络-自顶向下方法第七版.pdf",
+   "pages": 529,
+   "text_pages": 528,
+   "chars": 745865,
+   "book_id": "2fd6be76bb92ea01",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "马列主义\\列宁选集\\列宁选集第四卷.pdf",
+   "pages": 922,
+   "text_pages": 917,
+   "chars": 1360270,
+   "book_id": "233355b58d349b99",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "马列主义\\马恩选集\\马克思恩格斯选集第一卷.pdf",
+   "pages": 1038,
+   "text_pages": 1028,
+   "chars": 778457,
+   "book_id": "29a67894ad258191",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "马列主义\\马恩选集\\马克思恩格斯选集第三卷.pdf",
+   "pages": 1213,
+   "text_pages": 1198,
+   "chars": 911787,
+   "book_id": "a2825ca262405df5",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "马列主义\\马恩选集\\马克思恩格斯选集第二卷.pdf",
+   "pages": 982,
+   "text_pages": 969,
+   "chars": 721693,
+   "book_id": "2af2279a2da332ba",
+   "lang": "zh",
+   "status": "ingested"
+  },
+  {
+   "rel": "马列主义\\马恩选集\\马克思恩格斯选集第四卷.pdf",
+   "pages": 1069,
+   "text_pages": 1058,
+   "chars": 895464,
+   "book_id": "3e83a54c4d453966",
+   "lang": "zh",
+   "status": "ingested"
+  }
+ ]
+}

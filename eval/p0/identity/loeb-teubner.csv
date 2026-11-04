@@ -1,0 +1,5 @@
+id,l_number,title,edition_year,file,sha256,pages,verdict
+L036,L036,"Plato: Euthyphro, Apology, Crito, Phaedo, Phaedrus",1914 (Loeb; reprint),loeb/greek_L036_plato.pdf,c56389bb3d8be86463a9ef0c866f8ce525184d6e584ffc3b767ca9ba5838128e,601,identity_ok
+L063N,L063N,Virgil: Aeneid I-VI (revised),1916 (MCMXVI),loeb/latin_L063N_vergil.pdf,513412eba941138b4ccbc22f558867eabf5a82d355fb73667c4f769291f8ea36,576,identity_ok
+K7,Teubner,P. Vergili Maronis Aeneis (Conte),2009,teubner/conte_aeneis.pdf,8797089751e31a10db3d4b0b89c7fcf124b6e2149d458fa4dd6fed08a8b8ca6c,434,identity_ok
+K8,Teubner,"Homerus: Ilias (West), vol. I",1998,teubner/west_ilias1.pdf,b6f7da17b377ca96e2134f6713cecc423f78492da5292001372bb506af6963b3,432,identity_ok

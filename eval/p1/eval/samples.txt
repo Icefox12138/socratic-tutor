@@ -1,0 +1,8 @@
+greek | What does the speaker intend to achieve by overturning everything "up and down" with the trident and levers?
+greek | What is the function of the duplicated μέν…δέ construction in the temporal clause?
+zh | 为什么早期量子力学理论只能符合到第三位有效数字，而引入电子反常磁矩和量子电动力学修正后就能符合到第六位？
+zh | 客户端在什么情况下也需要用 bind() 给自己的 socket 绑定地址？
+zh | 阿拉果为什么拒绝在菲涅耳那部分论文上署名？
+zh | 这个四阶项展开式里，哪些项对应可观测的规范不变密度贡献？
+latin | What material was the Ambrosianus manuscript reused for?
+latin | What does Hercules do when he hears the young man's plea?

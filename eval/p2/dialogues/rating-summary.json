@@ -1,0 +1,52 @@
+{
+ "socratic": {
+  "mean": 4.7,
+  "sd": 0.47,
+  "ci95": [
+   4.48,
+   4.92
+  ]
+ },
+ "single_question": {
+  "mean": 5,
+  "sd": 0.0,
+  "ci95": [
+   5.0,
+   5.0
+  ]
+ },
+ "citation": {
+  "mean": 3.95,
+  "sd": 1.05,
+  "ci95": [
+   3.46,
+   4.44
+  ]
+ },
+ "no_leak": {
+  "mean": 5,
+  "sd": 0.0,
+  "ci95": [
+   5.0,
+   5.0
+  ]
+ },
+ "mastery": {
+  "mean": 3.5,
+  "sd": 0.51,
+  "ci95": [
+   3.26,
+   3.74
+  ]
+ },
+ "overall": {
+  "mean": 4.43,
+  "sd": 0.24,
+  "ci95": [
+   4.32,
+   4.54
+  ]
+ },
+ "n": 20,
+ "rater": "AI preliminary (single rater, NOT human)"
+}

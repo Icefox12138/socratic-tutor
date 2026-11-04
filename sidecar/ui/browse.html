@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>页图浏览 · socratic sidecar</title>
+<style>
+  :root { --ink:#1d1d1f; --muted:#6b6b70; --line:#e3e3e6; --bg:#fbfaf7; --accent:#8a4b21; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+         color:var(--ink); background:var(--bg); }
+  header { display:flex; gap:12px; align-items:center; padding:10px 16px;
+           border-bottom:1px solid var(--line); background:#fff; position:sticky; top:0; z-index:2; }
+  header h1 { font-size:15px; margin:0 12px 0 0; font-weight:600; }
+  select, input, button { font:inherit; padding:4px 8px; border:1px solid var(--line);
+           border-radius:6px; background:#fff; color:var(--ink); }
+  button { cursor:pointer; }
+  button:disabled { opacity:.45; cursor:default; }
+  main { display:grid; grid-template-columns: 280px 1fr; gap:0; min-height:calc(100vh - 53px); }
+  nav { border-right:1px solid var(--line); background:#fff; overflow:auto; max-height:calc(100vh - 53px); }
+  nav ol { list-style:none; margin:0; padding:8px 0; }
+  nav li { padding:6px 16px; cursor:pointer; border-left:3px solid transparent; }
+  nav li:hover { background:#f6f3ee; }
+  nav li.active { border-left-color:var(--accent); background:#f6f1ea; font-weight:600; }
+  nav li.pian { color:var(--muted); font-size:13px; padding-left:34px; }
+  nav li.pian.active { color:var(--ink); }
+  nav .meta { color:var(--muted); font-size:12px; padding:10px 16px; }
+  section.viewer { padding:16px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .bar { display:flex; gap:8px; align-items:center; }
+  img.page { max-width:min(100%, 900px); max-height:calc(100vh - 150px);
+             border:1px solid var(--line); background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .hint { color:var(--muted); font-size:12px; }
+  .empty { color:var(--muted); padding:32px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>页图浏览</h1>
+  <select id="book"><option value="">加载中…</option></select>
+  <span class="hint" id="bookinfo"></span>
+</header>
+<main>
+  <nav><div class="meta" id="tocmeta">选择一个有章回索引的书</div><ol id="toc"></ol></nav>
+  <section class="viewer">
+    <div class="bar">
+      <button id="prev">← 上一页</button>
+      <input id="page" type="number" min="1" value="1" style="width:88px">
+      <span class="hint" id="pageinfo">/ 0</span>
+      <button id="next">下一页 →</button>
+      <button id="fit">适应宽度</button>
+    </div>
+    <img id="pageimg" class="page" alt="页图" hidden>
+    <div class="empty" id="empty">选一本书开始</div>
+    <div class="hint">键盘 ← → 翻页；点击左侧章回跳转</div>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+let books = [], toc = [], book = null, page = 1, total = 0, dpi = 150;
+
+async function api(path) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error(path + " -> " + r.status);
+  return r.json();
+}
+
+function showPage(n) {
+  if (!book) return;
+  page = Math.max(1, Math.min(total || 1, n));
+  $("page").value = page;
+  $("pageinfo").textContent = "/ " + (total || "?");
+  const img = $("pageimg");
+  img.src = "/v1/pages?source=" + encodeURIComponent(book.source) +
+            "&book=" + encodeURIComponent(book.book) + "&page=" + page + "&dpi=" + dpi;
+  img.hidden = false;
+  $("empty").hidden = true;
+  $("prev").disabled = page <= 1;
+  $("next").disabled = total ? page >= total : false;
+  highlightChapter();
+}
+
+function chapterAt(p) {
+  for (const c of toc) if (p >= c.page_start && p <= c.page_end) return c;
+  return null;
+}
+
+function highlightChapter() {
+  const cur = chapterAt(page);
+  document.querySelectorAll("#toc li").forEach((li) => {
+    li.classList.toggle("active", cur && Number(li.dataset.start) === cur.page_start);
+  });
+  if (cur) $("bookinfo").textContent = cur.title + " · p." + page;
+}
+
+async function loadBook(entry) {
+  book = entry;
+  const t = await api("/v1/toc?source=" + encodeURIComponent(entry.source) +
+                      "&book=" + encodeURIComponent(entry.book));
+  toc = t.chapters || [];
+  total = t.pages || 0;
+  $("toc").innerHTML = "";
+  for (const c of toc) {
+    const li = document.createElement("li");
+    li.dataset.start = c.page_start;
+    if (c.level === 2) li.className = "pian";
+    li.textContent = c.title;
+    li.title = "p." + c.page_start + "–" + c.page_end;
+    li.onclick = () => showPage(c.page_start);
+    $("toc").appendChild(li);
+  }
+  $("tocmeta").textContent = toc.length + " 章 · 共 " + (total || "?") + " 页";
+  showPage(toc.length ? toc[0].page_start : 1);
+}
+
+async function boot() {
+  try {
+    const r = await api("/v1/books");
+    books = r.books || [];
+    const sel = $("book");
+    sel.innerHTML = "";
+    if (!books.length) {
+      sel.innerHTML = '<option value="">（暂无章回索引）</option>';
+      $("empty").textContent = "还没有书建索引：先跑 eval/p3/build_toc.py";
+      return;
+    }
+    books.forEach((b, i) => {
+      const o = document.createElement("option");
+      o.value = i;
+      o.textContent = b.book.slice(0, 40) + "（" + b.chapters + " 章）";
+      sel.appendChild(o);
+    });
+    sel.onchange = () => loadBook(books[Number(sel.value)]);
+    // Deep link from the chat citation card: /browse?book=<key>&page=<n>
+    const params = new URLSearchParams(location.search);
+    const wantBook = params.get("book");
+    const wantPage = Number(params.get("page") || 0);
+    const idx = wantBook ? books.findIndex((b) => b.book === wantBook) : -1;
+    const pick = idx >= 0 ? idx : 0;
+    sel.value = String(pick);
+    await loadBook(books[pick]);
+    if (wantPage) showPage(wantPage);
+  } catch (e) {
+    $("empty").textContent = "加载失败：" + e.message;
+  }
+}
+$("prev").onclick = () => showPage(page - 1);
+$("next").onclick = () => showPage(page + 1);
+$("page").onchange = (e) => showPage(Number(e.target.value));
+$("fit").onclick = () => { dpi = dpi === 150 ? 200 : 150; showPage(page); };
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft") showPage(page - 1);
+  if (e.key === "ArrowRight") showPage(page + 1);
+});
+boot();
+</script>
+</body>
+</html>

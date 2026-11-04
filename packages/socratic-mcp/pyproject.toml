@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "socratic-mcp"
+version = "0.1.0"
+description = "MCP server exposing a Socratic sidecar (kb_search, chapters, review) to any agent host"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "socratic-tutor contributors" }]
+keywords = ["mcp", "model-context-protocol", "rag", "citations", "tutor"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Education",
+]
+license = { text = "MIT" }
+dependencies = []
+
+[project.scripts]
+socratic-mcp = "socratic_mcp.server:main"
+
+[tool.setuptools]
+packages = ["socratic_mcp"]

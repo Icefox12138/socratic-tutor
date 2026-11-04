@@ -1,0 +1,58 @@
+# private data / derived artifacts (never publish)
+data/
+*.npy
+*.npz
+*.db
+*.sqlite
+*.pdf
+*.zst
+eval/p1/ingest/*.db
+eval/p1/bge/*.npy
+eval/p2/dialogues/traces*/
+eval/p3/out/
+eval/p3/vert/
+
+# runtime
+.venv*/
+__pycache__/
+*.pyc
+node_modules/
+cache/
+sidecar/cache/
+sidecar/state.db
+plugin-socratic/pre-step.log
+
+# builds
+dist/
+build/
+*.egg-info/
+out-*.json
+
+# derived page renders (contain book pages; never commit)
+eval/*/pages/
+eval/p1/bakeoff/pages/
+eval/p2/table/pages/
+eval/p2/table/out/
+
+# synthetic demo corpus (regenerate with eval/p3/make_demo_corpus.py)
+samples/PDF/
+samples/*.db
+samples/cache/
+samples/*.png
+
+tmp/
+
+# ---- eval artifacts (derived from copyrighted books: never publish) ----
+eval/**/out/
+eval/**/pages/
+eval/**/vert/
+eval/p0/retrieval/
+eval/p1/bge/
+eval/p1/ingest/*.db
+eval/p2/*/out/
+*.db
+*.db-wal
+*.db-shm
+*.npy
+*.npz
+*.pdf

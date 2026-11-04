@@ -1,0 +1,28 @@
+{
+ "branch": "C_zh_vertical",
+ "date": "2026-10-30",
+ "samples": {
+  "C1_shiji": {
+   "page": 76,
+   "columns_detected": 18,
+   "order": "right-to-left by x descending (visually verified)",
+   "column_width_px": [40, 44, 45, 44, 43, 45, 46, 45, 46, 45, 44, 44, 44, 45, 45, 44, 43, 44],
+   "ocr": "PP-OCR on rotated columns: 0–46 chars/column, garbled; no usable text",
+   "notes": "main text and small-font commentary share columns; no double-line/notes separation"
+  },
+  "C2_shisanjing": {
+   "page": 103,
+   "regions_detected": 9,
+   "issue": "first region width 525 px merges a commentary block; narrow columns 26–33 px",
+   "ocr": "one merged block yielded 549 chars; narrow columns 0–24 chars",
+   "notes": "commentary blocks not separated from main text"
+  }
+ },
+ "gate": {
+  "standard": "column order >=95%; note error <=10%; CER <=5%",
+  "result": "fail_ocr_notes",
+  "reason": "column order OK (18/18 RTL); double-line notes not separated; vertical OCR unusable with PP-OCR even after 3x upscale",
+  "fallback": "竖排只做页图引用（page image + bbox）；P1 用 VLM/古籍专用 OCR；不做逐字检索/引用"
+ },
+ "artifacts": ["C-layout.json", "C-upscale-ocr.json", "pages/*_annot.png", "pages/*.png", "layout_C.py"]
+}

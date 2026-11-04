@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>苏格拉底教学台</title>
+<style>
+:root{--bg:#f5f1e8;--card:#fffdf7;--ink:#1f2328;--muted:#6b6257;--line:#ded5c4;--accent:#2f6f5e;--warn:#a4522d;--ok:#2f6f5e;--chip:#efe7d6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid var(--line);background:rgba(255,253,247,.9);position:sticky;top:0;z-index:10}
+header h1{font-size:17px;margin:0;letter-spacing:.5px}
+.badge{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 9px;background:var(--card)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warn);margin-right:6px}
+.dot.on{background:var(--ok)}
+header .spacer{flex:1}
+input,textarea,button{font:inherit}
+input,textarea{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--ink);outline:none}
+input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(47,111,94,.12)}
+button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+button:disabled{opacity:.45;cursor:not-allowed}
+main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:18px;padding:18px 22px 40px;max-width:1280px;margin:0 auto}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+h2{font-size:14px;margin:0 0 10px;color:var(--muted);font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+.searchbar{display:flex;gap:8px}
+.searchbar input{flex:1}
+#results{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.hit{border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fffef9}
+.hit .loc{font-size:13px;font-weight:600;word-break:break-all}
+.hit .snippet{font-size:13px;color:#3c3731;margin:6px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hit .meta{font-size:12px;color:var(--muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.hit .meta button{padding:4px 9px;font-size:12px}
+.state-row{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin:7px 0}
+.state-row b{font-weight:600}
+.phase{display:inline-block;background:#e7f0ec;color:var(--accent);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700}
+.hints{display:flex;gap:4px;margin:10px 0 4px;flex-wrap:wrap}
+.hints span{font-size:11px;border:1px solid var(--line);border-radius:6px;padding:3px 6px;color:var(--muted);background:var(--chip)}
+.hints span.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.bar{height:7px;background:#ece4d3;border-radius:99px;overflow:hidden;margin:6px 0 2px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--warn),var(--accent));width:0}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.actions button{padding:6px 9px;font-size:12px}
+.log{font-size:12px;color:var(--muted);white-space:pre-wrap;word-break:break-word;max-height:150px;overflow:auto;border-top:1px dashed var(--line);padding-top:8px;margin-top:10px}
+dialog{border:0;border-radius:14px;padding:0;background:#1f2328;max-width:94vw;max-height:94vh}
+dialog::backdrop{background:rgba(20,20,20,.62)}
+dialog img{display:block;max-width:92vw;max-height:88vh}
+dialog .close{position:absolute;right:10px;top:10px;background:rgba(0,0,0,.55)}
+.empty{color:var(--muted);font-size:13px;padding:14px 0}
+kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 4px;background:#fff}
+</style>
+</head>
+<body>
+<header>
+  <h1>苏格拉底教学台</h1>
+  <span class="badge"><span id="dot" class="dot"></span><span id="health">连接中…</span></span>
+  <span class="badge">sidecar 0.1</span>
+  <a class="badge" href="/browse" style="text-decoration:none;color:var(--accent)">页图浏览 →</a>
+  <span class="spacer"></span>
+  <input id="token" type="password" placeholder="可选 token" style="width:130px" autocomplete="off">
+</header>
+<main>
+  <section class="card">
+    <h2>检索 · 引用卡</h2>
+    <div class="searchbar">
+      <input id="q" placeholder="例如：导数的定义 / 帝国主义的特征" autocomplete="off">
+      <button id="go">检索</button>
+    </div>
+    <div id="results"><div class="empty">输入问题，回车或点“检索”。每条结果都可回页图。</div></div>
+  </section>
+
+  <aside class="card">
+    <h2>教学状态</h2>
+    <div class="state-row"><span>阶段</span><span id="phase" class="phase">ALIGN</span></div>
+    <div class="state-row"><span>概念</span><b id="concept">未设定</b></div>
+    <div class="state-row"><span>提示级别</span><b id="hint">L0</b></div>
+    <div class="hints" id="hints"></div>
+    <div class="state-row"><span>尝试 / 连对</span><b><span id="attempts">0</span> / <span id="streak">0</span></b></div>
+    <div class="state-row"><span>掌握度</span><b id="mastery">未掌握</b></div>
+    <div class="bar"><i id="mbar"></i></div>
+    <div class="actions">
+      <button id="init" class="ghost">初始化</button>
+      <button data-ev="confirm_goal" class="ghost">确认目标</button>
+      <button data-ev="diagnosed" class="ghost">诊断完成</button>
+      <button data-ev="plan_ready" class="ghost">出计划</button>
+      <button data-ev="hint_request" class="ghost">求提示</button>
+      <button data-ev="next" class="ghost">下一题</button>
+      <button data-ev="stop" class="ghost">停止回顾</button>
+    </div>
+    <label style="font-size:12px;color:var(--muted)">当前问题（asked 用）</label>
+    <input id="question" placeholder="把本轮要问的问题放这里" style="width:100%;margin:4px 0 8px">
+    <label style="font-size:12px;color:var(--muted)">学生回答（自动判定）</label>
+    <textarea id="answer" rows="2" placeholder="学生原话…" style="width:100%;margin:4px 0"></textarea>
+    <div style="display:flex;gap:6px;margin:4px 0 0">
+      <input id="rubric" placeholder="rubric：关键点，逗号分隔" style="flex:1">
+      <button id="submitAnswer">提交回答</button>
+    </div>
+    <div id="log" class="log">等待初始化。</div>
+  </aside>
+</main>
+
+<dialog id="pageDlg">
+  <button class="close ghost" id="closeDlg">关闭</button>
+  <img id="pageImg" alt="页图">
+</dialog>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const params = new URLSearchParams(location.search);
+const state = {session: params.get("session") || localStorage.getItem("socratic_session") || ""};
+if (!state.session) {
+  state.session = (crypto.randomUUID ? crypto.randomUUID() : "s-" + Date.now());
+  localStorage.setItem("socratic_session", state.session);
+}
+$("#token").value = localStorage.getItem("socratic_token") || "";
+$("#token").addEventListener("change", () => localStorage.setItem("socratic_token", $("#token").value));
+
+async function api(path, opts = {}) {
+  const headers = Object.assign({}, opts.headers || {});
+  if (opts.body) headers["Content-Type"] = "application/json";
+  const t = $("#token").value.trim();
+  if (t) headers["X-Sidecar-Token"] = t;
+  const r = await fetch(path, Object.assign({}, opts, {headers}));
+  const ct = r.headers.get("content-type") || "";
+  const body = ct.includes("json") ? await r.json() : await r.text();
+  if (!r.ok) throw new Error((body && body.detail) || ("HTTP " + r.status));
+  return body;
+}
+
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+async function health() {
+  try {
+    const h = await api("/health");
+    $("#dot").classList.add("on");
+    $("#health").textContent = "索引 " + h.chunks + " · " + h.bge;
+  } catch (e) {
+    $("#dot").classList.remove("on");
+    $("#health").textContent = "sidecar 离线";
+  }
+}
+
+function level(p) { return p < 0.35 ? "未掌握" : (p <= 0.75 ? "在学" : "已掌握"); }
+
+function render(d) {
+  const s = d.state || d;
+  $("#phase").textContent = s.phase || "ALIGN";
+  $("#concept").textContent = s.concept || "未设定";
+  $("#hint").textContent = "L" + (s.hint_level || 0);
+  $("#attempts").textContent = s.attempts || 0;
+  $("#streak").textContent = s.correct_streak || 0;
+  const p = (s.mastery == null ? 0.3 : s.mastery);
+  $("#mastery").textContent = level(p);
+  $("#mbar").style.width = Math.round(p * 100) + "%";
+  const hints = ["L0 重述","L1 指向","L2 类比","L3 子步骤","L4 近完整","L5 答案"];
+  $("#hints").innerHTML = hints.map((h, i) => `<span class="${i === (s.hint_level||0) ? "active" : ""}">${h}</span>`).join("");
+  if (d.action) {
+    $("#log").textContent = "action: " + d.action.kind + "\n" + d.action.instruction +
+      (d.mastery ? "\n掌握：" + d.mastery.before + " → " + d.mastery.after + "（" + d.mastery.level + "）" : "") +
+      (d.evaluation ? "\n判定：" + d.evaluation.result + " / " + d.evaluation.confidence +
+        (d.evaluation.misconceptions && d.evaluation.misconceptions.length ? " / " + d.evaluation.misconceptions.join("、") : "") : "");
+  } else if (d.summary) {
+    $("#log").textContent = d.summary;
+  }
+}
+
+async function refresh() {
+  try { render(await api("/v1/state/" + encodeURIComponent(state.session))); }
+  catch (e) { $("#log").textContent = "尚未初始化：先点“初始化”，或先检索。"; }
+}
+
+async function search() {
+  const q = $("#q").value.trim();
+  if (!q) return;
+  $("#results").innerHTML = '<div class="empty">检索中…</div>';
+  try {
+    const d = await api("/v1/search?q=" + encodeURIComponent(q) + "&view=student&limit=6");
+    if (!d.results || !d.results.length) { $("#results").innerHTML = '<div class="empty">没有结果。</div>'; return; }
+    $("#results").innerHTML = "";
+    for (const r of d.results) {
+      const el = document.createElement("div");
+      el.className = "hit";
+      const c = r.citation || {};
+      el.innerHTML = `<div class="loc">${esc(c.locator || (r.book + " p." + r.page))}</div>
+        <div class="snippet">${esc(r.text || "")}</div>
+        <div class="meta"><span>${esc(r.source)}</span><span>${esc(r.lang)}</span>
+        <span>score ${esc(r.score)}</span><span>${esc(c.tier || "unknown")}</span>
+        <button class="ghost">回页图</button></div>`;
+      el.querySelector("button").addEventListener("click", () => openPage(c.page_image));
+      $("#results").appendChild(el);
+    }
+    $("#log").textContent = "检索 " + d.took_ms + " ms · " + (d.mode || "");
+  } catch (e) {
+    $("#results").innerHTML = `<div class="empty">检索失败：${esc(e.message)}</div>`;
+  }
+}
+
+function openPage(path) {
+  if (!path) return;
+  $("#pageImg").src = path;
+  $("#pageDlg").showModal();
+}
+$("#closeDlg").addEventListener("click", () => $("#pageDlg").close());
+$("#pageDlg").addEventListener("click", (e) => { if (e.target === $("#pageDlg")) $("#pageDlg").close(); });
+
+async function init() {
+  const concept = prompt("本轮概念（例如：导数）", "导数");
+  if (concept == null) return;
+  try {
+    const d = await api("/v1/state/init", {method: "POST", body: JSON.stringify({
+      session_id: state.session, goal: concept, concept: concept, lang: "zh"})});
+    render(d);
+  } catch (e) { $("#log").textContent = "初始化失败：" + e.message; }
+}
+
+async function step(event) {
+  const body = {session_id: state.session, event: event};
+  if (event === "asked") body.text = $("#question").value.trim();
+  if (event === "answer") {
+    body.text = $("#answer").value.trim();
+    body.rubric = $("#rubric").value.trim() || null;
+  }
+  try { render(await api("/v1/state/step", {method: "POST", body: JSON.stringify(body)})); }
+  catch (e) { $("#log").textContent = e.message; }
+}
+
+$("#go").addEventListener("click", search);
+$("#q").addEventListener("keydown", (e) => { if (e.key === "Enter") search(); });
+$("#init").addEventListener("click", init);
+document.querySelectorAll("[data-ev]").forEach(b => b.addEventListener("click", () => step(b.dataset.ev)));
+$("#submitAnswer").addEventListener("click", () => step("answer"));
+const initialQ = params.get("q");
+if (initialQ) { $("#q").value = initialQ; search(); }
+health(); refresh();
+</script>
+</body>
+</html>

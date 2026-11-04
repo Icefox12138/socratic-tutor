@@ -1,0 +1,56 @@
+{
+ "passed": 10,
+ "total": 10,
+ "rows": [
+  {
+   "name": "d sin(x)/x",
+   "ok": true,
+   "got": "cos(x)/x - sin(x)/x**2"
+  },
+  {
+   "name": "lim sin(x)/x",
+   "ok": true,
+   "got": "1"
+  },
+  {
+   "name": "d x^2",
+   "ok": true,
+   "got": "2*x"
+  },
+  {
+   "name": "int x^2",
+   "ok": true,
+   "got": "x**3/3"
+  },
+  {
+   "name": "lim x*sin(1/x)",
+   "ok": true,
+   "got": "1"
+  },
+  {
+   "name": "solve x^2-5x+6",
+   "ok": true,
+   "got": "{2, 3}"
+  },
+  {
+   "name": "det 2x2",
+   "ok": true,
+   "got": "-2"
+  },
+  {
+   "name": "inverse 2x2",
+   "ok": true,
+   "got": "Matrix([[-2, 1], [3/2, -1/2]])"
+  },
+  {
+   "name": "series sin",
+   "ok": true,
+   "got": "x**5/120 - x**3/6 + x"
+  },
+  {
+   "name": "d tan(x)",
+   "ok": true,
+   "got": "tan(x)**2 + 1"
+  }
+ ]
+}

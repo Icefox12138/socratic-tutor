@@ -1,0 +1,350 @@
+{
+ "cases": [
+  {
+   "question": "求 1/x 的导数",
+   "expected": "-1/x**2",
+   "claim": "-1/x**2",
+   "want_verdict": "correct",
+   "want_error": null,
+   "class": "baseline",
+   "got_verdict": "correct",
+   "got_error": null,
+   "evidence": "matches the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "求 1/x 的导数",
+   "expected": "-1/x**2",
+   "claim": "1/x**2",
+   "want_verdict": "incorrect",
+   "want_error": "sign",
+   "class": "sign",
+   "got_verdict": "incorrect",
+   "got_error": "sign",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "求 1/x 的导数",
+   "expected": "-1/x**2",
+   "claim": "-2/x**3",
+   "want_verdict": "incorrect",
+   "want_error": "formula",
+   "class": "formula",
+   "got_verdict": "incorrect",
+   "got_error": "formula",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "解 2x + 3 = 7",
+   "expected": "[2]",
+   "claim": "[2]",
+   "want_verdict": "correct",
+   "want_error": null,
+   "class": "baseline",
+   "got_verdict": "correct",
+   "got_error": null,
+   "evidence": "matches the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "解 2x + 3 = 7",
+   "expected": "[2]",
+   "claim": "[2, -2]",
+   "want_verdict": "incorrect",
+   "want_error": "formula",
+   "class": "formula",
+   "got_verdict": "incorrect",
+   "got_error": "formula",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "求 cos(x) 的积分",
+   "expected": "sin(x)",
+   "claim": "sin(x)",
+   "want_verdict": "correct",
+   "want_error": null,
+   "class": "baseline",
+   "got_verdict": "correct",
+   "got_error": null,
+   "evidence": "matches the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "求 cos(x) 的积分",
+   "expected": "sin(x)",
+   "claim": "-sin(x)",
+   "want_verdict": "incorrect",
+   "want_error": "sign",
+   "class": "sign",
+   "got_verdict": "incorrect",
+   "got_error": "sign",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "求 cos(x) 的积分",
+   "expected": "sin(x)",
+   "claim": "cos(x)",
+   "want_verdict": "incorrect",
+   "want_error": "formula",
+   "class": "formula",
+   "got_verdict": "incorrect",
+   "got_error": "formula",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "求 cos(x) 的积分",
+   "expected": "sin(x)",
+   "claim": "sin(t)",
+   "want_verdict": "incorrect",
+   "want_error": "misread",
+   "class": "misread",
+   "got_verdict": "incorrect",
+   "got_error": "misread",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "化简 x + x",
+   "expected": "2*x",
+   "claim": "2*x",
+   "want_verdict": "correct",
+   "want_error": null,
+   "class": "baseline",
+   "got_verdict": "correct",
+   "got_error": null,
+   "evidence": "matches the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "化简 x + x",
+   "expected": "2*x",
+   "claim": "3*x",
+   "want_verdict": "incorrect",
+   "want_error": "arithmetic",
+   "class": "arithmetic",
+   "got_verdict": "incorrect",
+   "got_error": "arithmetic",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "化简 x + x",
+   "expected": "2*x",
+   "claim": "2*y",
+   "want_verdict": "incorrect",
+   "want_error": "misread",
+   "class": "misread",
+   "got_verdict": "incorrect",
+   "got_error": "misread",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "化简 x + x",
+   "expected": "2*x",
+   "claim": "x",
+   "want_verdict": "incorrect",
+   "want_error": "incomplete",
+   "class": "incomplete",
+   "got_verdict": "incorrect",
+   "got_error": "arithmetic",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": false
+  },
+  {
+   "question": "100 cm 等于多少 m",
+   "expected": "1",
+   "claim": "1",
+   "want_verdict": "correct",
+   "want_error": null,
+   "class": "baseline",
+   "got_verdict": "correct",
+   "got_error": null,
+   "evidence": "matches the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "100 cm 等于多少 m",
+   "expected": "1",
+   "claim": "100",
+   "want_verdict": "incorrect",
+   "want_error": "unit",
+   "class": "unit",
+   "got_verdict": "incorrect",
+   "got_error": "arithmetic",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": false
+  },
+  {
+   "question": "求 e^x 的导数",
+   "expected": "e**x",
+   "claim": "e**x",
+   "want_verdict": "correct",
+   "want_error": null,
+   "class": "baseline",
+   "got_verdict": "correct",
+   "got_error": null,
+   "evidence": "matches the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "求 e^x 的导数",
+   "expected": "e**x",
+   "claim": "-e**x",
+   "want_verdict": "incorrect",
+   "want_error": "sign",
+   "class": "sign",
+   "got_verdict": "incorrect",
+   "got_error": "sign",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "求 e^x 的导数",
+   "expected": "e**x",
+   "claim": "x*e**x",
+   "want_verdict": "incorrect",
+   "want_error": "formula",
+   "class": "formula",
+   "got_verdict": "incorrect",
+   "got_error": "formula",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "解 x^2 = 9",
+   "expected": "[3, -3]",
+   "claim": "[3, -3]",
+   "want_verdict": "correct",
+   "want_error": null,
+   "class": "baseline",
+   "got_verdict": "correct",
+   "got_error": null,
+   "evidence": "matches the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "解 x^2 = 9",
+   "expected": "[3, -3]",
+   "claim": "[3]",
+   "want_verdict": "incorrect",
+   "want_error": "condition",
+   "class": "condition",
+   "got_verdict": "incorrect",
+   "got_error": "condition",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "计算 2^10",
+   "expected": "1024",
+   "claim": "1024",
+   "want_verdict": "correct",
+   "want_error": null,
+   "class": "baseline",
+   "got_verdict": "correct",
+   "got_error": null,
+   "evidence": "matches the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "计算 2^10",
+   "expected": "1024",
+   "claim": "512",
+   "want_verdict": "incorrect",
+   "want_error": "arithmetic",
+   "class": "arithmetic",
+   "got_verdict": "incorrect",
+   "got_error": "arithmetic",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  },
+  {
+   "question": "计算 2^10",
+   "expected": "1024",
+   "claim": "1024000",
+   "want_verdict": "incorrect",
+   "want_error": "unit",
+   "class": "unit",
+   "got_verdict": "incorrect",
+   "got_error": "unit",
+   "evidence": "differs from the recorded answer",
+   "verdict_ok": true,
+   "class_ok": true
+  }
+ ],
+ "metrics": {
+  "n": 23,
+  "n_wrong": 15,
+  "n_right": 8,
+  "verdict_accuracy": 1.0,
+  "wrong_detected": 1.0,
+  "correct_accepted": 1.0,
+  "class_accuracy": 0.8667,
+  "undetermined_rate": 0.0,
+  "per_class": {
+   "arithmetic": {
+    "n": 2,
+    "ok": 2,
+    "hits": 1.0
+   },
+   "condition": {
+    "n": 1,
+    "ok": 1,
+    "hits": 1.0
+   },
+   "formula": {
+    "n": 4,
+    "ok": 4,
+    "hits": 1.0
+   },
+   "incomplete": {
+    "n": 1,
+    "ok": 0,
+    "hits": 0.0
+   },
+   "misread": {
+    "n": 2,
+    "ok": 2,
+    "hits": 1.0
+   },
+   "sign": {
+    "n": 3,
+    "ok": 3,
+    "hits": 1.0
+   },
+   "unit": {
+    "n": 2,
+    "ok": 1,
+    "hits": 0.5
+   }
+  }
+ }
+}
