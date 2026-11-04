@@ -71,6 +71,8 @@ python scripts/ragdb_check.py                  # tells you which files it would 
 No database yet? `/health` answers `200 {"ok": false, "reason": "no_index"}` and the
 demo corpus below is enough to exercise the whole chain on five synthetic pages.
 
+> **Full manual** — install, start the sidecar, wire up the plugin or MCP, and the troubleshooting table: [`docs/USER-GUIDE.md`](docs/USER-GUIDE.md).
+
 ### Install the published pieces
 
 ```bash
