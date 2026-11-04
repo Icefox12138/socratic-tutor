@@ -12,6 +12,7 @@
 | `sidecar/ui/screenshot2.png` | 截图 | 本机 UI 空状态，无书页 | MIT（本项目） | ✅ |
 | `sidecar/ui/screenshot-demo.png` | 截图 | 无头浏览器对 `samples/` 合成语料的真实检索（`?q=极限`） | MIT（本项目） | ✅ |
 | `sidecar/ui/screenshot-demo2.png` | 截图 | 同上，`?q=樣本`（竖排页引用） | MIT（本项目） | ✅ |
+| `market/icon.png` | 图标 | 自制（`eval/p3/make_market_icon.py`） | MIT（本项目） | ✅ |
 | `packages/classics-index/examples/*.jsonl` | 示例数据 | 自制（合成书 12 页，无真实文本） | MIT（本项目） | ✅ |
 | `docs/assets/public/classics-index-demo.png` | 示意图 | 用上述示例数据渲染（`eval/p3/make_demo_card.py`） | MIT（本项目） | ✅ |
 | `docs/assets/public/samples/formula.png` | 书页样本 | 自制（`eval/p3/make_sample_pages.py`，公式为通用形式） | MIT（本项目） | ✅ |
