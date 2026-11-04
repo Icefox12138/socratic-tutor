@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import tempfile
 import unittest
@@ -51,7 +52,9 @@ class TestBuild(unittest.TestCase):
 
 class TestStore(unittest.TestCase):
     def test_roundtrip(self):
-        path = os.path.join(tempfile.mkdtemp(), "state.db")
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp, True)
+        path = os.path.join(tmp, "state.db")
         chapters = [{"ord": 0, "level": 1, "title": "卷1", "page_start": 1,
                      "page_end": 10, "volume": 1, "pages": 10}]
         self.assertEqual(toc.save("library", "b.pdf", chapters, path=path), 1)

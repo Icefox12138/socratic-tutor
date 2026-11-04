@@ -18,6 +18,7 @@ class TestPages(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.addCleanup(shutil.rmtree, self.tmp, True)
         self.pdf_dir = os.path.join(self.tmp, "PDF")
         os.makedirs(self.pdf_dir)
         doc = pdfium.PdfDocument.new()

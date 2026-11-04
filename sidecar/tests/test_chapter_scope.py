@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import tempfile
 import unittest
@@ -18,6 +19,7 @@ ROWS = [
 class TestChapterRange(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tmp, True)
         self.db = os.path.join(self.tmp, "state.db")
         self.old = config.STATE_DB
         config.STATE_DB = self.db

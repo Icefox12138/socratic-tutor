@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import shutil
 import sys
 import tempfile
 import unittest
@@ -71,7 +72,9 @@ class TestImageOnlyPolicy(unittest.TestCase):
 
 class TestCitationSnippet(unittest.TestCase):
     def test_greek_citation_stores_no_snippet(self):
-        path = os.path.join(tempfile.mkdtemp(), "c.db")
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp, True)
+        path = os.path.join(tmp, "c.db")
         results = [
             {"chunk_id": 1, "source": "steadman", "book": "phaedo", "page": 1,
              "lang": "greek", "text": "", "image_only": True,

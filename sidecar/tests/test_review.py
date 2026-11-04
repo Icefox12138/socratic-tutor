@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import tempfile
 import unittest
@@ -89,6 +90,7 @@ class TestAttribute(unittest.TestCase):
 class TestReview(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tmp, True)
         self.db = os.path.join(self.tmp, "state.db")
 
     def test_report_counts_and_practice(self):
