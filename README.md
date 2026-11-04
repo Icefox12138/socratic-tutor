@@ -46,7 +46,7 @@ These five images are **generated**, not scanned: see `eval/p3/make_sample_pages
 
 ```bash
 git clone https://github.com/Icefox12138/socratic-tutor.git && cd socratic-tutor
-python eval/p3/make_demo_corpus.py          # builds a 5-page synthetic book + index
+python samples/generators/make_demo_corpus.py   # builds a 5-page synthetic book + index
 
 SOCRATIC_ROOT="$PWD/samples" \
 SOCRATIC_DB="$PWD/samples/search.db" \
@@ -56,6 +56,20 @@ SOCRATIC_BGE=0 \
 ```
 
 Then open <http://127.0.0.1:8765/ui?q=极限> — search, citation, and page image, all on synthetic content.
+
+### Bring your own RAG database
+
+The ingestion pipeline (OCR → chunk → embed) is **not in this repository** — it is a
+separate private project. This repository reads a database that satisfies
+[docs/RAG-DB-SCHEMA.md](docs/RAG-DB-SCHEMA.md):
+
+```powershell
+$env:SOCRATIC_DATA='D:\path\to\rag-data'    # holds indexes/search.db + vectors/*.npy
+python scripts/ragdb_check.py                  # tells you which files it would read
+```
+
+No database yet? `/health` answers `200 {"ok": false, "reason": "no_index"}` and the
+demo corpus below is enough to exercise the whole chain on five synthetic pages.
 
 ### Install the published pieces
 

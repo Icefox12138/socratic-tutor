@@ -60,3 +60,6 @@ eval/p2/*/out/
 # scratch dirs/files that tests used to leave behind
 tmp*/
 tmp_*.py
+
+# ingestion (OCR → chunk → embed) lives in D:\Guo-Code\rag-build, not here
+data/

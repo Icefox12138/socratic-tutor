@@ -3,7 +3,7 @@ import os
 
 from PIL import Image, ImageDraw
 
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "market")
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "market")
 GREEN = (47, 111, 94, 255)
 DEEP = (26, 66, 56, 255)
 PAPER = (253, 252, 248, 255)

@@ -99,10 +99,15 @@ D:\Guo-Code\rag-build\
 
 ## 6. 执行顺序
 
-1. 写 `RAG-DB-SCHEMA.md`（**已完成**）；
-2. 改代码 1–3（health 降级、toc 来源、DATA 默认）；
-3. 建 `rag-build/`，把 `eval/` + `data/` + 17 份文档搬过去；
-4. 本仓删除 `eval/`，改写 5 份文档；
+1. 写 `RAG-DB-SCHEMA.md`（✅ 2026-11-04）；
+2. 改代码 1–3（health 降级、toc 来源、DATA 默认）（✅ 同日）；
+3. 加观测：`/health` 回显四个路径、`scripts/ragdb_check.py`（✅ 同日）；
+4. **搬文件（✅ 2026-11-04）**：
+   - `data/{indexes,vectors,experiments}` → `D:\Guo-Code\rag-build\data\`
+   - `data/paddlex` → `rag-build\cache\paddlex`（OCR 模型缓存）
+   - `eval/`（717 文件 / 92 MB）→ `rag-build\eval\`；历史导出为 `rag-build\eval-history.bundle`（0.8 MB）
+   - 18 份文档 → `rag-build\docs\`
+   - 夹具生成器留在本仓：`samples/generators/{make_demo_corpus,make_sample_pages}.py`、`scripts/{make_demo_card,make_market_icon}.py`；
 5. 发 `classics-index 0.1.3` / `socratic-mcp 0.1.2` / `dsh-socratic 0.2.3`（仅文案）；
 6. 验收三步：
    ```powershell

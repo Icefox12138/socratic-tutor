@@ -1,7 +1,0 @@
-{
- "turns": 266,
- "single_before": 0.774,
- "single_after_rewrite": 1.0,
- "changed_turns": 74,
- "avg_chars_dropped": 26.7
-}

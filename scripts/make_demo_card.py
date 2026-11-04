@@ -5,7 +5,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
+REPO = os.path.abspath(os.path.join(HERE, ".."))
 OUT = os.path.join(REPO, "docs", "assets", "public")
 os.makedirs(OUT, exist_ok=True)
 

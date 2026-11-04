@@ -3,7 +3,7 @@
 一份**零版权**的小书库，用来演示 sidecar 的完整链路：检索 → 引用 → 页图。
 
 ```powershell
-python eval/p3/make_demo_corpus.py
+python samples/generators/make_demo_corpus.py
 $env:SOCRATIC_ROOT="$PWD\samples"
 $env:SOCRATIC_DB="$PWD\samples\search.db"
 $env:SOCRATIC_STATE_DB="$PWD\samples\state.db"
