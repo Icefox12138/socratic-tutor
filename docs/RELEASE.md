@@ -78,7 +78,7 @@ dsh --profile packtest headless "调用 socratic_health"
 
 - Python 包：构建、twine check、从 sdist 安装并跑通示例，**只差上传**（无 token）；
 - 插件：`files` 白名单已加，**已用 DSH 自带 node+pnpm 打出 tarball 并验装**（8 个文件，与仓库字节一致）；只差 `pnpm publish`；
-- 源码开源：仓库尚未公开，历史里有 `pre-step.log` 之类的运行时文件——**公开前要清理历史**，不只是加 `.gitignore`。
+- 源码开源：**已于 2026-11-04 公开**（`github.com/Icefox12138/socratic-tutor`），历史里曾经的运行时文件已在首个提交前清理，`.gitignore` 覆盖了派生目录。
 
 ---
 

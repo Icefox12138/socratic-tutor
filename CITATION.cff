@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+title: "socratic-tutor: citation-first tutoring over scanned books"
+message: "If this software contributes to published work, cite it as below."
+type: software
+authors:
+  - family-names: "Icefox12138"
+    alias: "Icefox12138"
+repository-code: "https://github.com/Icefox12138/socratic-tutor"
+license: MIT
+keywords:
+  - retrieval-augmented generation
+  - citations
+  - scanned books
+  - Chinese classics
+  - OCR
+version: "0.2.1"
+date-released: "2026-11-04"

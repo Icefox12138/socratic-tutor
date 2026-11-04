@@ -6,7 +6,7 @@
 [![PyPI](https://img.shields.io/badge/pypi-socratic--mcp-blue)](https://pypi.org/project/socratic-mcp/)
 [![npm](https://img.shields.io/badge/npm-dsh--socratic-red)](https://www.npmjs.com/package/dsh-socratic)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![tests](https://img.shields.io/badge/tests-157%20passing-brightgreen)](#tests)
+[![ci](https://github.com/Icefox12138/socratic-tutor/actions/workflows/ci.yml/badge.svg)](https://github.com/Icefox12138/socratic-tutor/actions/workflows/ci.yml)
 
 ![Teaching console with per-turn citations](plugin-socratic/dsh-per-turn.png)
 
@@ -136,6 +136,9 @@ cd packages/socratic-mcp       && python -m unittest discover -s tests -p "test_
 cd plugin-socratic             && node --test test/plugin.test.mjs                     # 8
 ```
 
+See [CHANGELOG.md](CHANGELOG.md) for what changed in each release, and
+[CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+
 ## Repository layout
 
 ```
@@ -161,7 +164,16 @@ Please note the licensing boundary: **code is MIT, books are not**. Never open a
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Third-party model weights (BGE-M3, bge-reranker) are **not** redistributed here; download them yourself and respect their licenses.
+Licensing is **per directory**, because the sidecar links PyMuPDF, which is AGPL-3.0:
+
+| Path | License | Why |
+|---|---|---|
+| `packages/classics-index`, `packages/socratic-mcp`, `plugin-socratic/`, `eval/`, `market/` | [MIT](LICENSE) | no AGPL dependency |
+| `sidecar/` | [AGPL-3.0-or-later](sidecar/LICENSE) | imports PyMuPDF (dual-licensed AGPL-3.0 / Artifex commercial) |
+
+If you deploy the sidecar as a network service, AGPL-3.0 §13 applies: users interacting with it over a network must be offered its corresponding source. Running it privately for yourself is unaffected.
+
+Third-party model weights (BGE-M3, bge-reranker) are **not** redistributed here; download them yourself and respect their licenses.
 
 ---
 

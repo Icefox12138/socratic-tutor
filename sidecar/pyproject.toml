@@ -3,6 +3,7 @@ name = "socratic-sidecar"
 version = "0.1.0"
 description = "Minimal Socratic tutor sidecar: search, pages, compute"
 requires-python = ">=3.12"
+license = { text = "AGPL-3.0-or-later" }
 dependencies = [
   "fastapi>=0.110",
   "uvicorn>=0.29",

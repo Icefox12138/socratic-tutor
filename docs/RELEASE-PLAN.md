@@ -25,9 +25,9 @@
 
 | 单元 | 源码轨 | 产物轨 | 市场条目 | 备注 |
 |---|---|---|---|---|
-| `classics-index` | 🟡 仓库未公开 | ✅ PUBLISH READY | — | 缺上传 token |
-| `socratic-mcp` | 🟡 同上 | ✅ PUBLISH READY | — | 缺上传 token |
-| `dsh-socratic` | 🟡 同上 | 🟡 待 npm 打包 | ⬜ | 本机无 npm；截图待换 |
+| `classics-index` | ✅ 已公开 | ✅ PyPI 0.1.1 | — | — |
+| `socratic-mcp` | ✅ 同上 | ✅ PyPI 0.1.1 | — | — |
+| `dsh-socratic` | ✅ 同上 | ✅ npm 0.2.1 | ✅ 索引已托管 | — |
 | `sidecar` | 🟡 同上 | ⬜ 无 Dockerfile | — | 需参数化 + 镜像 |
 
 ## 1. 三个批次（每批都走双轨）
