@@ -53,6 +53,15 @@
 | `icon` | 相对路径（按索引 URL 解析）或 base64 data URL，解码后 ≤ 32 KiB |
 | `source` | `{"type":"npm"}` 或 `{"type":"git","url","commit"(40 位小写 sha),"path"?}` |
 
+## 2b. 图标
+
+条目用**相对路径**引用图标：`"icon": "icon.png"`，校验器按索引 URL 解析成
+`https://raw.githubusercontent.com/.../market/icon.png`。
+
+- 源文件 `market/icon.png`（256×256，2.1 KB），由 `eval/p3/make_market_icon.py` 生成；
+- 相对路径优于内联 base64：换图不用改 JSON，也不受 32 KiB 的 data URL 上限约束；
+- 图标只在 https 或与索引同源时被接受。
+
 ## 3. 本地校验
 
 ```bash
