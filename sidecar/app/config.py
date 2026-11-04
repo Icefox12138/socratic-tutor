@@ -16,7 +16,11 @@ def _first_existing(*candidates):
     return candidates[-1]
 
 
-ROOT = os.environ.get("SOCRATIC_ROOT", r"D:\Guo-Code")
+# ROOT is the directory that *contains* this checkout (books and data sit beside
+# the repo). Derive it so a clone on any machine works without configuration;
+# the hard-coded D:\Guo-Code default made the sidecar unusable off that host.
+_HERE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ROOT = os.environ.get("SOCRATIC_ROOT") or os.path.dirname(_HERE)
 LIBRARY = os.environ.get("SOCRATIC_LIBRARY", _first_existing(
     os.path.join(ROOT, "library"),
     ROOT,
@@ -25,7 +29,7 @@ LIBRARY = os.environ.get("SOCRATIC_LIBRARY", _first_existing(
 # WAL files next to the database, so a read-only library directory cannot hold it.
 # There is deliberately no fallback to eval/: that directory was the old ingestion
 # pipeline and now belongs to a separate project.
-DATA = os.environ.get("SOCRATIC_DATA", os.path.join(ROOT, "socratic-tutor", "data"))
+DATA = os.environ.get("SOCRATIC_DATA", os.path.join(_HERE, "data"))
 
 DB = os.environ.get("SOCRATIC_DB", os.path.join(DATA, "indexes", "search.db"))
 CACHE = os.environ.get(
@@ -51,7 +55,7 @@ BGE_IDS = os.environ.get("SOCRATIC_BGE_IDS",
 RERANK_TOPK = int(os.environ.get("SOCRATIC_RERANK_TOPK", "50"))
 STATE_DB = os.environ.get(
     "SOCRATIC_STATE_DB",
-    os.path.join(ROOT, "socratic-tutor", "sidecar", "state.db"),
+    os.path.join(_HERE, "sidecar", "state.db"),
 )
 
 # The chapter index is data, not runtime state. SOCRATIC_TOC_IN=search reads it

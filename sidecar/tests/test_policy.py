@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from app import citations, policy, search  # noqa: E402
+from app import citations, config, policy, search  # noqa: E402
 
 
 class TestImageOnlyPolicy(unittest.TestCase):
@@ -51,6 +51,9 @@ class TestImageOnlyPolicy(unittest.TestCase):
         self.assertIs(policy.redact(hit), hit)
 
     def test_row_result_is_redacted_for_greek(self):
+        # pin the render mode: `auto` depends on whether a library exists on the host
+        old, config.RENDER = config.RENDER, "on"
+        self.addCleanup(setattr, config, "RENDER", old)
         row = {"id": 7, "source": "steadman", "book": "phaedo", "lang": "greek",
                "page": 42, "text": "Σωκράτης"}
         out = search._row_result(row, 0.9)
