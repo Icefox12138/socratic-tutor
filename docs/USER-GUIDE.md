@@ -174,10 +174,10 @@ pip install socratic-mcp
 
 | 变量 | 默认 | 作用 |
 |---|---|---|
-| `SOCRATIC_DATA` | `<repo>/data` | 数据根 |
+| `SOCRATIC_DATA` | `<checkout>/data` | 数据根 |
 | `SOCRATIC_DB` | `$DATA/indexes/search.db` | RAG 库 |
 | `SOCRATIC_BGE_VECTORS` / `_IDS` | `$DATA/vectors/*.npy` | 向量 |
-| `SOCRATIC_LIBRARY` | `D:\Guo-Code/library` | 书库根（页图用） |
+| `SOCRATIC_LIBRARY` | `<checkout>/../library` | 书库根（页图用）；默认取仓库的上一级目录下的 `library` |
 | `SOCRATIC_TOC_IN` | `state` | 章回索引来源：`state` 或 `search` |
 | `SOCRATIC_BGE` | `1` | `0` 关掉向量检索，只走 FTS |
 | `SOCRATIC_BGE_MODEL` / `_RERANK_MODEL` | `<root>/models/...` | 模型目录 |
