@@ -55,6 +55,8 @@
 | [P3-5-hui-index.md](P3-5-hui-index.md) | 章回小说回目索引：132 段、附录检测、分书 |
 | [P3-6-chapter-retrieval.md](P3-6-chapter-retrieval.md) | 检索接入章回：`book`+`chapter`、扫描本回页图 |
 | [OPEN-SOURCE.md](OPEN-SOURCE.md) | 开源价值评估：哪些代码可发布、哪些不能 |
+| [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md) | **数据库契约**：自建 RAG 库的形状 |
+| [SPLIT-PLAN.md](SPLIT-PLAN.md) | 拆分计划：运行时 / 数据工程、docs 归属 |
 | [SIDECAR-CONTRACT.md](SIDECAR-CONTRACT.md) | 插件 ↔ sidecar 的 9 组端点契约与降级规则 |
 | [DATA-SOURCE.md](DATA-SOURCE.md) | 数据源形态：npy 向量 vs 向量库，何时改造 |
 | [LIBRARY-DATA.md](LIBRARY-DATA.md) | 书库与派生数据的目录约定（归并后的布局） |
