@@ -63,3 +63,8 @@ tmp_*.py
 
 # ingestion (OCR → chunk → embed) lives in D:\Guo-Code\rag-build, not here
 data/
+
+# local caches and service locks never belong in the repo
+jieba.cache
+blobs/
+.mineru-service.lock
