@@ -33,10 +33,10 @@
     "homepage": "https://github.com/Icefox12138/socratic-tutor/tree/main/plugin-socratic",
     "author": "Icefox12138",
     "versions": [{
-      "version": "0.2.0",
+      "version": "0.2.1",
       "source": { "type": "npm" },
       "engines": { "dsh": ">=0.2.1-rc.2 <0.3.0-0" },
-      "publishTimestamp": 1793760887
+      "publishTimestamp": 1793764122
     }]
   }]
 }

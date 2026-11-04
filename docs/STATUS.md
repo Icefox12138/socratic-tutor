@@ -51,7 +51,7 @@
 | 公式 p118 | GPU 76.9 s；仍 fallback 页图 |
 | sidecar 延迟 | 预热 p95 ~830 ms；缓存命中 ~10 ms |
 | 测试 | sidecar **125/125** + `classics-index` 18 + `socratic-mcp` 6 + 插件契约 8 |
-| 开源 | **已发布三件**：PyPI `classics-index` / `socratic-mcp` 0.1.0、npm `dsh-socratic` 0.2.0（2026-11-04） |
+| 开源 | **已发布**：PyPI `classics-index` `socratic-mcp` **0.1.1**、npm `dsh-socratic` **0.2.1**；DSH 市场索引已上线（`market/index.json`）；仓库 github.com/Icefox12138/socratic-tutor |
 
 ## 3. 运行与环境
 
