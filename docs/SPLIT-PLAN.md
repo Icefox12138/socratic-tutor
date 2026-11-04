@@ -104,7 +104,12 @@ D:\Guo-Code\rag-build\
 3. 建 `rag-build/`，把 `eval/` + `data/` + 17 份文档搬过去；
 4. 本仓删除 `eval/`，改写 5 份文档；
 5. 发 `classics-index 0.1.3` / `socratic-mcp 0.1.2` / `dsh-socratic 0.2.3`（仅文案）；
-6. 用 `rag-build/check.py` 重建一份最小库，跑通 `contract_check` 作为验收。
+6. 验收三步：
+   ```powershell
+   python scripts/ragdb_check.py                    # 配置指向哪个库、chunks/向量/章回是否对齐
+   SOCRATIC_DATA=... python scripts/contract_check.py --query <库中必有的词>
+   # 对比搬运前后的 chunks 数与首条 citation，应当完全一致
+   ```
 
 ## 7. 对发布物的影响
 
@@ -122,6 +127,7 @@ D:\Guo-Code\rag-build\
 |---|---|---|
 | 契约写得不够严，用户建的库跑不通 | 上手失败 | §7 自检清单 + `contract_check` |
 | 拆分后仓库没有真实数据，demo 只能跑 5 页 | 观感差 | `samples/` 保留并写进 README 首屏 |
+| 配置指向错目录却不报错 | 以为在查新库、实际查旧库 | `/health` 回显 data/db/vectors/toc 四个路径；`ragdb_check.py` 独立复核 |
 | 新工程无 git，改坏无法回滚 | 数据重建成本高 | 每次构建留 `BUILD-*.md`；原始 PDF 不动 |
 | `toc` 留在 state.db 造成"数据丢失"错觉 | 用户困惑 | 改代码 2，或文档明确说明 |
 | 拆分后 `classics-index` 使用者与主仓脱节 | 版本漂移 | 它已是独立包，CI 独立，风险可控 |

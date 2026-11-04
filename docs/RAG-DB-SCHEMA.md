@@ -82,6 +82,9 @@ INSERT INTO chunks_fts (rowid, text) VALUES (?, ?);   -- ? = chunks.id
 约束：
 
 - 维度必须是 **1024**（BGE-M3）；
+- **通常只覆盖 `visibility='tutor'` 的 chunk**（答案键不进向量索引，避免被相似度"检索出来"）。
+  实测本机库：`chunks=167,192`，其中 `tutor=148,261`、`answer_key=18,931`，
+  向量行数正好是 **148,261**；
 - 归一化与否都可（sidecar 内部会归一化）；
 - 行序任意，但 `ids` 必须与之对应；
 - **可以只覆盖部分 chunk**（见 §5）；缺失的行在 BGE 通道里查不到，但 FTS 仍可命中。

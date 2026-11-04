@@ -38,6 +38,37 @@ class TestNoIndex(unittest.TestCase):
         self.assertEqual(detail["code"], "no_index")
 
 
+class TestHealthPayload(unittest.TestCase):
+    """The health body must say which files are actually being read."""
+
+    def test_health_names_paths_and_vector_state(self):
+        import tempfile
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp, True)
+        db = os.path.join(tmp, "search.db")
+        con = sqlite3.connect(db)
+        con.execute("CREATE TABLE chunks (id INTEGER PRIMARY KEY, source TEXT, book TEXT,"
+                    " lang TEXT, page INTEGER, text TEXT, visibility TEXT)")
+        con.execute("INSERT INTO chunks VALUES (1,'library','b.pdf','zh',1,'x','tutor')")
+        con.commit()
+        con.close()
+
+        old_db, old_vec, old_bge = config.DB, config.BGE_VECTORS, config.BGE
+        config.DB, config.BGE = db, True
+        config.BGE_VECTORS = os.path.join(tmp, "nope.npy")
+        self.addCleanup(self._restore, old_db, old_vec, old_bge)
+
+        body = TestClient(main.app).get("/health").json()
+        self.assertTrue(body["ok"])
+        self.assertEqual(body["db"], db)
+        self.assertIn("data", body)
+        self.assertIn("toc", body)
+        self.assertTrue(body["bge"].startswith("missing: "), body["bge"])
+
+    def _restore(self, db, vec, bge):
+        config.DB, config.BGE_VECTORS, config.BGE = db, vec, bge
+
+
 class TestTocSource(unittest.TestCase):
     """The chapter index is data: it must be readable from the RAG database."""
 

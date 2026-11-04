@@ -52,17 +52,25 @@ def health():
         secret = con.execute("SELECT count(*) FROM chunks WHERE visibility='answer_key'").fetchone()[0]
     finally:
         con.close()
-    return {"db": config.DB, "chunks": total, "tutor": tutor,
-            "answer_key": secret, "bge": bge_status(), **policy.health()}
+    return {"data": config.DATA, "db": config.DB,
+            "vectors": config.BGE_VECTORS, "ids": config.BGE_IDS,
+            "toc": config.toc_db(),
+            "chunks": total, "tutor": tutor, "answer_key": secret,
+            "bge": bge_status(), **policy.health()}
 
 
 def bge_status():
+    """Why BGE is or is not serving. Missing files are named, not silently degraded."""
     if not config.BGE:
         return "disabled"
     if _BGE is not None:
         return "ready"
     if _BGE_ERR:
         return "error: " + _BGE_ERR
+    if not os.path.exists(config.BGE_VECTORS):
+        return "missing: " + config.BGE_VECTORS
+    if not os.path.exists(config.BGE_IDS):
+        return "missing: " + config.BGE_IDS
     if _BGE_LOADING:
         return "loading"
     return "lazy"
