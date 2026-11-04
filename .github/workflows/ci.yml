@@ -34,7 +34,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e packages/classics-index
-      - run: pip install fastapi pydantic pypdfium2 pillow sympy
+      - run: pip install fastapi pydantic pypdfium2 pillow sympy httpx2
       - name: tests
         working-directory: sidecar
         env:

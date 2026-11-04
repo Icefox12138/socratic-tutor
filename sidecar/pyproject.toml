@@ -16,4 +16,5 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["requests"]
+# starlette's TestClient imports httpx2 in the FastAPI versions we pin
+test = ["requests", "httpx2"]
