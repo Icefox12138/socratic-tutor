@@ -142,7 +142,12 @@ def _merge(base, overlay):
 
 
 def _read_yaml(path):
-    import yaml
+    try:
+        import yaml
+    except ImportError:                 # pragma: no cover - install-time issue
+        raise RuntimeError(
+            "policy files need PyYAML (pip install PyYAML); "
+            "the builtin policy works without it")
     with open(path, "r", encoding="utf-8") as fh:
         data = yaml.safe_load(fh)
     if data is None:
@@ -626,7 +631,11 @@ def local_roots():
 
 
 def sqlite_path(address):
-    """`sqlite:///D:/x.db#anchor` -> `D:/x.db`; `sqlite:///tmp/x.db` -> `/tmp/x.db`."""
+    """`sqlite:///` + a database path (+ optional `#anchor`) -> the filesystem path.
+
+    The triple slash is URI syntax, not a filesystem root: a POSIX path keeps
+    its leading slash, a Windows drive letter loses the extra one.
+    """
     a = str(address or "")
     if a.startswith("sqlite://"):
         a = a[len("sqlite://"):]
