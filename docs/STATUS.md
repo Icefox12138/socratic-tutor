@@ -7,7 +7,8 @@
 | 范围 | **只含教学运行时**：sidecar + DSH 插件 + MCP + 章回索引器 |
 | 不含 | OCR / 解析 / 切块 / 向量化 / RAG 库构建 → 私有工程 `rag-build`（见 [SPLIT-PLAN.md](SPLIT-PLAN.md)） |
 | 数据 | 外部：符合 [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md)（私有 PDF）或 [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md)（公开语料）的库 |
-| 发布 | PyPI `classics-index` 0.1.3、`socratic-mcp` **0.2.0**；npm `dsh-socratic` **0.3.1**；sidecar **0.2.1**（仅源码，未发 PyPI） |
+| 发布 | PyPI `classics-index` 0.1.3、`socratic-mcp` **0.2.0**；npm `dsh-socratic` **0.4.0**；sidecar **0.2.1**（仅源码，未发 PyPI） |
+| 引用策略 | **M0–M4 已实现**：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生（缺 `page_render` → 422）；`tier`/`tier_estimated` 查表；`routed` 关键词表进 `routing` 段；`scope=all` 支持 `rrf`/`weighted`/`tiered` 并标注 `role_in_answer`。**默认 `rrf` 与改前逐位相同**（[CITATION-POLICY-PLAN.md](CITATION-POLICY-PLAN.md)） |
 | 测试 | sidecar **264**、classics-index **18**、socratic-mcp **6**、plugin（node --test）。本地沙箱下 106 错，见 §3.10 |
 | CI | 全绿（四 job：sidecar / packages×2 / plugin） |
 | 人工评分 | **延后**（用户决定）；仍不能声称人类验证 |

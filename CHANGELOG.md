@@ -74,6 +74,19 @@ per package; dates are release dates, not commit dates.
 
 ## dsh-socratic
 
+### 0.4.0 — 2026-11-06
+- Embedded console gained a read-only **policy card**: policy version, what is
+  enforced, the source table (tier / role) and every channel with its
+  availability and whether the serving path is using it.
+- Turn citations now show the **trust tier** (`A`–`D`, `*` when estimated) and
+  the **role in the answer** (`anchor` / `corroborating`), read from the
+  citation row the sidecar persists. Rows written before those columns existed
+  stay blank rather than being labelled `unknown`.
+- Both cards keep the panel's resilience rules: per-endpoint `allSettled`, no
+  polling on the policy card, and a visible `last_reload_error`.
+- Requires sidecar ≥ 0.2.1; against an older sidecar the new fields are simply
+  absent and the badges do not render.
+
 ### 0.3.1 — 2026-11-06
 - Documentation only: README/SMOKE use portable `/path/to/...` placeholders
   instead of a machine-specific `D:\...` path.

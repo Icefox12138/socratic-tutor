@@ -22,8 +22,8 @@ So the constraint here is inverted: **every claim must carry a locator (`book p.
 
 | Component | What it is | Status |
 |---|---|---|
-| `plugin-socratic` | DSH plugin, **13 tools**: cited retrieval, lexical search, chapter lookup, page images, math check, session review | [npm `dsh-socratic@0.3.1`](https://www.npmjs.com/package/dsh-socratic) |
-| `sidecar/` | FastAPI service: SQLite FTS5 + BGE-M3 + rerank + pypdfium2; public-corpus v2, federated `scope=all/routed`, grep/lemma, SymPy/SciPy/pint/control | **0.2.1**, Dockerfile + compose |
+| `plugin-socratic` | DSH plugin, **13 tools**: cited retrieval, lexical search, chapter lookup, page images, math check, session review; embedded console with a policy card and per-citation tier/anchor badges | [npm `dsh-socratic@0.4.0`](https://www.npmjs.com/package/dsh-socratic) |
+| `sidecar/` | FastAPI service: SQLite FTS5 + BGE-M3 + rerank + pypdfium2; public-corpus v2, federated `scope=all/routed`, grep/lemma, SymPy/SciPy/pint/control, **citation policy** (`/v1/policy`) | **0.2.1**, Dockerfile + compose |
 | `packages/classics-index` | Volume/chapter (`卷 / 篇 / 回`) indexer for scanned Chinese books, built from OCR of running headers | [PyPI `classics-index@0.1.3`](https://pypi.org/project/classics-index/) |
 | `packages/socratic-mcp` | MCP server exposing search, lexical lookup, chapters, review and state | [PyPI `socratic-mcp@0.2.0`](https://pypi.org/project/socratic-mcp/) |
 
@@ -31,6 +31,13 @@ So the constraint here is inverted: **every claim must carry a locator (`book p.
 BGE-M3 hybrid retrieval, Chinese→Greek/Latin query translation with an OOV gate,
 grep/lemma channels, `scope=all` / `scope=routed` federated search, and a
 multi-backend compute endpoint with credentials and `disputed` markers.
+
+**0.4.x highlights** — citation policy as data: sources carry a trust tier
+(`A`–`D`) and a role (`cite` / `template` / `verify`), channels describe how the
+same source is reached (local file, RAG db, public API, dataset, cloud), and the
+subject rules pick the order. Ranking is deliberately *not* policy-driven yet, so
+the published retrieval numbers stay comparable; see
+[docs/CITATION-POLICY.md](docs/CITATION-POLICY.md).
 
 ## Five page types it handles
 
