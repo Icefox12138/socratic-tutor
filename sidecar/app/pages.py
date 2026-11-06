@@ -5,6 +5,7 @@ repository can stay MIT.
 """
 import hashlib
 import os
+import threading
 
 from . import config
 
@@ -19,6 +20,14 @@ def _pdfium():
     except ImportError as e:      # pragma: no cover - depends on the install
         raise RendererUnavailable("pypdfium2 is not installed: %s" % e)
     return pypdfium2
+
+
+# PDFium is not thread-safe: two documents open at once in one process corrupt its
+# internal state, which surfaces as "Failed to load page" / "Data format error" and
+# can crash the process natively. FastAPI runs these sync endpoints in a thread
+# pool, so every PDFium call — open, page access, render, close — is serialized.
+# A render is ~0.2 s, which is fine for a single reader.
+_PDFIUM_LOCK = threading.Lock()
 
 CACHE_CAP = 2 * 1024 ** 3
 ROOTS = {
@@ -87,11 +96,12 @@ def count(source: str, book: str) -> int:
     if source not in ROOTS:
         raise ValueError("unknown source")
     path = resolve(source, book)
-    doc = _pdfium().PdfDocument(path)
-    try:
-        _COUNTS[key] = len(doc)
-    finally:
-        doc.close()
+    with _PDFIUM_LOCK:
+        doc = _pdfium().PdfDocument(path)
+        try:
+            _COUNTS[key] = len(doc)
+        finally:
+            doc.close()
     return _COUNTS[key]
 
 
@@ -110,26 +120,27 @@ def render(source: str, book: str, page: int, dpi: int = 150, bbox=None) -> byte
             return fh.read()
 
     os.makedirs(config.CACHE, exist_ok=True)
-    doc = _pdfium().PdfDocument(path)
-    try:
-        total = len(doc)
-        if not (1 <= page <= total):
-            raise ValueError(f"page out of 1..{total}")
-        pg = doc[page - 1]
-        crop = None
-        if bbox:
-            x0, y0, x1, y1 = bbox
-            if not (0 <= x0 < x1 <= 1 and 0 <= y0 < y1 <= 1):
-                raise ValueError("bbox must be normalized [x0,y0,x1,y1]")
-            # pypdfium2's crop is an inset margin tuple (left, bottom, right, top)
-            # in points, measured from each edge — not an absolute rectangle.
-            w, h = pg.get_size()
-            crop = (x0 * w, (1 - y1) * h, (1 - x1) * w, y0 * h)
-        # pypdfium2 rejects crop=None, so only pass it when a box was given
-        bitmap = pg.render(scale=dpi / 72, **({"crop": crop} if crop else {}))
-        bitmap.to_pil().save(out, format="PNG", optimize=False)
-    finally:
-        doc.close()
+    with _PDFIUM_LOCK:
+        doc = _pdfium().PdfDocument(path)
+        try:
+            total = len(doc)
+            if not (1 <= page <= total):
+                raise ValueError(f"page out of 1..{total}")
+            pg = doc[page - 1]
+            crop = None
+            if bbox:
+                x0, y0, x1, y1 = bbox
+                if not (0 <= x0 < x1 <= 1 and 0 <= y0 < y1 <= 1):
+                    raise ValueError("bbox must be normalized [x0,y0,x1,y1]")
+                # pypdfium2's crop is an inset margin tuple (left, bottom, right, top)
+                # in points, measured from each edge — not an absolute rectangle.
+                w, h = pg.get_size()
+                crop = (x0 * w, (1 - y1) * h, (1 - x1) * w, y0 * h)
+            # pypdfium2 rejects crop=None, so only pass it when a box was given
+            bitmap = pg.render(scale=dpi / 72, **({"crop": crop} if crop else {}))
+            bitmap.to_pil().save(out, format="PNG", optimize=False)
+        finally:
+            doc.close()
     _evict()
     with open(out, "rb") as fh:
         return fh.read()

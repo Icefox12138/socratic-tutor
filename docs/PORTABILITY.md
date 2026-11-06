@@ -59,6 +59,14 @@
 >
 > 沙箱内跑全套的门槛写法：`python -m unittest discover`（用 `tests/_tmp.py`）+ `node --test --test-isolation=none`。
 
+## 3c. 页图渲染必须串行（PDFium 不是线程安全的）
+
+`pypdfium2` 底下的 PDFium **不是线程安全的**：同一进程里并发打开两个 document 会破坏它的内部状态，表现为随机的 `PdfiumError: Failed to load page`、`Failed to load document (PDFium: Data format error)`，严重时进程直接原生崩溃（`bad_variant_access was thrown in -fno-exceptions mode`）。
+
+FastAPI 把同步端点放在线程池里执行，所以浏览器并发取页图（正文页图 + 缩略图）就会撞上：单张打开正常，并发时同一本书时而 200、时而 500。`sidecar/app/pages.py` 的 `_PDFIUM_LOCK` 把 open → 取页 → 渲染 → close 串行化，缓存命中不经过锁。单页约 0.2 s，对单读者足够。
+
+**不要为了并发把这段锁去掉**——去掉后是随机 500，或者整个 sidecar 进程消失。
+
 ## 4. 复现
 
 ```bash
