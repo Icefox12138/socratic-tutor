@@ -10,21 +10,21 @@
       "name": "dsh-socratic",
       "title": "Socratic Tutor",
       "description": {
-        "en": "13 tools: cited search, lexical grep/lemma, chapter lookup, page images, math verification (SymPy/SciPy/pint/control), session review. Needs a sidecar and a RAG database that satisfies docs/RAG-DB-SCHEMA.md.",
-        "zh": "13 个工具：引用检索、grep/lemma 词法、章回定位、页图、计算校验（SymPy/SciPy/pint/control）、会话复盘。需配套 sidecar，以及符合 docs/RAG-DB-SCHEMA.md 的 RAG 数据库。"
+        "en": "13 tools: cited search, lexical grep/lemma, chapter lookup, page images, math verification (SymPy/SciPy/pint/control), session review, plus an embedded console with a policy card and per-citation tier/anchor badges. Needs a sidecar and a RAG database that satisfies docs/RAG-DB-SCHEMA.md.",
+        "zh": "13 个工具：引用检索、grep/lemma 词法、章回定位、页图、计算校验（SymPy/SciPy/pint/control）、会话复盘；内置教学台含引用策略卡与每条的层级/锚点徽章。需配套 sidecar，以及符合 docs/RAG-DB-SCHEMA.md 的 RAG 数据库。"
       },
       "homepage": "https://github.com/Icefox12138/socratic-tutor/tree/main/plugin-socratic",
       "author": "Icefox12138",
       "versions": [
         {
-          "version": "0.3.1",
+          "version": "0.4.0",
           "source": {
             "type": "npm"
           },
           "engines": {
             "dsh": ">=0.2.1-rc.2 <0.3.0-0"
           },
-          "publishTimestamp": 1793941730
+          "publishTimestamp": 1793959585
         },
         {
           "version": "0.2.4",
