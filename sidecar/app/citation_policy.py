@@ -29,6 +29,12 @@ SCHEMA = 1
 TIERS = ("A", "B", "C", "D")
 ROLES = ("cite", "template", "verify")
 
+#: how results from several catalogues are combined (M4)
+#: rrf      — today's behaviour: plain reciprocal-rank fusion, weights ignored
+#: weighted — the same fusion with a per-catalogue weight from the rule's profile
+#: tiered   — the anchor catalogue fills the list first, others only top it up
+MERGE_MODES = ("rrf", "weighted", "tiered")
+
 #: locator scheme -> the locator fields that scheme can carry
 SCHEMES = {
     "page": set(),                 # book + page number is the identity
@@ -120,6 +126,7 @@ def _builtin():
         "rules": [
             {"when": {}, "cite": ["library-pdf", "steadman", "teubner-conte",
                                   "wikisource", "cts"],
+             "merge": {"mode": "rrf"},
              "weight_profile": "equal"},
         ],
     }
@@ -267,6 +274,13 @@ def validate(policy):
         prof = rule.get("weight_profile")
         if prof is not None and prof not in profiles:
             errs.append("%s.weight_profile: unknown profile %r" % (where, prof))
+        merge = rule.get("merge")
+        if merge is not None:
+            if not isinstance(merge, dict):
+                errs.append("%s.merge: must be a mapping" % where)
+            elif merge.get("mode") not in (None,) + MERGE_MODES:
+                errs.append("%s.merge.mode: must be one of %s"
+                            % (where, ", ".join(MERGE_MODES)))
     if seen_catch_all == 0:
         errs.append("rules: a catch-all rule ({when: {}}) is required")
 
@@ -567,6 +581,37 @@ def route(query):
                     "prefer": list(rule.get("prefer") or [])}
     return {"reason": "default",
             "prefer": list(conf.get("default_prefer") or [])}
+
+
+def merge_plan(subject=None, doc_kind=None):
+    """How to combine catalogue results, taken from the matching rule (M4).
+
+    Weights are per catalogue: a rule names logical sources, so a catalogue's
+    weight is the weight of the first of its sources in `cite` (see
+    CITATION-POLICY-PLAN §1.6). `rrf` ignores weights entirely, which is why the
+    default is numerically identical to the pre-M4 merge.
+    """
+    rule = resolve(subject, doc_kind) or {}
+    conf = rule.get("merge") or {}
+    mode = str(conf.get("mode") or "rrf")
+    if mode not in MERGE_MODES:
+        mode = "rrf"
+    cite = list(rule.get("cite") or [])
+    order = []
+    for sid in cite:
+        cat = catalogue_of(sid)
+        if cat and cat not in order:
+            order.append(cat)
+    weights = {}
+    if mode == "weighted":
+        profile = ((current().get("weight_profiles") or {})
+                   .get(rule.get("weight_profile")) or {})
+        for sid in cite:
+            cat = catalogue_of(sid)
+            if cat and cat not in weights:
+                weights[cat] = float(profile.get(sid, 1.0))
+    return {"mode": mode, "cite": cite, "order": order,
+            "anchor": order[0] if order else None, "weights": weights}
 
 
 def local_roots():

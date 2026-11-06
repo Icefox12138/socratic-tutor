@@ -424,6 +424,112 @@ class TestRouting(PolicyTestBase):
         self.assertTrue(any("regex" in e for e in errs), errs)
 
 
+class TestMerge(PolicyTestBase):
+    """M4: merge mode, per-catalogue weights and anchor marking."""
+
+    def test_default_plan_is_rrf_and_ignores_weights(self):
+        plan = cp.merge_plan()
+        self.assertEqual(plan["mode"], "rrf")
+        self.assertEqual(plan["order"], ["v1", "v2"])
+        self.assertEqual(plan["anchor"], "v1")
+        self.assertEqual(plan["weights"], {})     # rrf never weights
+
+    def test_weighted_plan_reads_the_profile_per_catalogue(self):
+        with TemporaryDirectory() as d:
+            path = os.path.join(d, "policy.yaml")
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write("weight_profiles:\n"
+                         "  equal: {}\n"
+                         "  textbook-first: {library-pdf: 1.0, wikisource: 0.4}\n"
+                         "rules:\n"
+                         "  - when: {}\n"
+                         "    cite: [library-pdf, wikisource]\n"
+                         "    merge: {mode: weighted}\n"
+                         "    weight_profile: textbook-first\n")
+            os.environ["SOCRATIC_POLICY"] = path
+            ok, errs = cp.reload()
+            self.assertTrue(ok, errs)
+            plan = cp.merge_plan()
+            self.assertEqual(plan["mode"], "weighted")
+            self.assertEqual(plan["weights"], {"v1": 1.0, "v2": 0.4})
+
+    def test_tiered_order_puts_the_anchor_catalogue_first(self):
+        from app import federated
+        fused = {("v2", 1): 5.0, ("v1", 2): 1.0}
+        best = {("v2", 1): {"schema": "v2", "score": 5.0},
+                ("v1", 2): {"schema": "v1", "score": 1.0}}
+        self.assertEqual(
+            federated._order_fused(fused, best, {"mode": "tiered",
+                                                 "order": ["v1", "v2"]}),
+            [("v1", 2), ("v2", 1)])
+        self.assertEqual(
+            federated._order_fused(fused, best, {"mode": "rrf"}),
+            [("v2", 1), ("v1", 2)])
+
+    def test_anchor_marking_preserves_the_rest_of_the_citation(self):
+        from app import federated
+        results = [{"schema": "v1", "citation": {"tier": "B"}},
+                   {"schema": "v2", "citation": {"tier": "A"}}]
+        federated._mark_anchor(results, "v1")
+        self.assertEqual(results[0]["citation"]["role_in_answer"], "anchor")
+        self.assertEqual(results[1]["citation"]["role_in_answer"], "corroborating")
+        self.assertEqual(results[0]["citation"]["tier"], "B")
+
+    def test_unknown_merge_mode_is_rejected(self):
+        p = _policy()
+        p["rules"] = [{"when": {}, "cite": ["lib"], "merge": {"mode": "magic"}}]
+        errs = cp.validate(p)
+        self.assertTrue(any("merge.mode" in e for e in errs), errs)
+
+    def test_merge_must_be_a_mapping(self):
+        p = _policy()
+        p["rules"] = [{"when": {}, "cite": ["lib"], "merge": "rrf"}]
+        errs = cp.validate(p)
+        self.assertTrue(any("merge: must be a mapping" in e for e in errs), errs)
+
+
+class TestMergeEquivalence(PolicyTestBase):
+    """The default policy must reproduce the pre-M4 merge numerically."""
+
+    PAYLOADS = [
+        {"schema": "v1", "results": [{"chunk_id": 1, "score": 0.9},
+                                     {"chunk_id": 2, "score": 0.8}]},
+        {"schema": "v2", "results": [{"chunk_id": 3, "score": 0.95},
+                                     {"chunk_id": 1, "score": 0.7}]},
+    ]
+
+    def test_default_merge_is_the_old_rrf(self):
+        from app import federated
+        old_fused, best = {}, {}
+        for p in self.PAYLOADS:
+            for rank, hit in enumerate(p["results"]):
+                key = (p["schema"], hit["chunk_id"])
+                old_fused[key] = old_fused.get(key, 0.0) + 1.0 / (60 + rank + 1)
+                if key not in best or hit["score"] > best[key]["score"]:
+                    best[key] = hit
+        expected = sorted(old_fused,
+                          key=lambda k: (-old_fused[k], -best[k]["score"]))
+
+        old_v1, old_pub = federated.config.V1_DB, federated.config.PUBLIC_DB
+        old_exists, old_run = federated.os.path.exists, federated._run_one
+        seq = iter([dict(p) for p in self.PAYLOADS])
+        federated.config.V1_DB, federated.config.PUBLIC_DB = "v1.db", "pub.db"
+        federated.os.path.exists = lambda p: True
+        federated._run_one = lambda *a, **k: dict(next(seq))
+        try:
+            out = federated.search_all("q", limit=10)
+        finally:
+            federated._run_one, federated.os.path.exists = old_run, old_exists
+            federated.config.V1_DB, federated.config.PUBLIC_DB = old_v1, old_pub
+
+        got = [(r["schema"], r["chunk_id"]) for r in out["results"]]
+        self.assertEqual(got, expected)
+        self.assertEqual(out["merge"]["mode"], "rrf")
+        self.assertEqual(out["merge"]["anchor"], "v1")
+        roles = {r["schema"]: r["citation"]["role_in_answer"] for r in out["results"]}
+        self.assertEqual(roles, {"v1": "anchor", "v2": "corroborating"})
+
+
 class TestM1Serving(unittest.TestCase):
     """M1: page roots and the render gate are derived from the channel table."""
 

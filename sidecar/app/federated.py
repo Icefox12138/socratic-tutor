@@ -137,6 +137,34 @@ def _run_one(db, is_v1, query, view, limit, source, lang, book, document_id,
     return payload
 
 
+def _cat(schema):
+    return "v1" if schema == "v1" else "v2"
+
+
+def _mark_anchor(results, anchor):
+    """Tag each hit with its role in the answer; ordering is untouched."""
+    for item in results:
+        cit = dict(item.get("citation") or {})
+        cit["role_in_answer"] = ("anchor" if _cat(item.get("schema")) == anchor
+                                 else "corroborating")
+        item["citation"] = cit
+    return results
+
+
+def _order_fused(fused, best, plan):
+    """Rank fused hits.
+
+    `tiered` puts the anchor catalogue ahead of the rest, then falls back to the
+    fused score; every other mode keeps the pre-M4 ordering exactly.
+    """
+    if plan.get("mode") == "tiered":
+        prio = {cat: i for i, cat in enumerate(plan.get("order") or [])}
+        return sorted(fused, key=lambda k: (
+            prio.get(_cat(best[k].get("schema")), len(prio)),
+            -fused[k], -best[k].get("score", 0)))
+    return sorted(fused, key=lambda k: (-fused[k], -best[k].get("score", 0)))
+
+
 def search_all(query, view="student", limit=8, source=None, lang=None,
                book=None, document_id=None, section=None, session_id=None,
                turn=None, step=None, call_id=None):
@@ -162,6 +190,10 @@ def search_all(query, view="student", limit=8, source=None, lang=None,
         finally:
             _restore(snap)
 
+    plan = citation_policy.merge_plan()
+    weights = plan.get("weights") or {}
+    anchor = plan.get("anchor")
+
     fused, best = {}, {}
     lexical = {"grep": 0, "lemma": 0}
     translated = False
@@ -174,14 +206,17 @@ def search_all(query, view="student", limit=8, source=None, lang=None,
             item = dict(hit)
             item["schema"] = schema
             key = (schema, item.get("chunk_id"))
-            fused[key] = fused.get(key, 0.0) + 1.0 / (60 + rank + 1)
+            fused[key] = (fused.get(key, 0.0)
+                          + float(weights.get(_cat(schema), 1.0)) / (60 + rank + 1))
             if key not in best or item.get("score", 0) > best[key].get("score", 0):
                 best[key] = item
-    ordered = sorted(fused, key=lambda k: (-fused[k], -best[k].get("score", 0)))
-    results = [best[k] for k in ordered[:limit]]
+    ordered = _order_fused(fused, best, plan)
+    results = _mark_anchor([best[k] for k in ordered[:limit]], anchor)
     out = {"query": query, "view": view, "schema": "federated",
            "mode": "federated", "results": results,
            "schemas": [p.get("schema") for p in payloads],
+           "merge": {"mode": plan.get("mode"), "anchor": anchor,
+                     "weights": weights},
            "translated": translated, "lexical": lexical,
            "errors": errors,
            "took_ms": round((time.perf_counter() - t0) * 1000, 2),

@@ -3,7 +3,7 @@
 | 项 | 值 |
 |---|---|
 | 日期 | **2026-11-06** |
-| 状态 | **M0–M3 已实现**（2026-11-06）：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生，缺 `page_render` 返回 422；`tier`/`tier_estimated` 查表；`routed` 的关键词表搬进 `routing` 段（变音不敏感，`Ἰλιάς` 已能命中）。合并与排序仍是旧语义（`enforced_parts.ranking: false`） |
+| 状态 | **M0–M4 已实现**（2026-11-06）：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生（缺 `page_render` → 422）；`tier`/`tier_estimated` 查表；`routed` 关键词表进 `routing` 段（变音不敏感，`Ἰλιάς` 命中）；`scope=all` 支持 `rrf`/`weighted`/`tiered` 并标注 `role_in_answer`，**默认 `rrf` 与改前逐位相同**。开启权重前必须重跑 100 问 |
 | 依据 | [CITATION-POLICY.md](CITATION-POLICY.md)（是什么 / 为什么） |
 | 目标 | 让"引用谁、从哪取、怎么定位、谁裁决"成为**数据**，且默认配置下行为与今天逐条一致 |
 
@@ -115,7 +115,7 @@ plan = resolve(subject, doc_kind, need: {search, page_render, verify})
 | `weighted` | 各源分数乘权重后统一排序 | 混合，但**弱源的高分条会压过高源的低分条**，需要权重可解释 |
 | `interleave` | 按名次交错（A1, B1, A2, B2…） | 天然多源，但稀释锚点 |
 
-默认 `tiered`：教学场景要的是"这句话出自哪本书第几页"的确定性，不是召回多样性。
+默认 `rrf`（= 改前行为，逐位相同），`tiered` / `weighted` 需显式开启：教学场景最终要的是"这句话出自哪本书第几页"的确定性，但**默认不能改变已测基线**，所以先保持等价。
 
 **② 锚点资格（anchor eligibility）**
 
@@ -343,7 +343,7 @@ rules:
 | **M1 通道收敛** | 把 `config.DB`、`pages.ROOTS` 改造成"内置通道表"；能力不足时返回 422 而非静默降级 | 无（等价） |
 | **M2 tier 真实化** | v2 按 source 映射；v1 按"有无校对层"给 B/C | 无（不改排序） |
 | **M3 路由表化** | `federated._route` 关键词表搬进规则；`routed` 退化为 `all` 特例 | 无（等价）；顺带修 `Ἰλιάς` |
-| **M4 合并与锚点** | `scope=all` 按 `merge.mode` 合并（默认 `tiered`）+ 锚点资格闸门 + `role_in_answer`；重跑 100 问 / 130 题 | **有** |
+| **M4 合并与锚点** | `merge.mode`（`rrf` 默认 / `weighted` / `tiered`）、按 catalogue 的权重（命名档，RRF 名次空间）、`role_in_answer` 标注 | **默认无**；开权重才有 |
 | **M5 元数据补全** | `doc_kind` 标注（801 本）、v1 旁表、按 `doc_kind` 选规则、云副本接入 | 无（新增能力） |
 
 M0–M3 是纯重构 + 契约补齐，用快照证明零行为变化；M4 才可能动数字。

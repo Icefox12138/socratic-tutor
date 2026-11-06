@@ -83,9 +83,27 @@ GET /v1/search?q=黃帝&scope=routed&limit=8
 
 1. 串行执行：v1 搜索（含可选翻译/grep）→ v2 搜索（含翻译/OOV/lemma）。
 2. 每库内部已经是 RRF/rerank；跨库再按排名做一次 RRF：
-   `score += 1/(60+rank+1)`。
+   `score += w / (60 + rank + 1)`。
 3. 同一个 `chunk_id` 在 v1/v2 中视为不同结果（键是 `schema+chunk_id`）。
 4. 不做跨库正文去重；同一段文本若两库都有，会各出现一次。
+
+### 4a. 合并模式与权重（M4 起由策略决定）
+
+`merge.mode` 取自命中规则（`GET /v1/policy` 可见），响应带
+`merge: {mode, anchor, weights}`：
+
+| mode | 语义 |
+|---|---|
+| `rrf`（**默认**） | 上面的公式，`w` 恒为 1.0——与 M4 之前**逐位相同** |
+| `weighted` | 同一公式，`w` 取该规则 `weight_profile` 里**该 catalogue 首个源**的权重；`w` 只作用在名次项上，不乘原始分数（两库分数不同量纲） |
+| `tiered` | 锚点 catalogue 的结果先占满 `limit`，另一个只用于补齐 |
+
+每条结果还带 `citation.role_in_answer`：锚点 catalogue 为 `anchor`，其余为
+`corroborating`。它只做标注，不改变顺序；「每条事实句恰好一个 anchor」由插件的
+引用闸门执行。
+
+**开权重前必须先重跑 100 问**（`eval/v1/RESULTS.md`）：默认 `rrf` 与历史基线可比，
+一旦启用 `weighted`/`tiered`，R@10 就不再和 0.80–0.82 口径一致，必须重新记录。
 
 ## 5. 并发与成本
 

@@ -63,6 +63,9 @@ GET /v1/search?q=&view=&limit=&source=&lang=&book=&chapter=&document_id=&section
 `federated`（`scope=all`）、`routed`（`scope=routed`）。
 `federated` 响应额外带 `schemas: ["v1","v2"]`，每条结果带 `schema`，
 两库各取 `limit` 后按 RRF 合并；某库失败写 `errors`，另一库仍返回。
+合并由引用策略决定，响应带 `merge: {mode, anchor, weights}`
+（`mode` 默认 `rrf`，与历史行为逐位相同），每条结果的
+`citation.role_in_answer` 为 `anchor` 或 `corroborating`——只标注，不改变顺序。
 `routed` 只查一个库，响应带 `routed_to` / `route_reason` / `route_probe`。
 详见 [FEDERATED-SEARCH.md](FEDERATED-SEARCH.md)。
 v2 还可能带 `translated: true` 与
