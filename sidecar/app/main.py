@@ -242,6 +242,8 @@ def v1_search(
     document_id: Optional[str] = None,
     section: Optional[str] = None,
     scope: str = Query("auto"),
+    subject: Optional[str] = None,
+    doc_kind: Optional[str] = None,
     session_id: Optional[str] = None,
     turn: Optional[int] = None,
     step: Optional[int] = None,
@@ -252,6 +254,7 @@ def v1_search(
                              lang=lang, book=book, chapter=chapter,
                              document_id=document_id, section=section,
                              scope=scope,
+                             subject=subject, doc_kind=doc_kind,
                              toc_source=source or "library",
                              session_id=session_id,
                              turn=turn, step=step, call_id=call_id)
@@ -296,14 +299,20 @@ def v1_chunk(chunk_id: int, view: str = Query("student")):
     image = "/v1/pages?source=%s&book=%s&page=%d" % (
         quote(row["source"]), quote(row["book"]), row["page"])
     tier, tier_estimated = citation_policy.tier_for_source(row["source"])
+    doc_kind, subject = citation_policy.book_kind(row["book"], row["source"])
+    citation = {"locator": f"{row['book']} p.{row['page']}",
+                "tier": tier, "tier_estimated": tier_estimated,
+                "role": "cite",
+                "policy_version": citation_policy.version(),
+                "page_image": image}
+    if doc_kind:
+        citation["doc_kind"] = doc_kind
+    if subject:
+        citation["subject"] = subject
     return policy.redact({
         "chunk_id": row["id"], "source": row["source"], "book": row["book"],
         "lang": row["lang"], "page": row["page"], "text": row["text"],
-        "citation": {"locator": f"{row['book']} p.{row['page']}",
-                     "tier": tier, "tier_estimated": tier_estimated,
-                     "role": "cite",
-                     "policy_version": citation_policy.version(),
-                     "page_image": image},
+        "citation": citation,
     })
 
 

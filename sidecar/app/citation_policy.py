@@ -541,6 +541,63 @@ def enforced_parts():
     return {"channels": True, "tier": True, "routing": True, "ranking": False}
 
 
+# ── book metadata (M5, produced by the rag-build data project) ────────────────
+# Contract: rag-build/docs/BOOK-META-TASK.md. The file is optional: when it is
+# absent or unreadable every book stays "unknown" and nothing changes.
+
+_META = {"data": None, "stamp": None, "error": None}
+
+
+def book_meta_path():
+    """Where the book metadata lives; `SOCRATIC_BOOK_META` overrides it."""
+    return os.environ.get("SOCRATIC_BOOK_META") or os.path.join(
+        config.DATA, "book_meta.json")
+
+
+def book_meta():
+    """Load `book_meta.json`, cached on (mtime, size). Never raises."""
+    path = book_meta_path()
+    try:
+        st = os.stat(path)
+        stamp = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        _META.update({"data": {}, "stamp": None, "error": None})
+        return {}
+    if _META["stamp"] == stamp and _META["data"] is not None:
+        return _META["data"]
+    try:
+        with open(path, encoding="utf-8") as fh:
+            doc = json.load(fh)
+        books = doc.get("books") if isinstance(doc, dict) else None
+        if not isinstance(books, dict):
+            raise ValueError("book_meta: 'books' must be a mapping")
+        _META.update({"data": books, "stamp": stamp, "error": None})
+    except Exception as e:               # a bad file must not break the service
+        _META.update({"data": {}, "stamp": stamp,
+                      "error": "%s: %s" % (type(e).__name__, e)})
+    return _META["data"] or {}
+
+
+def book_meta_status():
+    data = book_meta()
+    return {"path": book_meta_path(), "books": len(data),
+            "error": _META["error"]}
+
+
+def book_kind(book, source=None):
+    """(doc_kind, subject) for a library book; (None, None) when not recorded.
+
+    Only the `library` catalogue uses library-relative paths as its book key;
+    Steadman/Teubner chunks are keyed by slug and are not in this file.
+    """
+    if source not in (None, "library"):
+        return None, None
+    entry = book_meta().get(book)
+    if not isinstance(entry, dict):
+        return None, None
+    return entry.get("doc_kind"), entry.get("subject")
+
+
 # ── routing (M3) ─────────────────────────────────────────────────────────────
 
 def _norm(text):
@@ -660,6 +717,7 @@ def effective():
         "last_reload_error": last_error(),
         "sources": pol.get("sources") or {},
         "channels": channels(),
+        "book_meta": book_meta_status(),
         "weight_profiles": pol.get("weight_profiles") or {},
         "routing": {"rules": (pol.get("routing") or {}).get("rules") or [],
                     "default_prefer": (pol.get("routing") or {}).get("default_prefer") or []},

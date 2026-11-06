@@ -1,4 +1,5 @@
 """Citation policy: loader, validator, and the read-only endpoints (M0)."""
+import json
 import os
 import sys
 import unittest
@@ -32,7 +33,8 @@ def _policy(**over):
 class PolicyTestBase(unittest.TestCase):
     def setUp(self):
         self._env = {k: os.environ.get(k)
-                     for k in ("SOCRATIC_POLICY", "SOCRATIC_SOURCES")}
+                     for k in ("SOCRATIC_POLICY", "SOCRATIC_SOURCES",
+                               "SOCRATIC_BOOK_META")}
         for k in self._env:
             os.environ.pop(k, None)
 
@@ -530,12 +532,87 @@ class TestMergeEquivalence(PolicyTestBase):
         self.assertEqual(roles, {"v1": "anchor", "v2": "corroborating"})
 
 
+class TestBookMeta(PolicyTestBase):
+    """M5 consumer side: rag-build's book_meta.json, optional and never fatal."""
+
+    def _write(self, directory, payload):
+        path = os.path.join(directory, "book_meta.json")
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(payload)
+        os.environ["SOCRATIC_BOOK_META"] = path
+        return path
+
+    def test_absent_file_leaves_every_book_unknown(self):
+        os.environ["SOCRATIC_BOOK_META"] = os.path.join("Z:\\", "nope.json")
+        self.assertEqual(cp.book_kind("数学\\x.pdf"), (None, None))
+        status = cp.book_meta_status()
+        self.assertEqual(status["books"], 0)
+        self.assertIsNone(status["error"])
+
+    def test_a_library_book_resolves(self):
+        with TemporaryDirectory() as d:
+            self._write(d, json.dumps({"schema": 1, "books": {
+                "数学\\x.pdf": {"subject": "数学", "doc_kind": "textbook",
+                                "source": "rule"}}}))
+            self.assertEqual(cp.book_kind("数学\\x.pdf"), ("textbook", "数学"))
+
+    def test_other_catalogues_ignore_the_file(self):
+        with TemporaryDirectory() as d:
+            self._write(d, json.dumps({"books": {
+                "conte_aeneis": {"doc_kind": "edition"}}}))
+            self.assertEqual(cp.book_kind("conte_aeneis", "teubner_conte"),
+                             (None, None))
+            # source omitted means library, which is the only consumer
+            self.assertEqual(cp.book_kind("conte_aeneis"), ("edition", None))
+
+    def test_malformed_file_is_reported_not_raised(self):
+        with TemporaryDirectory() as d:
+            self._write(d, "{not json")
+            self.assertEqual(cp.book_kind("x"), (None, None))
+            self.assertIsNotNone(cp.book_meta_status()["error"])
+
+    def test_a_wrong_shape_is_reported(self):
+        with TemporaryDirectory() as d:
+            self._write(d, json.dumps({"books": ["not", "a", "map"]}))
+            self.assertEqual(cp.book_kind("x"), (None, None))
+            self.assertIsNotNone(cp.book_meta_status()["error"])
+
+    def test_the_cache_follows_the_file(self):
+        with TemporaryDirectory() as d:
+            path = self._write(d, json.dumps({"books": {
+                "a.pdf": {"doc_kind": "textbook"}}}))
+            self.assertEqual(cp.book_kind("a.pdf")[0], "textbook")
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(json.dumps({"books": {
+                    "a.pdf": {"doc_kind": "notes", "source": "manual"}}}))
+            os.utime(path, None)
+            self.assertEqual(cp.book_kind("a.pdf")[0], "notes")
+
+    def test_extras_omit_unknown_fields(self):
+        from app import search
+        with TemporaryDirectory() as d:
+            self._write(d, json.dumps({"books": {
+                "b.pdf": {"doc_kind": "reference"}}}))
+            self.assertEqual(search._meta_extras("b.pdf", "library"),
+                             {"doc_kind": "reference"})
+            self.assertEqual(search._meta_extras("nope.pdf", "library"), {})
+            self.assertEqual(search._meta_extras("b.pdf", "steadman"), {})
+
+    def test_policy_payload_reports_the_file(self):
+        with TemporaryDirectory() as d:
+            self._write(d, json.dumps({"books": {"c.pdf": {"doc_kind": "docs"}}}))
+            payload = cp.effective()
+            self.assertEqual(payload["book_meta"]["books"], 1)
+            self.assertTrue(payload["book_meta"]["path"].endswith("book_meta.json"))
+
+
 class TestM1Serving(unittest.TestCase):
     """M1: page roots and the render gate are derived from the channel table."""
 
     def setUp(self):
         self._env = {k: os.environ.get(k)
-                     for k in ("SOCRATIC_POLICY", "SOCRATIC_SOURCES")}
+                     for k in ("SOCRATIC_POLICY", "SOCRATIC_SOURCES",
+                               "SOCRATIC_BOOK_META")}
         for k in self._env:
             os.environ.pop(k, None)
         self._roots = dict(pages.ROOTS)

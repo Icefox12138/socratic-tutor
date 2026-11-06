@@ -3,7 +3,7 @@
 | 项 | 值 |
 |---|---|
 | 日期 | **2026-11-06** |
-| 状态 | **M0–M4 已实现**（2026-11-06）：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生（缺 `page_render` → 422）；`tier`/`tier_estimated` 查表；`routed` 关键词表进 `routing` 段（变音不敏感，`Ἰλιάς` 命中）；`scope=all` 支持 `rrf`/`weighted`/`tiered` 并标注 `role_in_answer`，**默认 `rrf` 与改前逐位相同**。开启权重前必须重跑 100 问 |
+| 状态 | **M0–M4 已实现；M5 消费端已接通**（2026-11-06）：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生（缺 `page_render` → 422）；`tier`/`tier_estimated` 查表；`routed` 关键词表进 `routing` 段（变音不敏感，`Ἰλιάς` 命中）；`scope=all` 支持 `rrf`/`weighted`/`tiered` 并标注 `role_in_answer`，**默认 `rrf` 与改前逐位相同**；`book_meta.json` 已读取，citation 带 `doc_kind`/`subject`，`?subject=&doc_kind=` 可显式选规则。开启权重前必须重跑 100 问 |
 | 依据 | [CITATION-POLICY.md](CITATION-POLICY.md)（是什么 / 为什么） |
 | 目标 | 让"引用谁、从哪取、怎么定位、谁裁决"成为**数据**，且默认配置下行为与今天逐条一致 |
 

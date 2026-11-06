@@ -31,7 +31,12 @@ GET /v1/search?q=&view=&limit=&source=&lang=&book=&chapter=&document_id=&section
 | `document_id` + `section` | v2 公开语料的范围收窄；`chapter` 是 `section` 的别名 |
 | `source` | v1 是语料桶（`library`…），v2 是 `source_id`（`wikisource:zh`…） |
 | `scope` | `auto`（默认，只查当前库）/ `all`（v1+v2 联邦）/ `routed`（按语言/覆盖路由到一个库，需两库路径） |
+| `subject` + `doc_kind` | 可选，只在 `scope=all` 时影响命中哪条策略规则；回显 `policy_input` 与 `rule_cite`，便于区分"显式指定"与"兜底规则" |
 | `session_id/turn/step/call_id` | 可选，服务端据此写引用流水 |
+
+`citation` 里还会出现 `doc_kind` / `subject`（仅当 `book_meta.json` 覆盖该书）：
+来源是 rag-build 产出的书级元数据，只对 `library` 语料生效，缺失时字段整体不出现。
+`GET /v1/policy` 的 `book_meta` 段报告它的路径、条数与读取错误。
 
 响应：
 

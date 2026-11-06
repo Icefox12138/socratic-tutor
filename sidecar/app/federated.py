@@ -167,7 +167,8 @@ def _order_fused(fused, best, plan):
 
 def search_all(query, view="student", limit=8, source=None, lang=None,
                book=None, document_id=None, section=None, session_id=None,
-               turn=None, step=None, call_id=None):
+               turn=None, step=None, call_id=None,
+               subject=None, doc_kind=None):
     t0 = time.perf_counter()
     dbs = []
     for db, is_v1 in ((config.V1_DB, True), (config.PUBLIC_DB, False)):
@@ -190,7 +191,7 @@ def search_all(query, view="student", limit=8, source=None, lang=None,
         finally:
             _restore(snap)
 
-    plan = citation_policy.merge_plan()
+    plan = citation_policy.merge_plan(subject=subject, doc_kind=doc_kind)
     weights = plan.get("weights") or {}
     anchor = plan.get("anchor")
 
@@ -224,5 +225,10 @@ def search_all(query, view="student", limit=8, source=None, lang=None,
     for key in ("translations", "chapter"):
         if any(key in p for p in payloads):
             out[key] = next((p[key] for p in payloads if key in p), None)
+    if subject or doc_kind:
+        # Echo what selected the rule, so a caller can tell an explicit request
+        # from the catch-all default.
+        out["policy_input"] = {"subject": subject, "doc_kind": doc_kind}
+        out["rule_cite"] = plan.get("cite")
     search._cite(out, session_id, turn, step, call_id)
     return out

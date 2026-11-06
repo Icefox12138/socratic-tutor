@@ -461,6 +461,21 @@ def _fts_rows(query, view, limit, source, lang, book=None, pages=None):
         con.close()
 
 
+def _meta_extras(book, source):
+    """doc_kind / subject for a library book, from rag-build's book_meta.json.
+
+    Omitted entirely when the file does not cover the book, so responses from an
+    un-annotated library are byte-compatible with before.
+    """
+    doc_kind, subject = citation_policy.book_kind(book, source)
+    extra = {}
+    if doc_kind:
+        extra["doc_kind"] = doc_kind
+    if subject:
+        extra["subject"] = subject
+    return extra
+
+
 def _row_result(row, score):
     image = None
     if config.render_enabled():
@@ -492,6 +507,7 @@ def _row_result(row, score):
             "policy_version": citation_policy.version(),
             "page_image": image,
             "document_id": doc_id,
+            **_meta_extras(row["book"], row["source"]),
         },
     })
 
@@ -973,7 +989,8 @@ def search(query: str, view: str = "student", limit: int = 8,
            session_id: str | None = None, turn: int | None = None,
            step: int | None = None, call_id: str | None = None,
            document_id: str | None = None, section: str | None = None,
-           scope: str | None = None):
+           scope: str | None = None,
+           subject: str | None = None, doc_kind: str | None = None):
     if view not in ("student", "tutor"):
         raise ValueError("view must be student or tutor")
     if scope not in (None, "", "auto", "all", "routed"):
@@ -983,7 +1000,8 @@ def search(query: str, view: str = "student", limit: int = 8,
         return federated.search_all(
             query, view=view, limit=limit, source=source, lang=lang, book=book,
             document_id=document_id, section=section, session_id=session_id,
-            turn=turn, step=step, call_id=call_id)
+            turn=turn, step=step, call_id=call_id,
+            subject=subject, doc_kind=doc_kind)
     if scope == "routed":
         from . import federated
         return federated.search_routed(
