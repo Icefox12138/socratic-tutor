@@ -605,12 +605,32 @@ class TestM1Serving(unittest.TestCase):
                 "channels:\n"
                 "  - {source: library-pdf, kind: rag-sqlite, address: 'sqlite:///x.db'}\n")
             from fastapi import HTTPException
-            with self.assertRaises(HTTPException) as ctx:
-                main.v1_pages(source="library", book="x.pdf", page=1,
-                              dpi=150, bbox=None)
+            old = config.RENDER
+            # The gate is about channel capabilities, not about whether this
+            # deployment has a library, so pin rendering on for the assertion.
+            config.RENDER = "on"
+            try:
+                with self.assertRaises(HTTPException) as ctx:
+                    main.v1_pages(source="library", book="x.pdf", page=1,
+                                  dpi=150, bbox=None)
+            finally:
+                config.RENDER = old
             self.assertEqual(ctx.exception.status_code, 422)
             self.assertEqual(ctx.exception.detail["code"], "capability_missing")
             self.assertEqual(ctx.exception.detail["need"], ["page_render"])
+
+    def test_render_off_wins_over_the_capability_gate(self):
+        from fastapi import HTTPException
+        old = config.RENDER
+        config.RENDER = "off"          # a deployment turned rendering off
+        try:
+            with self.assertRaises(HTTPException) as ctx:
+                main.v1_pages(source="library", book="x.pdf", page=1,
+                              dpi=150, bbox=None)
+        finally:
+            config.RENDER = old
+        self.assertEqual(ctx.exception.status_code, 501)
+        self.assertEqual(ctx.exception.detail["code"], "page_rendering_disabled")
 
     def test_channels_report_whether_serving_uses_them(self):
         payload = main.v1_channels()
