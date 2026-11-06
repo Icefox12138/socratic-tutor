@@ -10,12 +10,22 @@
       "name": "dsh-socratic",
       "title": "Socratic Tutor",
       "description": {
-        "en": "13 tools: cited search, lexical grep/lemma, chapter lookup, page images, math verification (SymPy/SciPy/pint/control), session review, plus an embedded console with a policy card and per-citation tier/anchor badges. Set persona:false to keep the tools without the teaching charter. Needs a sidecar and a RAG database that satisfies docs/RAG-DB-SCHEMA.md.",
-        "zh": "13 个工具：引用检索、grep/lemma 词法、章回定位、页图、计算校验（SymPy/SciPy/pint/control）、会话复盘；内置教学台含引用策略卡与每条的层级/锚点徽章。persona:false 可只保留工具、不注入教学章程。需配套 sidecar，以及符合 docs/RAG-DB-SCHEMA.md 的 RAG 数据库。"
+        "en": "13 tools: cited search, lexical grep/lemma, chapter lookup, page images, math verification (SymPy/SciPy/pint/control), session review, plus an embedded console with a policy card and per-citation tier/anchor badges. Tools only — add dsh-socratic-persona for the teaching behaviour. Needs a sidecar and a RAG database that satisfies docs/RAG-DB-SCHEMA.md.",
+        "zh": "13 个工具：引用检索、grep/lemma 词法、章回定位、页图、计算校验（SymPy/SciPy/pint/control）、会话复盘；内置教学台含引用策略卡与每条的层级/锚点徽章。只含工具——教学行为另装 dsh-socratic-persona。需配套 sidecar，以及符合 docs/RAG-DB-SCHEMA.md 的 RAG 数据库。"
       },
       "homepage": "https://github.com/Icefox12138/socratic-tutor/tree/main/plugin-socratic",
       "author": "Icefox12138",
       "versions": [
+        {
+          "version": "0.5.0",
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.2 <0.3.0-0"
+          },
+          "publishTimestamp": 1793963475
+        },
         {
           "version": "0.4.1",
           "source": {
@@ -88,6 +98,29 @@
         }
       ],
       "icon": "icon.png"
+    },
+    {
+      "name": "dsh-socratic-persona",
+      "title": "Socratic Tutor — teaching layer",
+      "description": {
+        "en": "The teaching half: a charter in the system prompt (no answer before L4, one question per turn, every factual claim needs a locator), a per-step state summary from the sidecar, and a stream rewrite that withholds answer leaks. All of it applies to every session in the profile, so install it only where you want teaching — the tools keep working without it.",
+        "zh": "教学层：系统提示里的章程（L4 前不给答案、每次只问一个问题、事实断言必须带 locator）、来自 sidecar 的每步状态摘要、以及扣留答案泄漏的流式改写。三者都对该 profile 的所有会话生效，所以只在需要教学时安装；不装它工具照常可用。"
+      },
+      "homepage": "https://github.com/Icefox12138/socratic-tutor/tree/main/plugin-socratic-persona",
+      "author": "Icefox12138",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.2 <0.3.0-0"
+          },
+          "publishTimestamp": 1793963560
+        }
+      ],
+      "icon": "persona-icon.png"
     }
   ]
 }
