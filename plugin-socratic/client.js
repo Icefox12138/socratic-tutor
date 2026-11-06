@@ -223,6 +223,113 @@ window.__ModuleLoader__.load({
       );
     }
 
+    // PolicyCard: read-only diagnostics over /v1/policy and /v1/channels.
+    // Answers "why did this citation come from that source" — the sidecar side
+    // of that question already exists (M0/M1); this is only the view.
+    function PolicyCard() {
+      const [open, setOpen] = React.useState(false);
+      const [data, setData] = React.useState(null);
+      const [error, setError] = React.useState('');
+      const [busy, setBusy] = React.useState(false);
+      const base = (typeof localStorage !== 'undefined' && localStorage.getItem('socratic_sidecar'))
+        || 'http://127.0.0.1:8765';
+
+      const getJson = async (url) => {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      };
+
+      const load = async () => {
+        setBusy(true);
+        const [p, c] = await Promise.allSettled([
+          getJson(base + '/v1/policy'),
+          getJson(base + '/v1/channels'),
+        ]);
+        setBusy(false);
+        if (p.status === 'rejected' && c.status === 'rejected') {
+          setError(String((p.reason && p.reason.message) || p.reason));
+          return;
+        }
+        setError('');
+        setData({
+          policy: p.status === 'fulfilled' ? p.value : null,
+          channels: c.status === 'fulfilled' ? (c.value.channels || []) : [],
+        });
+      };
+
+      React.useEffect(() => {
+        if (open && !data && !busy) load();
+      }, [open]);
+
+      const chip = {
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        border: '1px solid rgba(127,127,127,.35)', borderRadius: 8,
+        padding: '4px 8px', fontSize: 12, cursor: 'pointer',
+        background: 'rgba(127,127,127,.06)', color: 'inherit',
+      };
+      const box = {
+        marginTop: 6, border: '1px solid rgba(127,127,127,.3)', borderRadius: 10,
+        padding: 10, fontSize: 12, background: 'rgba(127,127,127,.04)',
+        maxHeight: 320, overflow: 'auto',
+      };
+      const row = { display: 'flex', justifyContent: 'space-between', gap: 8, margin: '2px 0' };
+      const th = { opacity: 0.6, fontWeight: 600 };
+      const policy = data && data.policy;
+      const channels = (data && data.channels) || [];
+      const dot = (a) => (a === 'ready' ? '#12b76a' : a === 'missing' ? '#b42318' : '#98a2b3');
+      const parts = policy && policy.enforced_parts
+        ? Object.keys(policy.enforced_parts).map((k) => (
+          policy.enforced_parts[k] ? k : k + '(未开)')).join(' · ')
+        : '';
+
+      return h('div', { style: { margin: '4px 0' } },
+        h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' } },
+          h('button', { style: chip, title: '引用策略与语料通道（只读）',
+            onClick: () => setOpen(!open) },
+            '策略', policy && policy.policy_version ? ' · v' + policy.policy_version : '',
+            open ? ' ▾' : ' ▸'),
+          h('span', { style: { fontSize: 11, opacity: 0.65 } }, '来源 / 通道 / 生效范围'),
+        ),
+        open && h('div', { style: box },
+          error && h('div', { style: { color: '#b42318' } }, 'sidecar: ' + error),
+          busy && !policy && h('div', { style: { opacity: 0.7 } }, '读取中…'),
+          policy && !policy.enforced && h('div', { style: { opacity: 0.75, marginBottom: 6 } },
+            '排序尚未由策略接管（' + parts + '）'),
+          policy && policy.last_reload_error && h('div', { style: { color: '#b42318' } },
+            '上次重载失败：' + policy.last_reload_error),
+          policy && h('div', null,
+            h('div', { style: { marginTop: 6, fontWeight: 600 } }, '源'),
+            Object.keys(policy.sources || {}).map((sid) => {
+              const s = policy.sources[sid] || {};
+              return h('div', { key: 's-' + sid, style: row },
+                h('span', { style: { wordBreak: 'break-all' } }, sid),
+                h('b', null, (s.tier || '—') + (s.tier_estimated ? '*' : '')
+                  + ' · ' + (s.role || '?')),
+              );
+            }),
+            h('div', { style: { marginTop: 8, fontWeight: 600 } }, '通道'),
+            h('div', { style: { ...row, ...th } },
+              h('span', null, 'kind'), h('span', null, '状态')),
+            channels.map((c, i) => h('div', { key: 'c-' + i, style: row },
+              h('span', { style: { display: 'inline-flex', gap: 6, alignItems: 'center' } },
+                h('span', { style: { width: 8, height: 8, borderRadius: 4,
+                  background: dot(c.availability) } }),
+                c.source + ' · ' + c.kind),
+              h('span', { style: { opacity: 0.8 } },
+                c.availability + (c.in_use ? ' · 在用' : '')),
+            )),
+            h('div', { style: { marginTop: 8 } },
+              h('a', { style: { color: 'inherit', textDecoration: 'underline', cursor: 'pointer' },
+                onClick: () => { setData(null); load(); } }, busy ? '刷新中…' : '刷新'),
+            ),
+          ),
+          !policy && !error && !busy && h('div', { style: { opacity: 0.7 } },
+            'sidecar 未返回策略；确认它已在 8765 运行。'),
+        ),
+      );
+    }
+
     return {
       inject: ['slots'],
       apply(ctx) {
@@ -231,6 +338,11 @@ window.__ModuleLoader__.load({
           id: 'socratic-panel',
           order: 200,
         }, Panel));
+        ctx.slots.inject('conversation.composer.dock', () => ctx.slots.register({
+          name: 'conversation.composer.dock',
+          id: 'socratic-policy',
+          order: 210,
+        }, PolicyCard));
         ctx.slots.inject('conversation.chat.turnTail', () => ctx.slots.register({
           name: 'conversation.chat.turnTail',
           id: 'socratic-turn-citations',
