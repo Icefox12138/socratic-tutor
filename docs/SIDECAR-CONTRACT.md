@@ -44,10 +44,19 @@ GET /v1/search?q=&view=&limit=&source=&lang=&book=&chapter=&document_id=&section
               "text": "黃帝者……", "score": 0.8, "similarity": 0.8,
               "citation": {"scheme": "mediawiki", "locator": "《史記/卷001》黃帝（Wikisource rev 11133934）",
                            "url": "https://zh.wikisource.org/wiki/…?oldid=11133934#黃帝",
-                           "image": null, "page_image": null, "tier": "A",
+                           "image": null, "page_image": null,
+                           "tier": "A", "tier_estimated": false, "role": "cite",
+                           "policy_version": "bb263d1e4d64",
                            "license": "PD-old", "revision": "11133934"}}],
  "chapter": null, "took_ms": 12.3, "cached": false}
 ```
+
+`citation.tier` 是可信度层级（`A` 校对文本 / `B` 原页渲染 / `C` OCR 文本 /
+`D` 机器生成），由服务端引用策略决定：v2 按语料源查表，v1 的页级引用为 `B`
+并带 `tier_estimated: true`（库内没有逐 chunk 的校对层元数据）。
+`citation.role` 目前恒为 `cite`；`tier_estimated` 为真表示该层级是粗判而非实测。
+`citation.policy_version` 是生效策略的内容哈希，见
+[CITATION-POLICY-PLAN.md](CITATION-POLICY-PLAN.md)。
 
 `mode` 取值：`fts` / `bge+rerank` / `page_only`（v1）、`fts-public` /
 `bge+rerank-public`（v2；有 BGE 向量时是后者，否则自动退回 `fts-public`）、

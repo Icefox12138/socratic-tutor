@@ -295,11 +295,13 @@ def v1_chunk(chunk_id: int, view: str = Query("student")):
         raise HTTPException(status_code=404, detail="chunk not found")
     image = "/v1/pages?source=%s&book=%s&page=%d" % (
         quote(row["source"]), quote(row["book"]), row["page"])
+    tier, tier_estimated = citation_policy.tier_for_source(row["source"])
     return policy.redact({
         "chunk_id": row["id"], "source": row["source"], "book": row["book"],
         "lang": row["lang"], "page": row["page"], "text": row["text"],
         "citation": {"locator": f"{row['book']} p.{row['page']}",
-                     "tier": "unknown", "role": "cite",
+                     "tier": tier, "tier_estimated": tier_estimated,
+                     "role": "cite",
                      "policy_version": citation_policy.version(),
                      "page_image": image},
     })

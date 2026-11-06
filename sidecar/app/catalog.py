@@ -88,6 +88,7 @@ def chunk(chunk_id, view="student"):
 def result_for_row(row, score=1.0):
     """Shape one v2 row exactly like a search hit."""
     loc = locators.loads(row["locator_json"])
+    tier, tier_estimated = citation_policy.tier_for_source(row["source_id"])
     doc = {"title": row["title"], "author": row["author"],
            "license": row["license"], "canonical_url": row["canonical_url"],
            "lang": row["lang"]}
@@ -115,7 +116,8 @@ def result_for_row(row, score=1.0):
             "url": href,
             "image": None,
             "page_image": None,
-            "tier": "A",
+            "tier": tier,
+            "tier_estimated": tier_estimated,
             "role": "cite",
             "policy_version": citation_policy.version(),
             "license": row["license"],

@@ -64,11 +64,13 @@ class TestBuiltin(PolicyTestBase):
         int(v, 16)
         self.assertEqual(v, cp.version())
 
-    def test_effective_reports_m1_enforcement(self):
+    def test_effective_reports_what_is_enforced(self):
         payload = cp.effective()
-        self.assertFalse(payload["enforced"])
+        self.assertFalse(payload["enforced"])          # ranking still not policy-driven
+        self.assertEqual(payload["enforced_parts"],
+                         {"channels": True, "tier": True, "ranking": False})
         self.assertEqual(payload["policy_version"], cp.version())
-        self.assertIn("M1", payload["note"])
+        self.assertIn("M2", payload["note"])
 
 
 class TestValidate(PolicyTestBase):
@@ -301,6 +303,44 @@ class TestEndpoints(PolicyTestBase):
         self.assertTrue(payload["ok"])
         self.assertEqual(payload["errors"], [])
         self.assertEqual(payload["policy_version"], cp.version())
+
+
+class TestTier(PolicyTestBase):
+    """M2: the citation tier is read from the policy instead of a constant."""
+
+    def test_v1_sources_are_b_and_estimated(self):
+        self.assertEqual(cp.tier_for_source("library"), ("B", True))
+        self.assertEqual(cp.tier_for_source("steadman"), ("B", True))
+        self.assertEqual(cp.tier_for_source("teubner_conte"), ("B", True))
+
+    def test_v2_source_family_maps_to_a(self):
+        self.assertEqual(cp.tier_for_source("wikisource:zh"), ("A", False))
+        self.assertEqual(cp.tier_for_source("cts"), ("A", False))
+
+    def test_unknown_source_is_reported_not_invented(self):
+        self.assertEqual(cp.tier_for_source("ghost:xx"), ("unknown", True))
+        self.assertEqual(cp.tier_for_source(None), ("unknown", True))
+
+    def test_policy_override_changes_the_tier(self):
+        with TemporaryDirectory() as d:
+            path = os.path.join(d, "policy.yaml")
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write("sources:\n"
+                         "  library-pdf: {tier: C, role: cite, locator_scheme: page,"
+                         " tier_estimated: false}\n"
+                         "channels: []\n"
+                         "rules:\n"
+                         "  - {when: {}, cite: [library-pdf]}\n")
+            os.environ["SOCRATIC_POLICY"] = path
+            ok, errs = cp.reload()
+            self.assertTrue(ok, errs)
+            self.assertEqual(cp.tier_for_source("library"), ("C", False))
+
+    def test_tier_estimated_must_be_boolean(self):
+        p = _policy()
+        p["sources"]["lib"]["tier_estimated"] = "yes"
+        errs = cp.validate(p)
+        self.assertTrue(any("tier_estimated" in e for e in errs), errs)
 
 
 class TestM1Serving(unittest.TestCase):

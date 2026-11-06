@@ -65,11 +65,14 @@ def _builtin():
     return {
         "schema": SCHEMA,
         "sources": {
-            "library-pdf": {"tier": "B", "role": "cite", "locator_scheme": "page",
+            "library-pdf": {"tier": "B", "tier_estimated": True, "role": "cite",
+                            "locator_scheme": "page",
                             "display": "自扫 PDF（原页）"},
-            "steadman": {"tier": "B", "role": "cite", "locator_scheme": "page",
+            "steadman": {"tier": "B", "tier_estimated": True, "role": "cite",
+                         "locator_scheme": "page",
                          "display": "Steadman 教学本"},
-            "teubner-conte": {"tier": "B", "role": "cite", "locator_scheme": "page",
+            "teubner-conte": {"tier": "B", "tier_estimated": True, "role": "cite",
+                              "locator_scheme": "page",
                               "display": "Teubner Aeneis"},
             "wikisource": {"tier": "A", "role": "cite",
                            "locator_scheme": "mediawiki-rev",
@@ -177,6 +180,9 @@ def validate(policy):
         tier = src.get("tier")
         if tier is not None and tier not in TIERS:
             errs.append("sources.%s.tier: must be one of %s" % (sid, ", ".join(TIERS)))
+        est = src.get("tier_estimated")
+        if est is not None and not isinstance(est, bool):
+            errs.append("sources.%s.tier_estimated: must be true or false" % sid)
 
     profiles = policy.get("weight_profiles") or {}
     if not isinstance(profiles, dict):
@@ -437,6 +443,27 @@ def require(source_id, *need):
     return True
 
 
+def tier_for_source(source_id):
+    """Catalogue source id -> (tier, estimated) from the policy's source table.
+
+    v2 rows carry ids such as `wikisource:zh`; the policy names the family, so
+    the part before the first ':' is tried too. A source the policy does not
+    describe reports `unknown`/estimated instead of an invented tier.
+    """
+    srcs = current().get("sources") or {}
+    alias = PAGES_SOURCE.get(source_id, source_id)
+    for cand in (alias, str(source_id or "").split(":", 1)[0]):
+        meta = srcs.get(cand)
+        if isinstance(meta, dict) and meta.get("tier"):
+            return meta["tier"], bool(meta.get("tier_estimated", False))
+    return "unknown", True
+
+
+def enforced_parts():
+    """Which parts of the serving path read the policy, per milestone."""
+    return {"channels": True, "tier": True, "ranking": False}
+
+
 def local_roots():
     """pages source name -> local directory, taken from local-file channels."""
     roots = {}
@@ -466,8 +493,10 @@ def effective():
         "schema": SCHEMA,
         "policy_version": version(pol),
         "enforced": enforce_flag(),
-        "note": "M1: page roots come from local-file channels; search and ranking "
-                "still use scope=auto/routed. See docs/CITATION-POLICY-PLAN.md.",
+        "enforced_parts": enforced_parts(),
+        "note": "M2: page roots, the render gate and the citation tier come from "
+                "the policy; search and ranking still use scope=auto/routed. "
+                "See docs/CITATION-POLICY-PLAN.md.",
         "origins": origins(),
         "last_reload_error": last_error(),
         "sources": pol.get("sources") or {},

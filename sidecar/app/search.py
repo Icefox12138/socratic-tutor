@@ -471,6 +471,7 @@ def _row_result(row, score):
     # fields: document_id / similarity / positions. bbox is null because chunks
     # are page-level here, not block-level.
     doc_id = "%s:%s" % (row["source"], row["book"])
+    tier, tier_estimated = citation_policy.tier_for_source(row["source"])
     return policy.redact({
         "chunk_id": row["id"],
         "document_id": doc_id,
@@ -485,7 +486,8 @@ def _row_result(row, score):
         "score": score,
         "citation": {
             "locator": f"{row['book']} p.{row['page']}",
-            "tier": "unknown",
+            "tier": tier,
+            "tier_estimated": tier_estimated,
             "role": "cite",
             "policy_version": citation_policy.version(),
             "page_image": image,
@@ -1012,13 +1014,15 @@ def search(query: str, view: str = "student", limit: int = 8,
         # image and a deep link into the page browser.
         if session_id and pages_out:
             short = os.path.splitext(os.path.basename(book))[0][:24]
+            tier, tier_estimated = citation_policy.tier_for_source(toc_source)
             citations.add_many(session_id, [{
                 "chunk_id": None, "source": toc_source, "book": book,
                 "page": rng["page_start"], "lang": "page", "text": "",
                 "citation": {
                     "locator": "%s %s p.%d–%d" % (short, rng["title"],
                                                   rng["page_start"], rng["page_end"]),
-                    "tier": "page",
+                    "tier": tier,
+                    "tier_estimated": tier_estimated,
                     "role": "cite",
                     "policy_version": citation_policy.version(),
                     "page_image": pages_out[0]["page_image"],
