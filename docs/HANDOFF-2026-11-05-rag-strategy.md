@@ -384,7 +384,7 @@ toc(document_id, scheme, ord, level, title,
 
 - `simplemma` 安装在 `D:\Guo-Code\temp\nlp_libs`；脚本里已 `sys.path.insert`。
 - `jieba` 在 `.venv-bge`；base Python 可通过 `PYTHONPATH` 使用。
-- PaddleOCR 在 `.venv-ocr`；需设 `PADDLE_PDX_CACHE_HOME=D:\Guo-Code\rag-build\cache\paddlex`，`enable_mkldnn=False`。
+- PaddleOCR 在 `rag-build\.venv-ocr`（2026-11-06 从 `socratic-tutor/.venv-ocr` 迁入）；需设 `PADDLE_PDX_CACHE_HOME=D:\Guo-Code\rag-build\cache\paddlex`，`enable_mkldnn=False`。
 - 本机 venv 的 Python 进程写 `D:\Guo-Code\temp` 会 `PermissionError`；让 base Python 写 temp，或让 venv 写 `rag-build\data\experiments\` / workspace。
 - PaddleOCR 在密集竖排页可能 >1 分钟/页；抽样时优先水平页，或降低分辨率/跳过大图。
 

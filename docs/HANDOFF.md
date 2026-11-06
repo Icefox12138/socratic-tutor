@@ -169,11 +169,9 @@ D:\Guo-Code\socratic-tutor\
   eval\p2\              P2（dialogues/ptc）
   sidecar\              FastAPI + state
   plugin-socratic\      DSH 插件 + client + ptc.js
-  .venv-bge\            sidecar/BGE
-  .venv-ocr\            OCR（CPU Paddle）
-  .venv-paddle-gpu\     Paddle 3.0 CUDA
-  .venv-mineru\         MinerU
-D:\Guo-Code\PDF\        馆藏
+  .venv-bge\            sidecar/BGE（唯一留在本仓的 venv）
+D:\Guo-Code\library\    馆藏（2026-11 起，原 D:\Guo-Code\PDF\ 等已合并）
+D:\Guo-Code\rag-build\  数据工程私有工程：eval/、data/、.venv-ocr、cache/paddlex
 D:\Guo-Code\PDF-new\Steadman\
 D:\Guo-Code\loeb\       L036/L063N
 D:\Guo-Code\teubner\    Conte/West
@@ -189,7 +187,7 @@ cd sidecar
 # 测试
 ..\.venv-bge\Scripts\python.exe -m unittest discover -s tests -p "test_*.py"
 # OCR / ODL
-..\.venv-ocr\Scripts\python.exe eval\p1\bakeoff\run_bakeoff.py --engines paddleocr --pages 12
+D:\Guo-Code\rag-build\.venv-ocr\Scripts\python.exe rag-build\eval\p1\bakeoff\run_bakeoff.py --engines paddleocr --pages 12
 ```
 
 ## 9. 坑（别重踩）
