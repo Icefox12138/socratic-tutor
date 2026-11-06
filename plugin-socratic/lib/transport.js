@@ -85,6 +85,6 @@ export function degraded(toolName, health) {
     tool: toolName,
     base: health.base,
     detail: health.detail,
-    hint: "启动 sidecar（python -m uvicorn app.main:app --port 8765），或把 baseUrl/SOCRATIC_SIDECAR_URL 指到已运行的实例。",
+    hint: "启动 sidecar（python -m uvicorn app.main:app --port 8765 --timeout-keep-alive 75），或把 baseUrl/SOCRATIC_SIDECAR_URL 指到已运行的实例。",
   });
 }

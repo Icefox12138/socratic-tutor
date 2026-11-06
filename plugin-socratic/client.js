@@ -8,28 +8,54 @@ window.__ModuleLoader__.load({
       const [state, setState] = React.useState(null);
       const [citations, setCitations] = React.useState([]);
       const [error, setError] = React.useState('');
+      const misses = React.useRef(0);
       React.useEffect(() => {
         if (!open || !sessionId) return undefined;
         let alive = true;
         const base = localStorage.getItem('socratic_sidecar') || 'http://127.0.0.1:8765';
+        // 404 是正常答案（sidecar 还没有这个会话的状态）；其余非 ok 才算该端点失败。
+        const getJson = async (url) => {
+          const res = await fetch(url, { cache: 'no-store' });
+          if (res.status === 404) return { notFound: true };
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        };
         const load = async () => {
-          try {
-            const [s, c] = await Promise.all([
-              fetch(base + '/v1/state/' + encodeURIComponent(sessionId)),
-              fetch(base + '/v1/citations/' + encodeURIComponent(sessionId) + '?limit=8'),
-            ]);
-            if (!alive) return;
-            if (s.ok) setState(await s.json());
-            else if (s.status === 404) setState(null);
-            if (c.ok) setCitations((await c.json()).citations || []);
-            setError('');
-          } catch (e) {
-            if (alive) setError(String(e && e.message || e));
+          // 两个端点各自成败：一个失败不该把另一个的结果也丢掉。
+          const [s, c] = await Promise.allSettled([
+            getJson(base + '/v1/state/' + encodeURIComponent(sessionId)),
+            getJson(base + '/v1/citations/' + encodeURIComponent(sessionId) + '?limit=8'),
+          ]);
+          if (!alive) return;
+          if (s.status === 'fulfilled') setState(s.value.notFound ? null : s.value);
+          if (c.status === 'fulfilled') setCitations((c.value && c.value.citations) || []);
+          const failed = [s, c].filter((r) => r.status === 'rejected');
+          if (!failed.length) { misses.current = 0; setError(''); return; }
+          // 偶发一次多半是连接层的瞬断；连续两次才提示，且保留上一次数据。
+          misses.current += 1;
+          if (misses.current >= 2) {
+            const why = failed[0].reason;
+            const name = (why && why.name) || 'Error';
+            const text = (why && why.message) || String(why);
+            const where = (typeof location !== 'undefined' ? location.origin : '?') + ' → ' + base;
+            setError(name + ': ' + text
+              + '（已连续 ' + misses.current + ' 次；' + where + '）');
           }
         };
+        const tick = () => {
+          // 后台标签页不必轮询；回到前台会立刻补一次。
+          if (typeof document !== 'undefined' && document.hidden) return;
+          load();
+        };
         load();
-        const timer = setInterval(load, 5000);
-        return () => { alive = false; clearInterval(timer); };
+        const timer = setInterval(tick, 15000);
+        const onVisible = () => { if (!document.hidden) load(); };
+        document.addEventListener('visibilitychange', onVisible);
+        return () => {
+          alive = false;
+          clearInterval(timer);
+          document.removeEventListener('visibilitychange', onVisible);
+        };
       }, [sessionId, open]);
       return { state, citations, error };
     }
@@ -130,10 +156,18 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         if (!sessionId || turn == null) return undefined;
         let alive = true;
-        fetch(base + '/v1/citations/' + encodeURIComponent(sessionId) + '?turn=' + encodeURIComponent(turn))
-          .then((r) => r.ok ? r.json() : { citations: [] })
-          .then((d) => { if (alive) setItems(d.citations || []); })
-          .catch(() => {});
+        const url = base + '/v1/citations/' + encodeURIComponent(sessionId)
+          + '?turn=' + encodeURIComponent(turn);
+        const pull = (attempt) => {
+          fetch(url, { cache: 'no-store' })
+            .then((r) => r.ok ? r.json() : { citations: [] })
+            .then((d) => { if (alive) setItems(d.citations || []); })
+            .catch(() => {
+              // 连接层瞬断值得一次安静的重试；两次都失败就按"本轮无引用"处理。
+              if (alive && attempt === 0) setTimeout(() => { if (alive) pull(1); }, 1500);
+            });
+        };
+        pull(0);
         return () => { alive = false; };
       }, [sessionId, turn]);
       if (!items.length) return null;
