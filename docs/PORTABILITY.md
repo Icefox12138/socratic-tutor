@@ -50,11 +50,14 @@
 | 公开语料 ingest → `<repo>/data` | ❌ | ✅ | ✅ |
 | ingest → `rag-build`（工作区外） | ❌ | ❌ | ✅ |
 | `python -m unittest discover` | ❌ | ✅（用 `_tmp.py`） | ✅ |
-| `node --test`（plugin） | ❌ | ❌ `spawn EPERM` | ✅ |
+| 插件测试的默认写法（子进程） | ❌ | ❌ `spawn EPERM` | ✅ |
+| `node --test`（plugin） | ❌ | ✅ 加 `--test-isolation=none` 在本进程内跑 | ✅ |
 
 结论：**工作区可写是日常开发与服务的合适档位**；只有往 `rag-build` 写数据（大批量 ingest / 模型缓存）才需要完全权限。只读档只能做“看代码 + 读库”，不能教学（写不了引用与状态）。
 
 > 已知副作用：早期用裸 `tempfile.mkdtemp()` 跑测试时，沙箱内创建的空目录**无法删除**（连 `icacls /reset` 也被拒）。清理必须在沙箱外（普通 PowerShell / 资源管理器）进行。
+>
+> 沙箱内跑全套的门槛写法：`python -m unittest discover`（用 `tests/_tmp.py`）+ `node --test --test-isolation=none`。
 
 ## 4. 复现
 
