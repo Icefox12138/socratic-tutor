@@ -2,9 +2,9 @@
 
 **A citation-first Socratic tutor for scanned books.** Ask a question, get an answer that points at a page you can actually open — on a personal library of 27 GB of PDFs, including Chinese classical texts read vertically, Latin, and Greek.
 
-[![PyPI](https://img.shields.io/badge/pypi-classics--index-blue)](https://pypi.org/project/classics-index/)
-[![PyPI](https://img.shields.io/badge/pypi-socratic--mcp-blue)](https://pypi.org/project/socratic-mcp/)
-[![npm](https://img.shields.io/badge/npm-dsh--socratic-red)](https://www.npmjs.com/package/dsh-socratic)
+[![PyPI](https://img.shields.io/pypi/v/socratic-mcp?label=socratic-mcp)](https://pypi.org/project/socratic-mcp/)
+[![PyPI](https://img.shields.io/pypi/v/classics-index?label=classics-index)](https://pypi.org/project/classics-index/)
+[![npm](https://img.shields.io/npm/v/dsh-socratic)](https://www.npmjs.com/package/dsh-socratic)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![ci](https://github.com/Icefox12138/socratic-tutor/actions/workflows/ci.yml/badge.svg)](https://github.com/Icefox12138/socratic-tutor/actions/workflows/ci.yml)
 
@@ -22,10 +22,15 @@ So the constraint here is inverted: **every claim must carry a locator (`book p.
 
 | Component | What it is | Status |
 |---|---|---|
-| `plugin-socratic` | DSH plugin, 12 tools: cited retrieval, chapter lookup, page images, math check, session review | [npm `dsh-socratic@0.2.0`](https://www.npmjs.com/package/dsh-socratic) |
-| `sidecar/` | FastAPI service: SQLite FTS5 + BGE-M3 embeddings + reranker + pypdfium2 page rendering | runs locally, not yet packaged |
-| `packages/classics-index` | Volume/chapter (`卷 / 篇 / 回`) indexer for scanned Chinese books, built from OCR of running headers | [PyPI `classics-index@0.1.0`](https://pypi.org/project/classics-index/) |
-| `packages/socratic-mcp` | The same capabilities as an MCP server, for any MCP host | [PyPI `socratic-mcp@0.1.0`](https://pypi.org/project/socratic-mcp/) |
+| `plugin-socratic` | DSH plugin, **13 tools**: cited retrieval, lexical search, chapter lookup, page images, math check, session review | [npm `dsh-socratic@0.3.1`](https://www.npmjs.com/package/dsh-socratic) |
+| `sidecar/` | FastAPI service: SQLite FTS5 + BGE-M3 + rerank + pypdfium2; public-corpus v2, federated `scope=all/routed`, grep/lemma, SymPy/SciPy/pint/control | **0.2.1**, Dockerfile + compose |
+| `packages/classics-index` | Volume/chapter (`卷 / 篇 / 回`) indexer for scanned Chinese books, built from OCR of running headers | [PyPI `classics-index@0.1.3`](https://pypi.org/project/classics-index/) |
+| `packages/socratic-mcp` | MCP server exposing search, lexical lookup, chapters, review and state | [PyPI `socratic-mcp@0.2.0`](https://pypi.org/project/socratic-mcp/) |
+
+**0.3.x highlights** — public corpora v2 (Wikisource revisions / Perseus CTS URNs),
+BGE-M3 hybrid retrieval, Chinese→Greek/Latin query translation with an OOV gate,
+grep/lemma channels, `scope=all` / `scope=routed` federated search, and a
+multi-backend compute endpoint with credentials and `disputed` markers.
 
 ## Five page types it handles
 
@@ -57,6 +62,12 @@ SOCRATIC_BGE=0 \
 
 Then open <http://127.0.0.1:8765/ui?q=极限> — search, citation, and page image, all on synthetic content.
 
+```bash
+# Or run the sidecar in a container (no local torch/BGE needed)
+docker compose up --build
+# http://127.0.0.1:8765/health  -> schema=v1, chunks=15
+```
+
 ### Bring your own RAG database
 
 The ingestion pipeline (OCR → chunk → embed) is **not in this repository** — it is a
@@ -74,10 +85,15 @@ and `eval/public/queries-unknown.jsonl` the OOV/LLM comparison. For exact
 quotations and inflected Greek/Latin forms, use `/v1/grep` and `/v1/lemma`
 (see [docs/LEXICAL-SEARCH.md](docs/LEXICAL-SEARCH.md)).
 
-```powershell
-$env:SOCRATIC_DATA='D:\path\to\rag-data'    # holds indexes/search.db + vectors/*.npy
-python scripts/ragdb_check.py                  # tells you which files it would read
+```bash
+# POSIX
+SOCRATIC_DATA=/path/to/rag-data python scripts/ragdb_check.py
+# Windows PowerShell
+$env:SOCRATIC_DATA='D:\path\to\rag-data'; python scripts/ragdb_check.py
 ```
+
+`SOCRATIC_DATA` holds `indexes/search.db` and `vectors/*.npy`; the checker prints
+the exact files it would read.
 
 No database yet? `/health` answers `200 {"ok": false, "reason": "no_index"}` and the
 demo corpus below is enough to exercise the whole chain on five synthetic pages.
