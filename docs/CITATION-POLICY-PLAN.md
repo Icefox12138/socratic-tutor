@@ -346,6 +346,10 @@ rules:
 | **M4 合并与锚点** | `merge.mode`（`rrf` 默认 / `weighted` / `tiered`）、按 catalogue 的权重（命名档，RRF 名次空间）、`role_in_answer` 标注 | **默认无**；开权重才有 |
 | **M5 元数据补全** | `doc_kind` 标注（801 本）、v1 旁表、按 `doc_kind` 选规则、云副本接入 | 无（新增能力） |
 
+> M5 已**移交 rag-build 执行**（数据标注属数据工程，且标注文件不得进公开仓）：
+> `D:\Guo-Code\rag-build\docs\BOOK-META-TASK.md`。产出 `data/book_meta.json`，
+> 本仓只在文件存在时读它；文件缺失则一律按 `unknown` 处理，行为不变。
+
 M0–M3 是纯重构 + 契约补齐，用快照证明零行为变化；M4 才可能动数字。
 
 ## 6. 验收标准
