@@ -53,6 +53,7 @@
 | [USER-GUIDE.md](USER-GUIDE.md) | **安装与使用说明**：装包、起服务、接 Agent、排查 |
 | [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md) | **数据库契约 v1**：私有 PDF 库的形状 |
 | [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md) | **数据库契约 v2**：公开语料（Wikisource/CTS）、locator/stream/license、向量 |
+| [CITATION-POLICY.md](CITATION-POLICY.md) | **引用策略（设计稿）**：cite / template / verify 三角色、tier 阶梯、分科默认表、为什么暂不做设置界面 |
 | [LEXICAL-SEARCH.md](LEXICAL-SEARCH.md) | grep/lemma 词法通道：端点、语义、simplemma、评估 |
 | [FEDERATED-SEARCH.md](FEDERATED-SEARCH.md) | `scope=all`/`routed`：合并、路由、边界 |
 | [../eval/v1/RESULTS.md](../eval/v1/RESULTS.md) | v1 P1 100 问：0.760→0.820 |
