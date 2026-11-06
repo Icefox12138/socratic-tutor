@@ -6,16 +6,18 @@ import { apply } from "../index.js";
 import { reset } from "../lib/transport.js";
 import { rewrites, streamMode } from "../lib/stream-mode.js";
 
-function harness(baseUrl) {
+function harness(baseUrl, config = {}) {
   const tools = [];
+  const listeners = [];
+  const sections = [];
   const ctx = {
-    on() {},
-    systemPrompt: { section() {} },
+    on(event) { listeners.push(event); },
+    systemPrompt: { section(section) { sections.push(section && section.name); } },
     tools: { register(t) { tools.push(t); } },
   };
-  apply(ctx, { baseUrl });
+  apply(ctx, { baseUrl, ...config });
   const byName = Object.fromEntries(tools.map((t) => [t.name, t]));
-  return { tools, byName };
+  return { tools, byName, listeners, sections };
 }
 
 function downFetch() {
@@ -98,4 +100,31 @@ test("baseUrl override is honoured", async () => {
   await byName.kb_search.execute({ query: "x" }, {});
   assert.ok(seen.some((u) => u.startsWith("http://example.test:9999/health")), seen.join(","));
   assert.ok(seen.some((u) => u.startsWith("http://example.test:9999/v1/search")), seen.join(","));
+});
+
+test("the teaching persona is on by default", () => {
+  const { listeners, sections } = harness("http://127.0.0.1:8765");
+  assert.deepEqual(sections, ["socratic:charter"]);
+  assert.ok(listeners.includes("agent/pre-step"), listeners.join(","));
+  assert.ok(listeners.includes("llm/stream"), listeners.join(","));
+});
+
+test("persona:false keeps the tools and drops every teaching behaviour", () => {
+  const { tools, listeners, sections } = harness("http://127.0.0.1:8765", { persona: false });
+  assert.equal(tools.length, 13);
+  assert.deepEqual(sections, []);
+  assert.deepEqual(listeners, []);
+});
+
+test("persona:true behaves like the default", () => {
+  const { listeners, sections } = harness("http://127.0.0.1:8765", { persona: true });
+  assert.deepEqual(sections, ["socratic:charter"]);
+  assert.ok(listeners.includes("agent/pre-step"));
+});
+
+test("persona:false still answers tool calls", async () => {
+  upFetch({ "/v1/search": { ok: true, mode: "fts", results: [] } });
+  const { byName } = harness("http://127.0.0.1:8765", { persona: false });
+  const out = JSON.parse(await byName.kb_search.execute({ query: "x" }, {}));
+  assert.equal(out.mode, "fts");
 });

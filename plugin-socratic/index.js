@@ -185,9 +185,14 @@ function tool(name, description, parameters, run, opts = {}) {
 
 export function apply(ctx, config) {
   activeConfig = config || {};
+  // `persona: false` keeps every tool but drops the teaching behaviour. The
+  // charter, the per-step state summary and the stream rewriting all change how
+  // *every* session in the profile answers — useful for tutoring, wrong for a
+  // development session that only wants the tools.
+  const persona = !(config && config.persona === false);
   const DEFAULT_SUMMARY = "【状态摘要】阶段=ALIGN；概念=未设定；提示=L0；尝试=0；已揭示=否。";
 
-  if (process.env.SOCRATIC_HARD_REWRITE !== "0") {
+  if (persona && process.env.SOCRATIC_HARD_REWRITE !== "0") {
     ctx.on("llm/stream", (options, next) => {
       const names = (options && Array.isArray(options.tools) ? options.tools : [])
         .map((t) => String(t && t.name || ""));
@@ -202,7 +207,7 @@ export function apply(ctx, config) {
     });
   }
 
-  ctx.on("agent/pre-step", async (...args) => {
+  if (persona) ctx.on("agent/pre-step", async (...args) => {
     const next = [...args].reverse().find((a) => typeof a === "function");
     if (typeof next !== "function") return undefined;
     const res = await next();
@@ -229,7 +234,7 @@ export function apply(ctx, config) {
     return res;
   });
 
-  ctx.systemPrompt.section({
+  if (persona) ctx.systemPrompt.section({
     name: "socratic:charter",
     order: 120,
     text: [
@@ -608,5 +613,6 @@ export function apply(ctx, config) {
 
   console.error("[dsh-socratic] registered kb_search/kb_read/chapter_lookup/cite_verify/"
     + "compute_math/ptc_calc/review_session/socratic_critic/socratic_health/"
-    + "socratic_init/socratic_state/socratic_step");
+    + "socratic_init/socratic_state/socratic_step"
+    + (persona ? "" : " (persona off: tools only)"));
 }

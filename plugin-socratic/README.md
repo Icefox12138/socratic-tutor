@@ -30,6 +30,22 @@ dsh --profile tutor --dump-config | Select-String socratic
 | `SOCRATIC_SIDECAR_URL` | `http://127.0.0.1:8765` |
 | `SOCRATIC_TOKEN` | 空（与 sidecar 一致） |
 
+## 人格开关（`persona`）
+
+插件默认注入**教学章程**、**每步状态摘要**与**流式硬拦截**。这三件事都作用在
+Host 层，因此对**该 profile 的所有会话**生效——开发会话也会被当成学生。
+
+只想用工具时，在 profile patch 里关掉人格：
+
+```yaml
+- id: socratic-teacher
+  config:
+    persona: false
+```
+
+`persona: false` 时：13 个工具照常注册，章程、`agent/pre-step` 摘要、
+`llm/stream` 改写一律不注册。默认 `true`，与 0.4.0 行为一致。
+
 ## 工具
 
 | 工具 | 用途 |

@@ -74,6 +74,14 @@ per package; dates are release dates, not commit dates.
 
 ## dsh-socratic
 
+### 0.4.1 — 2026-11-06
+- New `persona` config option (**default on**). With `persona: false` the plugin
+  registers its 13 tools and nothing else: no teaching charter in the system
+  prompt, no per-step state summary, no `llm/stream` rewriting. Those three all
+  apply to every session in the profile, which is wrong for a development
+  session that only wants the tools.
+- 4 new contract tests (12 total).
+
 ### 0.4.0 — 2026-11-06
 - Embedded console gained a read-only **policy card**: policy version, what is
   enforced, the source table (tier / role) and every channel with its
