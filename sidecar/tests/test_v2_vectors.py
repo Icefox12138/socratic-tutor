@@ -5,7 +5,10 @@ import tempfile
 import unittest
 
 import numpy as np
-import torch
+try:
+    import torch
+except ImportError:  # optional GPU/CPU test dependency
+    torch = None
 
 from app import config, ingest, schema, search, textutil
 from app.adapters.base import Document, Section, SourceSpec
@@ -46,6 +49,7 @@ def spec(source_id):
                       base_url="https://example.invalid/w/api.php", license="PD-old")
 
 
+@unittest.skipUnless(torch is not None, "torch not installed")
 class TestV2Vectors(unittest.TestCase):
     def setUp(self):
         self.orig_load = search._load_v2_bge
