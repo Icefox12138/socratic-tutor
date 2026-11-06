@@ -142,7 +142,7 @@ cd D:\Guo-Code\socratic-tutor
 # sidecar（默认读 <repo>/data；指向私有库时用 SOCRATIC_DATA）
 cd sidecar
 $env:SOCRATIC_DATA='D:\Guo-Code\rag-build\data'
-..\.venv-bge\Scripts\python.exe -m uvicorn app.main:app --port 8765
+..\.venv-bge\Scripts\python.exe -m uvicorn app.main:app --port 8765 --timeout-keep-alive 75
 
 # 测试（沙箱内也可全跑）
 ..\.venv-bge\Scripts\python.exe -m unittest discover -s tests -p "test_*.py"

@@ -40,6 +40,13 @@ LLM_KEY_FILE = os.environ.get(
     "SOCRATIC_LLM_KEY_FILE", os.path.join(ROOT, "deepseek API key.txt"))
 REQUIRE_AUTH = os.environ.get("SOCRATIC_REQUIRE_AUTH", "0") == "1"
 PRELOAD = os.environ.get("SOCRATIC_PRELOAD", "0") == "1"
+# Browser origins allowed to call the sidecar. A plain browser reaches it from
+# http://127.0.0.1|localhost; the DSH desktop app renders its UI over the custom
+# `dsh-app://` scheme, so its embedded teaching panel is a cross-origin client
+# too. Override the whole pattern to add or tighten origins.
+CORS_ORIGIN_REGEX = os.environ.get(
+    "SOCRATIC_CORS_ORIGIN_REGEX",
+    r"(http://(127\.0\.0\.1|localhost)(:\d+)?|dsh-app://[^/]+)")
 CACHE_TTL = float(os.environ.get("SOCRATIC_CACHE_TTL", "300"))
 CACHE_SIZE = int(os.environ.get("SOCRATIC_CACHE_SIZE", "256"))
 VERSION = "0.2.1"

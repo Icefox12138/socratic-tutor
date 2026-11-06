@@ -24,14 +24,16 @@ docker run -p 8765:8765 -v "$PWD/data:/data" -v "$PWD/samples/PDF:/books:ro" \
 
 ```powershell
 cd D:\Guo-Code\socratic-tutor\sidecar
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8765
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8765 --timeout-keep-alive 75
 ```
 
 若要用 BGE/rerank，必须用带 torch 的 `.venv-bge`：
 
 ```powershell
-& 'D:\Guo-Code\socratic-tutor\.venv-bge\Scripts\python.exe' -m uvicorn app.main:app --host 127.0.0.1 --port 8765
+& 'D:\Guo-Code\socratic-tutor\.venv-bge\Scripts\python.exe' -m uvicorn app.main:app --host 127.0.0.1 --port 8765 --timeout-keep-alive 75
 ```
+
+`--timeout-keep-alive 75` 不是可有可无的：uvicorn 默认 5 秒就关闭空闲连接，而插件的内置教学台每 15 秒轮询一次（`plugin-socratic/client.js`），Keep-Alive 短于轮询间隔时，浏览器复用连接恰好撞上服务端关闭，会偶发 `net::ERR_EMPTY_RESPONSE`，面板上显示为 `sidecar: Failed to fetch`。给到 75 秒即可消除这类瞬断。
 
 可选环境变量：
 
@@ -42,6 +44,7 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 8765
 | `SOCRATIC_CACHE` | `sidecar/cache/pages` | 页图缓存 |
 | `SOCRATIC_TOKEN` | 空 | 非空时要求 `X-Sidecar-Token` |
 | `SOCRATIC_REQUIRE_AUTH` | `0` | `1` 时无 token 配置直接 503 |
+| `SOCRATIC_CORS_ORIGIN_REGEX` | `(http://(127\.0\.0\.1\|localhost)(:\d+)?\|dsh-app://[^/]+)` | 允许调用 sidecar 的浏览器源。DSH 桌面应用用自定义协议 `dsh-app://` 渲染界面，内置教学台就是从该源发请求的；不含此项会被浏览器判 `Failed to fetch` |
 | `SOCRATIC_PRELOAD` | `0` | `1` 时启动后后台加载 BGE/reranker |
 | `SOCRATIC_BGE` | `1` | `0` 时强制 FTS |
 | `SOCRATIC_RERANK_TOPK` | `50` | 送入 reranker 的候选数 |
@@ -129,7 +132,7 @@ curl -X POST http://127.0.0.1:8765/v1/compute \
 
 ```powershell
 # 终端 1
-python -m uvicorn app.main:app --port 8765
+python -m uvicorn app.main:app --port 8765 --timeout-keep-alive 75
 # 终端 2
 python tests/smoke.py
 ```

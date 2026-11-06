@@ -57,7 +57,7 @@ SOCRATIC_ROOT="$PWD/samples" \
 SOCRATIC_DB="$PWD/samples/search.db" \
 SOCRATIC_STATE_DB="$PWD/samples/state.db" \
 SOCRATIC_BGE=0 \
-(cd sidecar && python -m uvicorn app.main:app --port 8765)
+(cd sidecar && python -m uvicorn app.main:app --port 8765 --timeout-keep-alive 75)
 ```
 
 Then open <http://127.0.0.1:8765/ui?q=极限> — search, citation, and page image, all on synthetic content.

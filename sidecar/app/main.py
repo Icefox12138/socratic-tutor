@@ -18,7 +18,7 @@ from .compute import (BackendUnavailable, ComputeError, backend_status,
 app = FastAPI(title="socratic-sidecar", version=config.VERSION)
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"http://(127\.0\.0\.1|localhost)(:\d+)?",
+    allow_origin_regex=config.CORS_ORIGIN_REGEX,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -649,4 +649,5 @@ def v1_compute(body: ComputeIn):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8765, reload=False)
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8765, reload=False,
+                timeout_keep_alive=75)

@@ -75,7 +75,7 @@ python scripts/ragdb_check.py
 cd sidecar
 pip install fastapi uvicorn pypdfium2 pillow sympy
 $env:SOCRATIC_DATA='D:\rag-data'      # 你的库
-python -m uvicorn app.main:app --port 8765
+python -m uvicorn app.main:app --port 8765 --timeout-keep-alive 75
 ```
 
 自检：
