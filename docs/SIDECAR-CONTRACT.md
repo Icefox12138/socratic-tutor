@@ -200,10 +200,18 @@ POST /v1/critic/leak {"text","hint_level","mode"}
 ```
 GET /v1/citations/{session_id}?turn=&limit=
 -> {"citations": [{"id","locator","lang","snippet","page_image",
-                   "document_id","scheme","url", ...}]}
+                   "document_id","scheme","url",
+                   "tier","tier_estimated","role","role_in_answer",
+                   "policy_version", ...}]}
 ```
 
 turnTail 卡片只读这个端点。
+
+`tier` / `tier_estimated` 是引用层级（见 §5），`role` 恒为 `cite`，
+`role_in_answer` 为 `anchor`（该 catalogue 是本次锚点）或 `corroborating`，
+`policy_version` 是写入该行时的策略哈希。历史行（这些列加入之前）为 `NULL`——
+插件应把 `NULL` 当作"未知"而不是 `unknown` 层级，两者语义不同。
+
 
 ## 9. 复盘
 
