@@ -54,6 +54,7 @@
 | [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md) | **数据库契约 v1**：私有 PDF 库的形状 |
 | [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md) | **数据库契约 v2**：公开语料（Wikisource/CTS）、locator/stream/license、向量 |
 | [CITATION-POLICY.md](CITATION-POLICY.md) | **引用策略（设计稿）**：cite / template / verify 三角色、tier 阶梯、分科默认表、为什么暂不做设置界面 |
+| [CITATION-POLICY-PLAN.md](CITATION-POLICY-PLAN.md) | **引用策略实施（方案稿）**：逻辑源 × 通道（本地 PDF / RAG 库 / 公共 API / 数据集 / 云存储）分层、能力矩阵、多源合并与锚点、命名权重档、M0–M5 里程碑与等价性回归 |
 | [LEXICAL-SEARCH.md](LEXICAL-SEARCH.md) | grep/lemma 词法通道：端点、语义、simplemma、评估 |
 | [FEDERATED-SEARCH.md](FEDERATED-SEARCH.md) | `scope=all`/`routed`：合并、路由、边界 |
 | [../eval/v1/RESULTS.md](../eval/v1/RESULTS.md) | v1 P1 100 问：0.760→0.820 |

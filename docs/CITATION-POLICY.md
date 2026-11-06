@@ -166,6 +166,8 @@ fallback: {cite: [wikisource, cts, library-pdf, ocr-text]}
 
 ## 9. 最小可行路径
 
+实施细节（逻辑源 × 通道的分层、能力矩阵、合并与锚点、配置方式、里程碑与回归验收）见 [CITATION-POLICY-PLAN.md](CITATION-POLICY-PLAN.md)。
+
 | 步 | 内容 | 风险 | 影响评估 |
 |---:|---|---|---|
 | 1 | `tier` 真实化 + 回传 `role`/`policy_version`（**不改排序**） | 低 | 不动基线 |
