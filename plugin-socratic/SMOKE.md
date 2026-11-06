@@ -19,7 +19,7 @@ dsh plugin --profile tutor add "link:D:/Guo-Code/socratic-tutor/plugin-socratic"
 命令：
 
 ```powershell
-$env:DEEPSEEK_API_KEY=(Get-Content 'D:\Guo-Code\deepseek API key.txt' -Raw).Trim()
+$env:DEEPSEEK_API_KEY=(Get-Content '/path/to/deepseek API key.txt' -Raw).Trim()
 dsh --profile tutor headless "Use kb_search with query 微分, view student, limit 3. Then use cite_verify on the first result's source, book, page. Report the first locator and the byte count. Do not answer from memory."
 ```
 

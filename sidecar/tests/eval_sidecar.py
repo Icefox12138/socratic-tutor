@@ -6,7 +6,10 @@ import time
 import requests
 
 BASE = "http://127.0.0.1:8765"
-QFILE = r"D:\Guo-Code\socratic-tutor\eval\p1\eval\questions.json"
+QFILE = os.environ.get(
+    "SOCRATIC_EVAL_QUESTIONS",
+    os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__)))), "eval", "p1", "eval", "questions.json"))
 
 
 def main():

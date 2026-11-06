@@ -14,8 +14,8 @@
 ## 安装
 
 ```powershell
-cd D:\Guo-Code\socratic-tutor
-dsh plugin --profile tutor add "link:D:/Guo-Code/socratic-tutor/plugin-socratic"
+cd /path/to/socratic-tutor
+dsh plugin --profile tutor add "link:/path/to/socratic-tutor/plugin-socratic"
 dsh --profile tutor --dump-config | Select-String socratic
 ```
 
@@ -79,7 +79,7 @@ SOCRATIC_STREAM=stream   逐字透传，只记审计日志（stream_passthrough�
 ## 试跑
 
 ```powershell
-$env:DEEPSEEK_API_KEY=(Get-Content 'D:\Guo-Code\deepseek API key.txt' -Raw).Trim()
+$env:DEEPSEEK_API_KEY=(Get-Content '/path/to/deepseek API key.txt' -Raw).Trim()
 dsh --profile tutor headless "先用 kb_search 搜『微分』，报告第一条 citation；再用 cite_verify 核验它。"
 ```
 

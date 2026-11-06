@@ -1,7 +1,8 @@
 from html.parser import HTMLParser
+import os
 import re
 
-path = r"D:\Guo-Code\socratic-tutor\docs\visual\project.html"
+path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "project.html")
 s = open(path, encoding="utf-8").read()
 
 

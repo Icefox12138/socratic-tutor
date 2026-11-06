@@ -8,7 +8,7 @@
 | 不含 | OCR / 解析 / 切块 / 向量化 / RAG 库构建 → 私有工程 `rag-build`（见 [SPLIT-PLAN.md](SPLIT-PLAN.md)） |
 | 数据 | 外部：符合 [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md)（私有 PDF）或 [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md)（公开语料）的库 |
 | 发布 | PyPI `classics-index` 0.1.3、`socratic-mcp` 0.1.2；npm `dsh-socratic` 0.2.4 |
-| 测试 | sidecar **263**、classics-index **18**、socratic-mcp **6**、plugin **8** |
+| 测试 | sidecar **264**、classics-index **18**、socratic-mcp **6**、plugin **8** |
 | CI | 全绿（四 job：sidecar / packages×2 / plugin） |
 | 人工评分 | **延后**（用户决定）；仍不能声称人类验证 |
 
@@ -59,7 +59,7 @@
 
 | 旧（2026-11-03） | 新（2026-11-04） |
 |---|---|
-| 测试 106/106 | 263（sidecar） |
+| 测试 106/106 | 264（sidecar） |
 | 含 P1-3c OCR / P1-3d 解析器 / P3-2…P3-5 索引构建 | 迁出，见 `rag-build/HANDOFF.md` |
 | 仓库自带 `data/`（1.2 GB） | 数据在 `D:\Guo-Code\rag-build\data` |
 | 页面渲染是硬依赖 | `SOCRATIC_RENDER` 三档，可纯文本运行 |

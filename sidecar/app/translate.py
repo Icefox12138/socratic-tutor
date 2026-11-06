@@ -188,11 +188,14 @@ def _key():
     key = (config.LLM_KEY or os.environ.get("DEEPSEEK_API_KEY", "")).strip()
     if key:
         return key
-    try:
-        with open(r"D:\Guo-Code\deepseek API key.txt", encoding="utf-8") as fh:
-            return fh.read().strip()
-    except OSError:
-        return ""
+    for path in (config.LLM_KEY_FILE,
+                 os.path.join(os.getcwd(), "deepseek API key.txt")):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                return fh.read().strip()
+        except OSError:
+            continue
+    return ""
 
 
 def _parse_variants(text, targets):

@@ -11,6 +11,7 @@ import argparse
 import json
 import os
 import sqlite3
+from pathlib import Path
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,7 +32,8 @@ def db_stats(path):
     if not os.path.exists(path):
         return {"ok": False, "error": "missing"}
     try:
-        con = sqlite3.connect("file:%s?mode=ro" % path.replace("\\", "/"), uri=True, timeout=5)
+        con = sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro",
+                              uri=True, timeout=5)
         try:
             chunks = con.execute("SELECT count(*) FROM chunks").fetchone()[0]
             tutor = con.execute("SELECT count(*) FROM chunks WHERE visibility='tutor'").fetchone()[0]
@@ -83,7 +85,8 @@ def toc_stats(path):
     if not os.path.exists(path):
         return {"ok": False, "error": "missing"}
     try:
-        con = sqlite3.connect("file:%s?mode=ro" % path.replace("\\", "/"), uri=True, timeout=5)
+        con = sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro",
+                              uri=True, timeout=5)
         try:
             n = con.execute("SELECT count(*) FROM toc").fetchone()[0]
             books = con.execute("SELECT count(DISTINCT source || ':' || book) FROM toc").fetchone()[0]

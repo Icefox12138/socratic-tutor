@@ -1,6 +1,6 @@
 [project]
 name = "socratic-sidecar"
-version = "0.2.0"
+version = "0.2.1"
 description = "Minimal Socratic tutor sidecar: search, pages, compute"
 requires-python = ">=3.12"
 license = { text = "MIT" }

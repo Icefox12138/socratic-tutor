@@ -13,7 +13,7 @@ from . import (catalog, citations, classifier, config, critic, evaluations, eval
                learner, lexical, pages, policy, review, search, state_machine,
                state_store, toc)
 from .compute import (BackendUnavailable, ComputeError, backend_status,
-                      compute)
+                      sandbox_status, compute)
 
 app = FastAPI(title="socratic-sidecar", version=config.VERSION)
 app.add_middleware(
@@ -629,12 +629,7 @@ def state_replay(session_id: str):
 
 @app.get("/v1/compute/backends", dependencies=[Depends(require_token)])
 def v1_compute_backends():
-    try:
-        from . import sandbox
-        sb = sandbox.status()
-    except Exception as e:
-        sb = {"available": False, "error": str(e)[:200]}
-    return {"backends": backend_status(), "sandbox": sb}
+    return {"backends": backend_status(), "sandbox": sandbox_status()}
 
 
 @app.post("/v1/compute", dependencies=[Depends(require_token)])

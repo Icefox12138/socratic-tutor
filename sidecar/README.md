@@ -1,4 +1,4 @@
-# sidecar（最小服务，v0.2.0）
+# sidecar（最小服务，v0.2.1）
 
 只做四件事：`/health`、`/v1/search`、`/v1/pages`、`/v1/compute`。
 
@@ -12,9 +12,9 @@
 # 在仓库根目录
 docker compose up --build
 # 或
-docker build -t socratic-sidecar:0.2.0 .
+docker build -t socratic-sidecar:0.2.1 .
 docker run -p 8765:8765 -v "$PWD/data:/data" -v "$PWD/samples/PDF:/books:ro" \
-  socratic-sidecar:0.2.0
+  socratic-sidecar:0.2.1
 ```
 
 镜像不带书、不带 BGE 权重；默认 `SOCRATIC_BGE=0`，需要 BGE 时挂载模型并设

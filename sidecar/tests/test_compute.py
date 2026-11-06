@@ -22,6 +22,11 @@ class TestSymPy(unittest.TestCase):
         self.assertTrue(BACKENDS["sympy"]["available"])
         self.assertIn("diff", BACKENDS["sympy"]["operations"])
 
+    def test_audit_sandbox_marker(self):
+        out = compute.compute("x^2", "diff")
+        self.assertEqual(out["sandbox"], "audit")
+        self.assertEqual(out["credentials"]["sandbox"], "audit")
+
 
 @unittest.skipUnless(BACKENDS["scipy"]["available"], "scipy not installed")
 class TestSciPy(unittest.TestCase):

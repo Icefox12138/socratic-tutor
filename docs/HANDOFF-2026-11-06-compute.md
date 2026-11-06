@@ -4,8 +4,8 @@
 |---|---|
 | 范围 | SymPy / SciPy / pint / control / Wolfram / Lean 的统一后端 |
 | 状态 | **SymPy + SciPy + pint + control 可用；Wolfram/Lean 未安装** |
-| 测试 | sidecar **263/263**（新增 17 个计算/沙箱测试） |
-| 安全 | 本地后端在可 kill 子进程；AppContainer 不可用时用 audit 策略沙箱 |
+| 测试 | sidecar **264/264**（新增 17 个计算/沙箱测试） |
+| 安全 | 本地后端在可 kill 子进程；**仅 audit 策略沙箱**（禁 socket/子进程，只写 temp） |
 | 凭证 | `credentials` + `verification` + `cross_check` + `disputed` + `sandbox` |
 
 ---
@@ -62,13 +62,12 @@ POST /v1/compute
   - 父进程 `Popen` + 临时文件通信（不走 pipe），超时 `kill()`；
   - worker 崩溃/超时不会拖垮 sidecar；
   - **不是 OS 沙箱**：仍有文件/网络权限，只保证可 kill。
-- **沙箱（两级）**：
-  - `sandbox.py` 优先用 **Windows AppContainer**（无 capability=禁网，ACL=只读 FS）；
-  - 当前 DSH shell 是 **Low Mandatory Level**，只有 `SeChangeNotifyPrivilege`，
-    `CreateAppContainerProfile` 返回 `0x80070005`，AppContainer 不可用；
-  - 回退到 **audit 策略沙箱**：worker 安装审计钩子，拒绝 socket/子进程，
-    只允许写 per-run 临时目录；文件/网络拦截在 Python 层，不是 OS 层。
-  - `credentials.sandbox` 标 `appcontainer` / `audit`。
+- **沙箱（仅 audit）**：
+  - `sandbox_policy.py` 在 worker 里安装审计钩子；
+  - 拒绝 socket/子进程，只允许写 per-run 临时目录；
+  - 这是 Python 层拦截，不是 OS 网络命名空间/只读挂载；
+  - 已移除 Windows AppContainer 代码；`credentials.sandbox` 固定为 `audit`
+    （Wolfram/Lean 走外部进程时标 `external`）。
 - **计算凭证**：
   - `credentials.input_sha256`、`assumptions`、`verification`、`generated_at`；
   - SciPy `quad` 会用 SymPy 积分做 cross-check，超差标 `disputed=true`；
@@ -79,21 +78,19 @@ POST /v1/compute
 
 ## 4. 安全边界
 
-1. AppContainer 在当前低完整性 shell 不可用；生产高完整性环境会自动走它。
-2. audit 策略沙箱是 Python 层拦截，不是 OS 网络命名空间/只读挂载。
-3. SymPy/SciPy/pint 仍是表达式黑名单，不是形式化安全边界。
-4. Wolfram/Lean 执行外部代码，默认关闭；打开后仍是本机权限。
-5. Lean adapter 假设 `lean file.lean`；若用 `lake env lean` 需要再适配。
-6. SciPy `root` 需要 bracket 内变号；失败会返回 400。
-7. `disputed` 目前只在 SciPy quad 的 SymPy cross-check 上生效。
-8. 子进程每次启动约 0.3–1.2 s（control 导入 matplotlib 较慢）。
+1. audit 策略沙箱是 Python 层拦截，不是 OS 网络命名空间/只读挂载。
+2. SymPy/SciPy/pint 仍是表达式黑名单，不是形式化安全边界。
+3. Wolfram/Lean 执行外部代码，默认关闭；打开后仍是本机权限。
+4. Lean adapter 假设 `lean file.lean`；若用 `lake env lean` 需要再适配。
+5. SciPy `root` 需要 bracket 内变号；失败会返回 400。
+6. `disputed` 目前只在 SciPy quad 的 SymPy cross-check 上生效。
+7. 子进程每次启动约 0.3–1.2 s（control 导入 matplotlib 较慢）。
 
 ## 5. 复现
 
 ```powershell
-cd D:\Guo-Code\socratic-tutor\sidecar
-$env:PYTHONPATH="D:\Guo-Code\socratic-tutor\sidecar;D:\Guo-Code\socratic-tutor\.tmp-testenv"
-..\.venv-bge\Scripts\python.exe -m unittest tests.test_compute -v
+cd sidecar
+python -m unittest tests.test_compute tests.test_sandbox_policy -v
 ```
 
 ## 6. 下一步

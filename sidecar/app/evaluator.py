@@ -8,6 +8,8 @@ import json
 import os
 import re
 
+from . import config
+
 try:
     import requests
 except Exception:  # pragma: no cover
@@ -21,11 +23,14 @@ def _key():
     k = os.environ.get("DEEPSEEK_API_KEY", "").strip()
     if k:
         return k
-    p = r"D:\Guo-Code\deepseek API key.txt"
-    try:
-        return open(p, encoding="utf-8").read().strip()
-    except OSError:
-        return ""
+    for p in (config.LLM_KEY_FILE,
+              os.path.join(os.getcwd(), "deepseek API key.txt")):
+        try:
+            with open(p, encoding="utf-8") as fh:
+                return fh.read().strip()
+        except OSError:
+            continue
+    return ""
 
 
 def _norm(s):

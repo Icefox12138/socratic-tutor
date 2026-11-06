@@ -354,15 +354,15 @@ def _execute_local(backend, expression, operation, variable="x", point="0",
     raise ComputeError("unknown backend %s" % backend)
 
 
-_LAST_SANDBOX = "process"
+SANDBOX = "audit"
 
 
-def _sandbox_mode():
-    return str(os.environ.get("SOCRATIC_COMPUTE_SANDBOX", "auto")).lower()
+def sandbox_status():
+    return {"available": True, "mode": SANDBOX,
+            "network": "denied-by-policy", "filesystem": "temp-only"}
 
 
 def _run_worker(payload, timeout):
-    global _LAST_SANDBOX
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sandbox_root = os.path.join(root, ".tmp-sandbox")
     try:
@@ -386,41 +386,19 @@ def _run_worker(payload, timeout):
         env["TMP"] = env["TEMP"] = env["TMPDIR"] = td
         env["MPLCONFIGDIR"] = os.path.join(td, "mpl")
         env["PYTHONDONTWRITEBYTECODE"] = "1"
-        mode = _sandbox_mode()
-        if mode in ("auto", "appcontainer"):
+        with open(errp, "w", encoding="utf-8") as err:
+            proc = subprocess.Popen(
+                [sys.executable, "-m", "app.compute_worker", inp, outp],
+                cwd=root, stdout=subprocess.DEVNULL, stderr=err, env=env)
             try:
-                from . import sandbox
-                if sandbox.status().get("available"):
-                    state, code = sandbox.run_worker(
-                        sys.executable, "app.compute_worker", inp, outp,
-                        root, timeout, td)
-                    _LAST_SANDBOX = "appcontainer"
-                    if state == "timeout":
-                        raise ComputeError("computation timed out")
-                    if code != 0:
-                        raise ComputeError("AppContainer worker failed: %s" % code)
-                else:
-                    _LAST_SANDBOX = "audit"
-            except ComputeError:
-                raise
-            except Exception:
-                _LAST_SANDBOX = "audit"
-        else:
-            _LAST_SANDBOX = "audit"
-        if _LAST_SANDBOX == "audit":
-            with open(errp, "w", encoding="utf-8") as err:
-                proc = subprocess.Popen(
-                    [sys.executable, "-m", "app.compute_worker", inp, outp],
-                    cwd=root, stdout=subprocess.DEVNULL, stderr=err, env=env)
+                proc.wait(timeout=max(0.5, float(timeout)))
+            except subprocess.TimeoutExpired:
+                proc.kill()
                 try:
-                    proc.wait(timeout=max(0.5, float(timeout)))
+                    proc.wait(timeout=3)
                 except subprocess.TimeoutExpired:
-                    proc.kill()
-                    try:
-                        proc.wait(timeout=3)
-                    except subprocess.TimeoutExpired:
-                        pass
-                    raise ComputeError("computation timed out")
+                    pass
+                raise ComputeError("computation timed out")
         if not os.path.exists(outp):
             with open(errp, encoding="utf-8") as fh:
                 detail = fh.read().strip()[:300]
@@ -516,7 +494,7 @@ def compute(expression: str, operation: str = "simplify",
         "verification": _verification(backend, out),
         "cross_check": out.get("cross_check"),
         "disputed": disputed,
-        "sandbox": "external" if backend in ("wolfram", "lean") else _LAST_SANDBOX,
+        "sandbox": "external" if backend in ("wolfram", "lean") else SANDBOX,
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
     return {

@@ -155,8 +155,8 @@ POST /v1/compute {"expression": "...", "operation": "...", "variable": "x",
   不返回假结果。
 - `auto` 按 operation 推断后端；未知 operation/backend 返回 400。
 - SymPy/SciPy/pint 仍做表达式黑名单校验；Wolfram/Lean 是外部代码，默认关闭。
-- 本地后端在**可 kill 的子进程 worker** 中执行；优先 Windows AppContainer，
-  不可用时用 audit 策略沙箱（禁 socket/子进程、只写 per-run temp）。
+- 本地后端在**可 kill 的子进程 worker** 中执行；worker 使用 audit 策略沙箱
+  （禁 socket/子进程、只写 per-run temp），不是 OS 隔离。
   `credentials` 带 `input_sha256/assumptions/verification/sandbox`；SciPy quad
   会用 SymPy 积分 cross-check，超差标 `disputed: true`。
 - `GET /v1/compute/backends` 返回每个后端的 `available/version/operations/install`

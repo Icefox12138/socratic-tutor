@@ -6,9 +6,13 @@ import sys
 import requests
 
 BASE = "http://127.0.0.1:8765"
-ROOT = r"D:\Guo-Code"
-MANIFEST = os.path.join(ROOT, "socratic-tutor", "eval", "p0", "catalog", "sample-manifest.json")
-DB = os.path.join(ROOT, "socratic-tutor", "eval", "p1", "ingest", "search.db")
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ROOT = os.path.dirname(REPO)
+MANIFEST = os.environ.get(
+    "SOCRATIC_MANIFEST",
+    os.path.join(REPO, "eval", "p0", "catalog", "sample-manifest.json"))
+DB = os.environ.get("SOCRATIC_DB",
+                    os.path.join(REPO, "samples", "search.db"))
 
 
 def main():

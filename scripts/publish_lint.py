@@ -12,7 +12,8 @@ import os
 import re
 import sys
 
-ABS_WIN = re.compile(r"[A-Za-z]:\\\\[^\s\"'<>|)]+")
+ABS_WIN = re.compile(r"[A-Za-z]:\\[^\s\"'<>|)]+")
+ABS_POSIX = re.compile(r"(?<![\w:])/(?:home|Users|tmp|var|opt|srv)/[^\s\"'<>|)]+")
 SECRET = re.compile(r"sk-[A-Za-z0-9_-]{12,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}")
 DATA_EXT = {".npy", ".npz", ".pdf", ".db", ".sqlite", ".zst", ".parquet"}
 SKIP_DIRS = {"__pycache__", "node_modules", ".git", "dist", "build", ".pytest_cache", "tests"}
@@ -57,7 +58,7 @@ def check_package(path, repo_root):
     abs_hits, secrets, data = [], [], []
     for f in text_files(path):
         for i, line in enumerate(open(f, encoding="utf-8", errors="ignore"), 1):
-            if ABS_WIN.search(line):
+            if ABS_WIN.search(line) or ABS_POSIX.search(line):
                 abs_hits.append("%s:%d" % (os.path.relpath(f, path), i))
             if SECRET.search(line):
                 secrets.append("%s:%d" % (os.path.relpath(f, path), i))

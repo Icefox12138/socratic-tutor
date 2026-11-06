@@ -1,6 +1,11 @@
+import os
 import sqlite3
 
-con = sqlite3.connect(r"D:\Guo-Code\socratic-tutor\eval\p1\ingest\search.db")
+DB = os.environ.get(
+    "SOCRATIC_DB",
+    os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__)))), "samples", "search.db"))
+con = sqlite3.connect(DB)
 for q in ["微分", '"微分"', "极限", "导数"]:
     try:
         n = con.execute("SELECT count(*) FROM chunks_fts WHERE chunks_fts MATCH ?", (q,)).fetchone()[0]

@@ -24,6 +24,26 @@ jobs:
         run: python -m unittest discover -s tests -p "test_*.py" -t .
       - name: publish lint
         run: python scripts/publish_lint.py
+      - name: portability scan
+        run: python scripts/portability_check.py
+
+  # Windows smoke of the same suite: catches path/ACL/ctypes assumptions that
+  # ubuntu cannot see. Keep it separate so a Windows failure is unambiguous.
+  sidecar-windows:
+    name: sidecar (windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e packages/classics-index
+      - run: pip install fastapi pydantic pypdfium2 pillow sympy scipy pint control simplemma httpx2
+      - name: tests
+        working-directory: sidecar
+        env:
+          SOCRATIC_BGE: "0"
+        run: python -m unittest discover -s tests -p "test_*.py"
 
   sidecar:
     name: sidecar
@@ -34,7 +54,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e packages/classics-index
-      - run: pip install fastapi pydantic pypdfium2 pillow sympy httpx2
+      - run: pip install fastapi pydantic pypdfium2 pillow sympy scipy pint control simplemma httpx2
       - name: tests
         working-directory: sidecar
         env:

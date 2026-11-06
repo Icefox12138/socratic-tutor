@@ -6,7 +6,7 @@
 | 代码 | `sidecar/app/federated.py` |
 | 默认 | `scope=auto`（只查当前库，行为不变） |
 | 合并 | 两库各取 `limit`，按 RRF 合并；结果带 `schema` |
-| 测试 | sidecar 263/263；`test_federated.py` 6 条（3 合并 + 3 路由） |
+| 测试 | sidecar 264/264；`test_federated.py` 6 条（3 合并 + 3 路由） |
 | 实测 | 真实 v1 310 MB + v2 331 chunks，`黃帝`/`arma`/`μῆνιν` 均返回两库 |
 
 ## 1. 配置

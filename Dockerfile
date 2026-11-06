@@ -1,3 +1,4 @@
+# sidecar 0.2.1: audit-only sandbox, cross-platform
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \

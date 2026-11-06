@@ -1,9 +1,8 @@
-"""Policy sandbox for the compute worker.
+"""Audit-hook policy sandbox for the compute worker.
 
-This is not an OS network namespace. It blocks Python-level socket/process
-creation and all filesystem writes outside the per-run temp directory. It is
-used when Windows AppContainer cannot be created (for example a low-integrity
-agent shell without SeTcbPrivilege); AppContainer is preferred when available.
+It blocks Python-level socket/process creation and all filesystem writes
+outside the per-run temp directory. This is the only compute sandbox; there is
+no OS network namespace or read-only mount.
 """
 import os
 import sys

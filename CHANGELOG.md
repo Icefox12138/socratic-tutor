@@ -8,10 +8,17 @@ per package; dates are release dates, not commit dates.
 ### Unreleased
 - `sidecar/` renders pages with **pypdfium2** instead of PyMuPDF. The whole
   repository is MIT again: no AGPL dependency remains.
-- Release prep for 2026-11-06: sidecar 0.2.0, socratic-mcp 0.2.0,
-  dsh-socratic 0.3.0; Dockerfile + compose for the sidecar.
+- Release prep for 2026-11-06: sidecar 0.2.1, socratic-mcp 0.2.0,
+  dsh-socratic 0.3.1; Dockerfile + compose for the sidecar.
 
 ## sidecar
+
+### 0.2.1 — 2026-11-06
+- Removed the Windows AppContainer path; compute worker now always uses the
+  audit policy sandbox (network/subprocess denied, temp-only writes).
+- Cross-platform: removed hard-coded `D:\` API-key path; portable font fallback;
+  SQLite read-only URI via `pathlib`.
+- Sidecar Dockerfile/compose kept for Linux.
 
 ### 0.2.0 — 2026-11-06
 - Public corpora v2: Wikisource / Perseus CTS adapters, locator/stream/license,
@@ -23,7 +30,7 @@ per package; dates are release dates, not commit dates.
   opt-in Greek lemma / commentary / edition alignment experiments.
 - Federated search: `scope=all` and `scope=routed` (`v1+v2`).
 - Compute backends: SymPy/SciPy/pint/control; optional Wolfram/Lean; killed
-  subprocess worker; audit sandbox fallback; credentials + disputed marker.
+  subprocess worker; audit sandbox; credentials + disputed marker.
 - 263 sidecar tests.
 
 ## classics-index
@@ -66,6 +73,10 @@ per package; dates are release dates, not commit dates.
   a dropped connection.
 
 ## dsh-socratic
+
+### 0.3.1 — 2026-11-06
+- Documentation only: README/SMOKE use portable `/path/to/...` placeholders
+  instead of a machine-specific `D:\...` path.
 
 ### 0.3.0 — 2026-11-06
 - New `lexical_search` tool: grep exact strings / lemma inflected forms.

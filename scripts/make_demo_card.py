@@ -15,13 +15,30 @@ rows = json.load(open(os.path.join(REPO, "packages", "classics-index",
 W, H = 980, 620
 img = Image.new("RGB", (W, H), "#fbfaf7")
 d = ImageDraw.Draw(img)
-font = ImageFont.load_default()
-try:
-    font_big = ImageFont.truetype("C:/Windows/Fonts/msyh.ttc", 22)
-    font = ImageFont.truetype("C:/Windows/Fonts/msyh.ttc", 17)
-    font_mono = ImageFont.truetype("C:/Windows/Fonts/consola.ttf", 16)
-except Exception:
-    font_big = font_mono = font
+def _font(size, candidates):
+    for path in candidates:
+        try:
+            return ImageFont.truetype(path, size)
+        except OSError:
+            continue
+    return ImageFont.load_default()
+
+
+_CJK = [
+    "C:/Windows/Fonts/msyh.ttc",
+    "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+]
+_MONO = [
+    "C:/Windows/Fonts/consola.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+    "/System/Library/Fonts/Menlo.ttc",
+]
+font_big = _font(22, _CJK)
+font = _font(17, _CJK)
+font_mono = _font(16, _MONO)
 
 d.text((32, 26), "classics-index · 卷 / 篇 索引（示例数据）", font=font_big, fill="#1d1d1f")
 d.line([(32, 66), (W - 32, 66)], fill="#ded5c4", width=1)

@@ -18,8 +18,9 @@
 | 10 | [HANDOFF-2026-11-05-rag-strategy.md](HANDOFF-2026-11-05-rag-strategy.md) | 本轮 RAG 路线/公开语料/schema/计算后端结论 |
 | 11 | [HANDOFF-2026-11-06-compute.md](HANDOFF-2026-11-06-compute.md) | 计算后端：SymPy/SciPy/pint/control/Wolfram/Lean |
 | 13 | [RELEASE-2026-11-06.md](RELEASE-2026-11-06.md) | **本次发版清单：版本、产物、SHA256、tag、待上传项** |
-| 14 | [DESIGN.md](DESIGN.md) | lite 主设计（先读 §0/§1.3/§6/§16/§17） |
-| 15 | [DESIGN-full.md](DESIGN-full.md) | 完整版：DDL/代码/论证，按需查 |
+| 14 | [PORTABILITY.md](PORTABILITY.md) | **Windows/Linux/macOS 兼容性检查与修复** |
+| 15 | [DESIGN.md](DESIGN.md) | lite 主设计（先读 §0/§1.3/§6/§16/§17） |
+| 16 | [DESIGN-full.md](DESIGN-full.md) | 完整版：DDL/代码/论证，按需查 |
 
 ## 2. 评审与计划
 

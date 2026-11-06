@@ -157,7 +157,7 @@ Known sharp edges: Greek OCR on degraded scans is unusable (the service falls ba
 ## Tests
 
 ```bash
-cd sidecar                     && python -m unittest discover -s tests -p "test_*.py"   # 263
+cd sidecar                     && python -m unittest discover -s tests -p "test_*.py"   # 264
 cd packages/classics-index     && python -m unittest discover -s tests -p "test_*.py" -t .   # 18
 cd packages/socratic-mcp       && python -m unittest discover -s tests -p "test_*.py" -t .   # 6
 cd plugin-socratic             && node --test test/plugin.test.mjs                     # 8
