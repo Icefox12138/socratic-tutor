@@ -11,8 +11,8 @@ import time
 from collections import OrderedDict
 from urllib.parse import quote
 
-from . import (catalog, citations, config, editions, lexical, locators, policy,
-               schema, textutil, toc, translate)
+from . import (catalog, citation_policy, citations, config, editions, lexical,
+               locators, policy, schema, textutil, toc, translate)
 
 CJK = re.compile(r"[\u3400-\u9fff]+")
 WORD = re.compile(r"[a-z]{2,}")
@@ -486,6 +486,8 @@ def _row_result(row, score):
         "citation": {
             "locator": f"{row['book']} p.{row['page']}",
             "tier": "unknown",
+            "role": "cite",
+            "policy_version": citation_policy.version(),
             "page_image": image,
             "document_id": doc_id,
         },
@@ -1017,6 +1019,8 @@ def search(query: str, view: str = "student", limit: int = 8,
                     "locator": "%s %s p.%d–%d" % (short, rng["title"],
                                                   rng["page_start"], rng["page_end"]),
                     "tier": "page",
+                    "role": "cite",
+                    "policy_version": citation_policy.version(),
                     "page_image": pages_out[0]["page_image"],
                 },
             }], turn=turn, step=step, call_id=call_id)

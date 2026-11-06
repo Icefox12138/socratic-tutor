@@ -1,0 +1,307 @@
+"""Citation policy: loader, validator, and the read-only endpoints (M0)."""
+import os
+import sys
+import unittest
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from _tmp import TemporaryDirectory  # noqa: E402
+
+from app import citation_policy as cp  # noqa: E402
+from app import main  # noqa: E402
+
+
+def _policy(**over):
+    """A minimal valid policy; callers override one section per test."""
+    p = {
+        "schema": 1,
+        "sources": {
+            "lib": {"tier": "B", "role": "cite", "locator_scheme": "page"},
+            "rev": {"tier": "A", "role": "cite", "locator_scheme": "mediawiki-rev"},
+            "tpl": {"role": "template"},
+            "chk": {"role": "verify"},
+        },
+        "weight_profiles": {"equal": {}},
+        "channels": [{"source": "lib", "kind": "local-file", "address": "/tmp"}],
+        "rules": [{"when": {}, "cite": ["lib"], "weight_profile": "equal"}],
+    }
+    p.update(over)
+    return p
+
+
+class PolicyTestBase(unittest.TestCase):
+    def setUp(self):
+        self._env = {k: os.environ.get(k)
+                     for k in ("SOCRATIC_POLICY", "SOCRATIC_SOURCES")}
+        for k in self._env:
+            os.environ.pop(k, None)
+
+    def tearDown(self):
+        for k, v in self._env.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+        cp.reload()
+
+
+class TestBuiltin(PolicyTestBase):
+    def test_builtin_is_valid(self):
+        self.assertEqual(cp.validate(cp._builtin()), [])
+
+    def test_builtin_has_a_catch_all_rule(self):
+        rules = cp._builtin()["rules"]
+        self.assertEqual([r["when"] for r in rules].count({}), 1)
+
+    def test_builtin_is_the_default(self):
+        cp.reload()
+        self.assertEqual(cp.origins(), ["builtin"])
+        self.assertIsNone(cp.last_error())
+
+    def test_version_is_twelve_hex_and_stable(self):
+        v = cp.version()
+        self.assertEqual(len(v), 12)
+        int(v, 16)
+        self.assertEqual(v, cp.version())
+
+    def test_effective_reports_m0_as_unanforced(self):
+        payload = cp.effective()
+        self.assertFalse(payload["enforced"])
+        self.assertEqual(payload["policy_version"], cp.version())
+        self.assertIn("M0", payload["note"])
+
+
+class TestValidate(PolicyTestBase):
+    def assertRejected(self, policy, needle):
+        errs = cp.validate(policy)
+        self.assertTrue(errs, "expected errors, got none")
+        self.assertTrue(any(needle in e for e in errs),
+                        "no error mentions %r; got %r" % (needle, errs))
+
+    def test_unknown_source_in_cite(self):
+        p = _policy()
+        p["rules"] = [{"when": {}, "cite": ["nope"]}]
+        self.assertRejected(p, "must name a source with role=cite")
+
+    def test_empty_cite(self):
+        p = _policy()
+        p["rules"] = [{"when": {}, "cite": []}]
+        self.assertRejected(p, "non-empty ordered list")
+
+    def test_cite_source_without_scheme(self):
+        p = _policy()
+        p["sources"]["lib"]["locator_scheme"] = None
+        self.assertRejected(p, "cite sources need one of")
+
+    def test_template_source_cannot_carry_a_locator(self):
+        p = _policy()
+        p["sources"]["tpl"]["locator_scheme"] = "page"
+        self.assertRejected(p, "cannot carry a locator")
+
+    def test_require_field_not_carried_by_scheme(self):
+        p = _policy()
+        p["rules"] = [{"when": {}, "cite": ["lib"],
+                       "require": {"locator": ["edition"]}}]
+        self.assertRejected(p, "no cited source's locator scheme")
+
+    def test_require_field_ok_when_scheme_carries_it(self):
+        p = _policy()
+        p["sources"]["docs"] = {"tier": "A", "role": "cite",
+                                "locator_scheme": "edition-page"}
+        p["rules"] = [{"when": {}, "cite": ["docs"],
+                       "require": {"locator": ["edition"]}}]
+        self.assertEqual(cp.validate(p), [])
+
+    def test_unknown_weight_profile(self):
+        p = _policy()
+        p["rules"] = [{"when": {}, "cite": ["lib"], "weight_profile": "ghost"}]
+        self.assertRejected(p, "unknown profile")
+
+    def test_negative_weight(self):
+        p = _policy(weight_profiles={"w": {"lib": -1}})
+        self.assertRejected(p, "number >= 0")
+
+    def test_weight_for_unknown_source(self):
+        p = _policy(weight_profiles={"w": {"ghost": 1.0}})
+        self.assertRejected(p, "unknown source")
+
+    def test_missing_catch_all(self):
+        p = _policy()
+        p["rules"] = [{"when": {"subject": "math"}, "cite": ["lib"]}]
+        self.assertRejected(p, "catch-all rule")
+
+    def test_secret_in_channel_is_rejected(self):
+        p = _policy()
+        p["channels"] = [{"source": "lib", "kind": "cloud-object",
+                          "address": "s3://b", "token": "ghp_deadbeef"}]
+        self.assertRejected(p, "secrets belong in the environment")
+
+    def test_auth_env_must_be_a_name(self):
+        p = _policy()
+        p["channels"] = [{"source": "lib", "kind": "cloud-object",
+                          "address": "s3://b", "auth_env": "ghp_deadbeef"}]
+        self.assertRejected(p, "not its value")
+
+    def test_unknown_channel_source(self):
+        p = _policy()
+        p["channels"] = [{"source": "ghost", "kind": "local-file",
+                          "address": "/tmp"}]
+        self.assertRejected(p, "unknown source")
+
+    def test_unknown_channel_kind(self):
+        p = _policy()
+        p["channels"] = [{"source": "lib", "kind": "floppy", "address": "x"}]
+        self.assertRejected(p, "must be one of")
+
+    def test_fallback_toward_typo(self):
+        p = _policy()
+        p["rules"] = [{"when": {}, "cite": ["lib"],
+                       "fallback": {"toward": "downwards"}}]
+        self.assertRejected(p, "earlier or later")
+
+
+class TestLoader(PolicyTestBase):
+    def test_user_file_overrides_and_is_versioned(self):
+        with TemporaryDirectory() as d:
+            path = os.path.join(d, "policy.yaml")
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write("weight_profiles:\n  equal: {}\n"
+                         "  strict: {library-pdf: 2.0}\n")
+            before = cp.version()
+            os.environ["SOCRATIC_POLICY"] = path
+            ok, errs = cp.reload()
+            self.assertTrue(ok, errs)
+            self.assertIn(path, cp.origins())
+            self.assertIn("strict", cp.current()["weight_profiles"])
+            self.assertNotEqual(before, cp.version())
+
+    def test_bad_file_keeps_the_previous_policy(self):
+        with TemporaryDirectory() as d:
+            good = os.path.join(d, "good.yaml")
+            with open(good, "w", encoding="utf-8") as fh:
+                fh.write("weight_profiles:\n  equal: {}\n"
+                         "  strict: {library-pdf: 2.0}\n")
+            os.environ["SOCRATIC_POLICY"] = good
+            self.assertTrue(cp.reload()[0])
+            version = cp.version()
+
+            bad = os.path.join(d, "bad.yaml")
+            with open(bad, "w", encoding="utf-8") as fh:
+                fh.write("rules: []\n")          # drops the required catch-all
+            os.environ["SOCRATIC_POLICY"] = bad
+            ok, errs = cp.reload()
+            self.assertFalse(ok)
+            self.assertTrue(errs)
+            self.assertIsNotNone(cp.last_error())
+            self.assertEqual(cp.version(), version)   # previous policy retained
+            self.assertIn("strict", cp.current()["weight_profiles"])
+
+    def test_missing_file_is_an_error_not_a_crash(self):
+        os.environ["SOCRATIC_POLICY"] = os.path.join("Z:\\", "nope", "policy.yaml")
+        ok, errs = cp.reload()
+        self.assertFalse(ok)
+        self.assertTrue(errs)
+
+    def test_off_returns_to_builtin(self):
+        os.environ["SOCRATIC_POLICY"] = "off"
+        ok, _ = cp.reload()
+        self.assertTrue(ok)
+        self.assertEqual(cp.origins(), ["builtin"])
+
+    def test_channels_file_can_add_channels(self):
+        with TemporaryDirectory() as d:
+            pol = os.path.join(d, "policy.yaml")
+            with open(pol, "w", encoding="utf-8") as fh:
+                fh.write("weight_profiles:\n  equal: {}\n")
+            ch = os.path.join(d, "sources.local.yaml")
+            with open(ch, "w", encoding="utf-8") as fh:
+                fh.write("channels:\n"
+                         "  - {source: library-pdf, kind: local-file, address: '%s'}\n"
+                         % d.replace("\\", "/"))
+            os.environ["SOCRATIC_POLICY"] = pol
+            os.environ["SOCRATIC_SOURCES"] = ch
+            ok, errs = cp.reload()
+            self.assertTrue(ok, errs)
+            self.assertEqual([c["source"] for c in cp.channels()], ["library-pdf"])
+
+
+class TestChannels(PolicyTestBase):
+    def test_availability_without_network(self):
+        with TemporaryDirectory() as d:
+            db = os.path.join(d, "x.db")
+            with open(db, "wb") as fh:
+                fh.write(b"SQLite format 3\x00")
+            policy = _policy(channels=[
+                {"source": "lib", "kind": "local-file", "address": d},
+                {"source": "lib", "kind": "local-file", "address": d + "_missing"},
+                {"source": "lib", "kind": "rag-sqlite",
+                 "address": "sqlite:///" + db.replace("\\", "/") + "#a"},
+                {"source": "lib", "kind": "rag-sqlite",
+                 "address": "sqlite:///" + d.replace("\\", "/") + "/nope.db#a"},
+                {"source": "rev", "kind": "public-api",
+                 "address": "https://example.invalid/api"},
+            ])
+            self.assertEqual(cp.validate(policy), [])
+            avail = cp._availability
+            self.assertEqual(avail(policy["channels"][0]), "ready")
+            self.assertEqual(avail(policy["channels"][1]), "missing")
+            self.assertEqual(avail(policy["channels"][2]), "ready")
+            self.assertEqual(avail(policy["channels"][3]), "missing")
+            self.assertEqual(avail(policy["channels"][4]), "unprobed")
+
+    def test_sqlite_address_strips_the_uri_prefix(self):
+        self.assertEqual(cp._sqlite_path("sqlite:///D:/x/y.db#library"),
+                         "D:/x/y.db")
+        self.assertEqual(cp._sqlite_path("sqlite:///tmp/y.db"), "/tmp/y.db")
+        self.assertEqual(cp._sqlite_path("plain.db"), "plain.db")
+
+    def test_capabilities_by_kind(self):
+        self.assertIn("page_render", cp.CAPABILITIES["local-file"])
+        self.assertIn("search", cp.CAPABILITIES["rag-sqlite"])
+        self.assertNotIn("page_render", cp.CAPABILITIES["rag-sqlite"])
+
+
+class TestResolve(PolicyTestBase):
+    def test_subject_rule_wins_over_catch_all(self):
+        policy = _policy(rules=[
+            {"when": {"subject": "math"}, "cite": ["lib"]},
+            {"when": {}, "cite": ["rev"]},
+        ])
+        self.assertEqual(cp.validate(policy), [])
+        rule = None
+        for r in policy["rules"]:
+            if r["when"].get("subject") == "math":
+                rule = r
+        self.assertEqual(rule["cite"], ["lib"])
+
+    def test_effective_rules_are_ordered(self):
+        cp.reload()
+        rules = cp.effective()["rules"]
+        self.assertTrue(rules)
+        self.assertEqual(rules[-1]["when"], {})
+
+
+class TestEndpoints(PolicyTestBase):
+    def test_policy_endpoint(self):
+        payload = main.v1_policy()
+        self.assertIn("policy_version", payload)
+        self.assertIn("sources", payload)
+        self.assertIn("channels", payload)
+        self.assertFalse(payload["enforced"])
+
+    def test_channels_endpoint(self):
+        payload = main.v1_channels()
+        self.assertEqual(payload["policy_version"], cp.version())
+        for row in payload["channels"]:
+            self.assertIn("capabilities", row)
+            self.assertIn(row["availability"], ("ready", "missing", "unprobed"))
+
+    def test_reload_endpoint(self):
+        payload = main.v1_policy_reload()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["errors"], [])
+        self.assertEqual(payload["policy_version"], cp.version())
+
+
+if __name__ == "__main__":
+    unittest.main()

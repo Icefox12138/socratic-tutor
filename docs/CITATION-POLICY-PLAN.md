@@ -3,7 +3,7 @@
 | 项 | 值 |
 |---|---|
 | 日期 | **2026-11-06** |
-| 状态 | **方案稿，未实现** |
+| 状态 | **M0 已实现**（2026-11-06）：`app/citation_policy.py`、`/v1/policy`、`/v1/channels`、`/v1/policy/reload`，citation 带 `role` 与 `policy_version`；服务路径仍不读它（`enforced: false`） |
 | 依据 | [CITATION-POLICY.md](CITATION-POLICY.md)（是什么 / 为什么） |
 | 目标 | 让"引用谁、从哪取、怎么定位、谁裁决"成为**数据**，且默认配置下行为与今天逐条一致 |
 

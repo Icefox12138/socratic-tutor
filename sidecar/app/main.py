@@ -9,7 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from . import (catalog, citations, classifier, config, critic, evaluations, evaluator,
+from . import (catalog, citation_policy, citations, classifier, config, critic,
+               evaluations, evaluator,
                learner, lexical, pages, policy, review, search, state_machine,
                state_store, toc)
 from .compute import (BackendUnavailable, ComputeError, backend_status,
@@ -95,6 +96,36 @@ def health():
         }
     return {"ok": True, "available": True, "version": config.VERSION, **info,
             "cache": search.cache_stats()}
+
+
+@app.get("/v1/policy", dependencies=[Depends(require_token)])
+def v1_policy():
+    """The effective citation policy: sources, channels, rules, and origins.
+
+    Read-only diagnostics. M0 exposes the structure only — `enforced: false`
+    says the serving path does not consult it yet (see
+    docs/CITATION-POLICY-PLAN.md).
+    """
+    return citation_policy.effective()
+
+
+@app.get("/v1/channels", dependencies=[Depends(require_token)])
+def v1_channels():
+    """Every configured channel with its capabilities and local availability.
+
+    Network channels report `unprobed`: this endpoint never touches the network.
+    """
+    return {"policy_version": citation_policy.version(),
+            "channels": citation_policy.channels()}
+
+
+@app.post("/v1/policy/reload", dependencies=[Depends(require_token)])
+def v1_policy_reload():
+    """Re-read the policy files. A bad file keeps the previously loaded policy."""
+    ok, errors = citation_policy.reload()
+    return {"ok": ok, "errors": errors,
+            "policy_version": citation_policy.version(),
+            "last_reload_error": citation_policy.last_error()}
 
 
 @app.get("/ui")
@@ -250,7 +281,9 @@ def v1_chunk(chunk_id: int, view: str = Query("student")):
         "chunk_id": row["id"], "source": row["source"], "book": row["book"],
         "lang": row["lang"], "page": row["page"], "text": row["text"],
         "citation": {"locator": f"{row['book']} p.{row['page']}",
-                     "tier": "unknown", "page_image": image},
+                     "tier": "unknown", "role": "cite",
+                     "policy_version": citation_policy.version(),
+                     "page_image": image},
     })
 
 

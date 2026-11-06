@@ -5,7 +5,7 @@ searching. They never render page images; a public document has a URL instead.
 """
 import json
 
-from . import config, locators, schema
+from . import citation_policy, config, locators, schema
 
 
 def _rows(sql, params=()):
@@ -116,6 +116,8 @@ def result_for_row(row, score=1.0):
             "image": None,
             "page_image": None,
             "tier": "A",
+            "role": "cite",
+            "policy_version": citation_policy.version(),
             "license": row["license"],
             "document_id": row["document_id"],
             "revision": loc.get("revision"),

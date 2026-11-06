@@ -11,6 +11,7 @@ dependencies = [
   "pillow>=10.0",
   "sympy>=1.13",
   "scipy>=1.11",
+  "PyYAML>=6.0",
   # chapter-index logic lives in the published package (packages/classics-index);
   # until it is on PyPI, install it with: pip install -e packages/classics-index
   "classics-index>=0.1",

@@ -1,0 +1,72 @@
+# Citation policy — example, safe to publish.
+#
+# Copy to your own policy file and point SOCRATIC_POLICY at it:
+#
+#   policy.example.yaml          shipped default (this file)
+#   policy.local.yaml            your overrides (gitignored)
+#   sources.local.yaml           channel addresses + credential NAMES (gitignored)
+#
+# Precedence, later wins: builtin -> this file -> $SOCRATIC_POLICY -> $SOCRATIC_SOURCES.
+# SOCRATIC_POLICY=off returns to the builtin table, which mirrors today's behaviour.
+#
+# M0: nothing in the serving path reads this yet (GET /v1/policy reports
+# enforced: false). See docs/CITATION-POLICY-PLAN.md for the milestones.
+
+schema: 1
+
+# A logical source is the citation identity: role, trust tier, locator scheme.
+#   role = cite      -> produces a locator; needs locator_scheme
+#   role = template  -> structure reference only (NaturalProofs, TheorIA); never citated
+#   role = verify    -> arbiter (SymPy, Wolfram, Lean); emits verified/unverified
+sources:
+  library-pdf:   {tier: B, role: cite, locator_scheme: page,          display: "自扫 PDF（原页）"}
+  wikisource:    {tier: A, role: cite, locator_scheme: mediawiki-rev, display: "Wikisource 校对本"}
+  cts:           {tier: A, role: cite, locator_scheme: cts-urn,       display: "Perseus CTS"}
+  official-docs: {tier: A, role: cite, locator_scheme: edition-page,  display: "官方文档"}
+  paper:         {tier: A, role: cite, locator_scheme: doi,           display: "论文"}
+  naturalproofs: {tier: D, role: template, display: "NaturalProofs 证明结构"}
+  theoria:       {tier: D, role: template, display: "TheorIA 推导链"}
+  sympy:         {role: verify, display: "SymPy / SciPy / pint"}
+  wolfram:       {role: verify, display: "Wolfram Engine"}
+  lean:          {role: verify, display: "Lean / Mathlib"}
+
+# Weights are named profiles; the numbers live only here, so a rule stays readable
+# and two profiles can be A/B'd. Weighted in RRF rank space: w / (k + rank + 1).
+weight_profiles:
+  equal:           {}                # baseline, every source 1.0
+  classics-strict: {wikisource: 1.0, cts: 0.8, library-pdf: 0.5}
+  textbook-first:  {library-pdf: 1.0, wikisource: 0.4, cts: 0.4}
+
+# Channels last: addresses are machine-specific, so they normally live in
+# sources.local.yaml. Anything here is a shareable example only.
+channels:
+  - {source: wikisource, kind: public-api, address: "https://zh.wikisource.org/w/api.php",
+     options: {rate_limit: 2}}
+
+# Rules are matched in order; the first one whose `when` fields all match wins.
+# A catch-all ({when: {}}) is required so every request resolves.
+rules:
+  - when: {subject: classics}
+    cite: [wikisource, cts]
+    fallback: {toward: earlier}
+    weight_profile: classics-strict
+  - when: {subject: math}
+    cite: [library-pdf]
+    fallback: {toward: earlier}
+    weight_profile: textbook-first
+    template: [naturalproofs, theoria]
+    verify: [sympy, wolfram, lean]
+  - when: {subject: cs, doc_kind: docs}
+    cite: [official-docs]
+    require: {locator: [version]}
+    verify: []
+  - when: {subject: cs, doc_kind: textbook}
+    cite: [library-pdf]
+    require: {locator: [edition]}
+    fallback: {toward: later}
+  - when: {subject: cs, doc_kind: paper}
+    cite: [paper]
+    require: {locator: [doi]}
+  - when: {}
+    cite: [library-pdf, wikisource, cts]
+    weight_profile: equal
