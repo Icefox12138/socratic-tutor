@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from _tmp import TemporaryDirectory  # noqa: E402
 
 from app import citation_policy as cp  # noqa: E402
-from app import main  # noqa: E402
+from app import config, main, pages  # noqa: E402
 
 
 def _policy(**over):
@@ -64,11 +64,11 @@ class TestBuiltin(PolicyTestBase):
         int(v, 16)
         self.assertEqual(v, cp.version())
 
-    def test_effective_reports_m0_as_unanforced(self):
+    def test_effective_reports_m1_enforcement(self):
         payload = cp.effective()
         self.assertFalse(payload["enforced"])
         self.assertEqual(payload["policy_version"], cp.version())
-        self.assertIn("M0", payload["note"])
+        self.assertIn("M1", payload["note"])
 
 
 class TestValidate(PolicyTestBase):
@@ -250,10 +250,10 @@ class TestChannels(PolicyTestBase):
             self.assertEqual(avail(policy["channels"][4]), "unprobed")
 
     def test_sqlite_address_strips_the_uri_prefix(self):
-        self.assertEqual(cp._sqlite_path("sqlite:///D:/x/y.db#library"),
+        self.assertEqual(cp.sqlite_path("sqlite:///D:/x/y.db#library"),
                          "D:/x/y.db")
-        self.assertEqual(cp._sqlite_path("sqlite:///tmp/y.db"), "/tmp/y.db")
-        self.assertEqual(cp._sqlite_path("plain.db"), "plain.db")
+        self.assertEqual(cp.sqlite_path("sqlite:///tmp/y.db"), "/tmp/y.db")
+        self.assertEqual(cp.sqlite_path("plain.db"), "plain.db")
 
     def test_capabilities_by_kind(self):
         self.assertIn("page_render", cp.CAPABILITIES["local-file"])
@@ -301,6 +301,103 @@ class TestEndpoints(PolicyTestBase):
         self.assertTrue(payload["ok"])
         self.assertEqual(payload["errors"], [])
         self.assertEqual(payload["policy_version"], cp.version())
+
+
+class TestM1Serving(unittest.TestCase):
+    """M1: page roots and the render gate are derived from the channel table."""
+
+    def setUp(self):
+        self._env = {k: os.environ.get(k)
+                     for k in ("SOCRATIC_POLICY", "SOCRATIC_SOURCES")}
+        for k in self._env:
+            os.environ.pop(k, None)
+        self._roots = dict(pages.ROOTS)
+        cp.reload()
+        pages.refresh_roots()
+
+    def tearDown(self):
+        for k, v in self._env.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+        cp.reload()
+        pages.ROOTS.clear()
+        pages.ROOTS.update(self._roots)
+
+    def _write_policy(self, directory, body):
+        path = os.path.join(directory, "policy.yaml")
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(body)
+        os.environ["SOCRATIC_POLICY"] = path
+        ok, errs = cp.reload()
+        self.assertTrue(ok, errs)
+        pages.refresh_roots()
+        return path
+
+    def test_default_roots_are_the_legacy_layout(self):
+        self.assertEqual(pages.ROOTS["library"],
+                         os.path.join(config.LIBRARY, "PDF"))
+        self.assertEqual(pages.ROOTS["steadman"],
+                         os.path.join(config.LIBRARY, "PDF-new", "Steadman"))
+        self.assertEqual(pages.ROOTS["teubner_conte"],
+                         os.path.join(config.LIBRARY, "teubner"))
+
+    def test_roots_follow_the_local_file_channels(self):
+        with TemporaryDirectory() as d:
+            self._write_policy(
+                d,
+                "channels:\n"
+                "  - {source: library-pdf, kind: local-file, address: '%s'}\n"
+                % d.replace("\\", "/"))
+            self.assertEqual(os.path.abspath(pages.ROOTS["library"]),
+                             os.path.abspath(d))
+            # a source the policy does not describe keeps the legacy default
+            self.assertEqual(pages.ROOTS["steadman"],
+                             os.path.join(config.LIBRARY, "PDF-new", "Steadman"))
+
+    def test_capability_gate_blocks_a_search_only_source(self):
+        with TemporaryDirectory() as d:
+            self._write_policy(
+                d,
+                "channels:\n"
+                "  - {source: library-pdf, kind: rag-sqlite, address: 'sqlite:///x.db'}\n"
+                "  - {source: steadman, kind: local-file, address: '%s'}\n"
+                % d.replace("\\", "/"))
+            self.assertNotIn("page_render", cp.capabilities("library-pdf"))
+            with self.assertRaises(cp.CapabilityMissing):
+                pages.render("library", "anything.pdf", 1)
+            # a render-capable source passes the gate and then fails on the book
+            with self.assertRaises(FileNotFoundError):
+                pages.render("steadman", "nope.pdf", 1)
+
+    def test_pages_endpoint_answers_422_for_a_missing_capability(self):
+        with TemporaryDirectory() as d:
+            self._write_policy(
+                d,
+                "channels:\n"
+                "  - {source: library-pdf, kind: rag-sqlite, address: 'sqlite:///x.db'}\n")
+            from fastapi import HTTPException
+            with self.assertRaises(HTTPException) as ctx:
+                main.v1_pages(source="library", book="x.pdf", page=1,
+                              dpi=150, bbox=None)
+            self.assertEqual(ctx.exception.status_code, 422)
+            self.assertEqual(ctx.exception.detail["code"], "capability_missing")
+            self.assertEqual(ctx.exception.detail["need"], ["page_render"])
+
+    def test_channels_report_whether_serving_uses_them(self):
+        payload = main.v1_channels()
+        used = [r for r in payload["channels"] if r.get("in_use")]
+        self.assertTrue(all(r["kind"] in ("local-file", "rag-sqlite") for r in used))
+        self.assertEqual(payload["serving"]["db"], config.DB)
+        self.assertTrue(any(r["source"] == "library-pdf" and r["in_use"]
+                            for r in payload["channels"]))
+
+    def test_reload_reports_the_page_roots(self):
+        payload = main.v1_policy_reload()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(os.path.abspath(payload["page_roots"]["library"]),
+                         os.path.abspath(pages.ROOTS["library"]))
 
 
 if __name__ == "__main__":

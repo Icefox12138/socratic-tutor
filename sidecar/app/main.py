@@ -111,20 +111,38 @@ def v1_policy():
 
 @app.get("/v1/channels", dependencies=[Depends(require_token)])
 def v1_channels():
-    """Every configured channel with its capabilities and local availability.
+    """Every configured channel with its capabilities, availability and whether
+    the serving path is actually using it right now.
 
     Network channels report `unprobed`: this endpoint never touches the network.
     """
+    rows = citation_policy.channels()
+    db = os.path.abspath(config.DB)
+    public = os.path.abspath(config.PUBLIC_DB)
+    roots = {os.path.abspath(p) for p in pages.ROOTS.values()}
+    for row in rows:
+        addr = str(row.get("address") or "")
+        if row["kind"] == "rag-sqlite":
+            row["in_use"] = os.path.abspath(citation_policy.sqlite_path(addr)) in (db, public)
+        elif row["kind"] == "local-file" and addr:
+            row["in_use"] = os.path.abspath(addr) in roots
+        else:
+            row["in_use"] = False
     return {"policy_version": citation_policy.version(),
-            "channels": citation_policy.channels()}
+            "serving": {"db": config.DB, "public_db": config.PUBLIC_DB,
+                        "page_roots": dict(pages.ROOTS)},
+            "channels": rows}
 
 
 @app.post("/v1/policy/reload", dependencies=[Depends(require_token)])
 def v1_policy_reload():
     """Re-read the policy files. A bad file keeps the previously loaded policy."""
     ok, errors = citation_policy.reload()
+    if ok:
+        pages.refresh_roots()       # M1: page roots follow the local-file channels
     return {"ok": ok, "errors": errors,
             "policy_version": citation_policy.version(),
+            "page_roots": dict(pages.ROOTS),
             "last_reload_error": citation_policy.last_error()}
 
 
@@ -311,6 +329,8 @@ def v1_pages(
             raise HTTPException(status_code=400, detail="bbox must be x0,y0,x1,y1")
     try:
         data = pages.render(source, book, page, dpi=dpi, bbox=box)
+    except citation_policy.CapabilityMissing as e:
+        raise HTTPException(status_code=422, detail=e.detail())
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="book not found")
     except ValueError as e:
@@ -400,11 +420,18 @@ def v1_toc(source: str = Query(...), book: str = Query(...)):
     chapters = toc.load(source, book)
     if not chapters:
         raise HTTPException(status_code=404, detail="no chapter index for this book")
+    pages_error = None
     try:
         total = pages.count(source, book)
     except FileNotFoundError:
         total = None
-    return {"source": source, "book": book, "pages": total, "chapters": chapters}
+    except citation_policy.CapabilityMissing as e:
+        total, pages_error = None, e.detail()
+    payload = {"source": source, "book": book, "pages": total,
+               "chapters": chapters}
+    if pages_error:
+        payload["pages_unavailable"] = pages_error
+    return payload
 
 
 @app.get("/browse")

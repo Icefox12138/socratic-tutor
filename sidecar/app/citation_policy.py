@@ -355,25 +355,14 @@ def resolve(subject=None, doc_kind=None):
     return None
 
 
-def _sqlite_path(address):
-    """`sqlite:///D:/x.db#anchor` -> `D:/x.db`; `sqlite:///tmp/x.db` -> `/tmp/x.db`."""
-    a = str(address or "")
-    if a.startswith("sqlite://"):
-        a = a[len("sqlite://"):]
-    a = a.split("#", 1)[0]
-    if re.match(r"^/[A-Za-z]:", a):     # Windows keeps no leading slash
-        a = a[1:]
-    return a
-
-
 def _availability(ch):
     kind, addr = ch.get("kind"), str(ch.get("address") or "")
     if kind in ("local-file", "dataset-dir"):
         return "ready" if addr and os.path.exists(addr) else "missing"
     if kind == "rag-sqlite":
-        path = _sqlite_path(addr)
+        path = sqlite_path(addr)
         return "ready" if path and os.path.exists(path) else "missing"
-    return "unprobed"          # network channels are not probed at M0
+    return "unprobed"          # network channels are not probed
 
 
 def channels():
@@ -396,6 +385,80 @@ def channels():
     return out
 
 
+# ── serving-path accessors (M1) ───────────────────────────────────────────────
+
+#: pages.py speaks these source names; the policy uses logical source ids
+PAGES_SOURCE = {"library": "library-pdf", "steadman": "steadman",
+                "teubner_conte": "teubner-conte"}
+
+
+class CapabilityMissing(RuntimeError):
+    """A serving path needs a capability that no channel of that source provides."""
+
+    def __init__(self, source, need, channels_):
+        self.source = source
+        self.need = sorted(need)
+        self.channels = channels_
+        have = ", ".join("%s:%s" % (c.get("kind"), _availability(c))
+                         for c in channels_) or "none"
+        super().__init__("source %r provides no channel with %s (channels: %s)"
+                         % (source, ", ".join(self.need), have))
+
+    def detail(self):
+        return {
+            "code": "capability_missing",
+            "source": self.source,
+            "need": self.need,
+            "channels": [{"kind": c.get("kind"), "address": c.get("address"),
+                          "availability": _availability(c)} for c in self.channels],
+            "hint": "为该源增加一条提供该能力的通道，或改选其它源",
+        }
+
+
+def source_channels(source_id):
+    return [c for c in (current().get("channels") or [])
+            if isinstance(c, dict) and c.get("source") == source_id]
+
+
+def capabilities(source_id):
+    caps = set()
+    for c in source_channels(source_id):
+        caps |= CAPABILITIES.get(c.get("kind"), set())
+    return caps
+
+
+def require(source_id, *need):
+    """Raise CapabilityMissing unless every capability is provided by a channel."""
+    chans = source_channels(source_id)
+    caps = capabilities(source_id)
+    missing = set(need) - caps
+    if missing:
+        raise CapabilityMissing(source_id, missing, chans)
+    return True
+
+
+def local_roots():
+    """pages source name -> local directory, taken from local-file channels."""
+    roots = {}
+    for pages_name, sid in PAGES_SOURCE.items():
+        for c in source_channels(sid):
+            if c.get("kind") == "local-file" and c.get("address"):
+                roots[pages_name] = c["address"]
+                break
+    return roots
+
+
+def sqlite_path(address):
+    """`sqlite:///D:/x.db#anchor` -> `D:/x.db`; `sqlite:///tmp/x.db` -> `/tmp/x.db`."""
+    a = str(address or "")
+    if a.startswith("sqlite://"):
+        a = a[len("sqlite://"):]
+    a = a.split("#", 1)[0]
+    if re.match(r"^/[A-Za-z]:", a):     # Windows keeps no leading slash
+        a = a[1:]
+    return a
+
+
 def effective():
     """The /v1/policy payload: what is in force, and where each layer came from."""
     pol = current()
@@ -403,8 +466,8 @@ def effective():
         "schema": SCHEMA,
         "policy_version": version(pol),
         "enforced": enforce_flag(),
-        "note": "M0: structure only. The serving path still uses scope=auto/routed; "
-                "see docs/CITATION-POLICY-PLAN.md milestones.",
+        "note": "M1: page roots come from local-file channels; search and ranking "
+                "still use scope=auto/routed. See docs/CITATION-POLICY-PLAN.md.",
         "origins": origins(),
         "last_reload_error": last_error(),
         "sources": pol.get("sources") or {},

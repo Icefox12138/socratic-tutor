@@ -7,7 +7,7 @@ import hashlib
 import os
 import threading
 
-from . import config
+from . import citation_policy, config
 
 
 class RendererUnavailable(RuntimeError):
@@ -30,11 +30,33 @@ def _pdfium():
 _PDFIUM_LOCK = threading.Lock()
 
 CACHE_CAP = 2 * 1024 ** 3
-ROOTS = {
+
+#: the layout an unconfigured install has always had
+_LEGACY_ROOTS = {
     "library": os.path.join(config.LIBRARY, "PDF"),
     "steadman": os.path.join(config.LIBRARY, "PDF-new", "Steadman"),
     "teubner_conte": os.path.join(config.LIBRARY, "teubner"),
 }
+
+#: pages source name -> directory. Still a plain mutable dict because the
+#: serving path and the tests mutate it; the *values* come from the policy's
+#: local-file channels (see refresh_roots), with the legacy layout as fallback.
+ROOTS = dict(_LEGACY_ROOTS)
+
+
+def refresh_roots():
+    """Re-derive ROOTS from the policy's local-file channels.
+
+    A channel wins over the legacy default; a source the policy does not
+    describe keeps the legacy path, so an unconfigured install is unchanged.
+    """
+    from_policy = citation_policy.local_roots()
+    for name, path in _LEGACY_ROOTS.items():
+        ROOTS[name] = from_policy.get(name) or path
+    return ROOTS
+
+
+refresh_roots()
 
 
 def _inside(path: str, root: str) -> bool:
@@ -88,6 +110,18 @@ def _evict():
 _COUNTS = {}
 
 
+def _require_render(source):
+    """A source may only render if one of its channels provides page_render.
+
+    The policy names capabilities per channel; a source backed by a search-only
+    channel (a RAG database without the original files) fails here with a typed
+    error instead of a 500 from PDFium.
+    """
+    sid = citation_policy.PAGES_SOURCE.get(source)
+    if sid:
+        citation_policy.require(sid, "page_render")
+
+
 def count(source: str, book: str) -> int:
     """Page count for one book (cached; used by the page browser)."""
     key = (source, book)
@@ -95,6 +129,7 @@ def count(source: str, book: str) -> int:
         return _COUNTS[key]
     if source not in ROOTS:
         raise ValueError("unknown source")
+    _require_render(source)
     path = resolve(source, book)
     with _PDFIUM_LOCK:
         doc = _pdfium().PdfDocument(path)
@@ -110,6 +145,7 @@ def render(source: str, book: str, page: int, dpi: int = 150, bbox=None) -> byte
         raise ValueError("unknown source")
     if not (72 <= dpi <= 300):
         raise ValueError("dpi must be 72..300")
+    _require_render(source)
     path = resolve(source, book)
     key = f"{source}__{hashlib.sha1(book.encode('utf-8')).hexdigest()[:10]}__p{page}_{dpi}"
     if bbox:
