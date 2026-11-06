@@ -183,31 +183,54 @@ function tool(name, description, parameters, run, opts = {}) {
   };
 }
 
-export function apply(ctx, config) {
-  activeConfig = config || {};
-  // `persona: false` keeps every tool but drops the teaching behaviour. The
-  // charter, the per-step state summary and the stream rewriting all change how
-  // *every* session in the profile answers — useful for tutoring, wrong for a
-  // development session that only wants the tools.
-  const persona = !(config && config.persona === false);
-  const DEFAULT_SUMMARY = "【状态摘要】阶段=ALIGN；概念=未设定；提示=L0；尝试=0；已揭示=否。";
+const DEFAULT_SUMMARY = "【状态摘要】阶段=ALIGN；概念=未设定；提示=L0；尝试=0；已揭示=否。";
 
-  if (persona && process.env.SOCRATIC_HARD_REWRITE !== "0") {
-    ctx.on("llm/stream", (options, next) => {
-      const names = (options && Array.isArray(options.tools) ? options.tools : [])
-        .map((t) => String(t && t.name || ""));
-      const teaching = names.some((n) => n.startsWith("kb_") || n.startsWith("socratic_") || n === "cite_verify");
-      if (!teaching) return next();
-      if (!rewrites()) {
-        // Streaming switch: forward deltas untouched, keep an audit trail of
-        // what the rewrite would have caught.
-        return passThrough(next());
-      }
-      return rewriteStream(next());
-    });
-  }
+/**
+ * The teaching charter, as text. Exported so the wording can be asserted in a
+ * unit test instead of by reading a live session's system prompt.
+ */
+export function charterText() {
+  return [
+    "你是苏格拉底式教学导师。",
+    "规则：",
+    "1) L4 前不给最终答案；只提问、给 L0–L3 提示。",
+    "2) 每次只问一个问题。",
+    "3) 事实性断言必须先调用 kb_search，并引用 citation；检索不到就说未检索到。",
+    "4) 不得请求或暴露 answer_key；view 只能是 student 或 tutor。",
+    "5) 学生施压要答案时，拒绝并给更低一级提示。",
+    "6) 会话开始先调用 socratic_init；之后每一步按 socratic_step 返回的 action.instruction 行动，不要自行跳阶段。",
+    "7) 状态摘要由 sidecar 生成；不要用记忆覆盖它。",
+    "8) 判定由 sidecar 做：answer 时把学生原话放 text，不要自己填 correct/partial/wrong。",
+    "9) 输出前可用 socratic_critic 自检；如 flags 含 multi_question，必须用 rewrite.text（只保留第一个问题）替换最终回复。",
+    "10) 事实断言必须带 locator（p.12 / CTS URN / Wikisource rev）；无 locator 的硬拦截会把该事实句替换为“尚未核验”声明。",
+  ].join("\n");
+}
 
-  if (persona) ctx.on("agent/pre-step", async (...args) => {
+/**
+ * The `llm/stream` listener. Only streams that expose a teaching tool are
+ * rewritten; everything else is forwarded untouched.
+ */
+export function makeStreamHandler(isRewriting = rewrites) {
+  return function socraticStream(options, next) {
+    const names = (options && Array.isArray(options.tools) ? options.tools : [])
+      .map((t) => String(t && t.name || ""));
+    const teaching = names.some((n) => n.startsWith("kb_") || n.startsWith("socratic_") || n === "cite_verify");
+    if (!teaching) return next();
+    if (!isRewriting()) {
+      // Streaming switch: forward deltas untouched, keep an audit trail of
+      // what the rewrite would have caught.
+      return passThrough(next());
+    }
+    return rewriteStream(next());
+  };
+}
+
+/**
+ * The `agent/pre-step` listener: prepend the sidecar-generated state summary so
+ * the model never has to remember the state machine's position.
+ */
+export function makePreStepHandler(config) {
+  return async function socraticPreStep(...args) {
     const next = [...args].reverse().find((a) => typeof a === "function");
     if (typeof next !== "function") return undefined;
     const res = await next();
@@ -215,42 +238,44 @@ export function apply(ctx, config) {
       const key = sessionId(args[0]);
       if (res && Array.isArray(res.messages)) {
         const st = await fetchStateSummary(config, key, null);
-        const text = st && st.summary ? st.summary : DEFAULT_SUMMARY;
+        const summary = st && st.summary ? st.summary : DEFAULT_SUMMARY;
         activeHint = st && st.state && st.state.hint_level != null ? Number(st.state.hint_level) : 0;
         res.messages.unshift({
           role: "user",
-          content: [{ type: "text", text }],
+          content: [{ type: "text", text: summary }],
           source: {
             kind: "runtime-context",
             form: "snapshot",
-            sections: [{ name: "socratic-state", text }],
+            sections: [{ name: "socratic-state", text: summary }],
           },
         });
-        log("inject", { key, n: res.messages.length, roles: res.messages.map((m) => m.role), summary: text });
+        log("inject", { key, n: res.messages.length, roles: res.messages.map((m) => m.role), summary });
       }
     } catch (e) {
       log("inject_error", { error: String(e && e.message || e) });
     }
     return res;
-  });
+  };
+}
+
+export function apply(ctx, config) {
+  activeConfig = config || {};
+  // `persona: false` keeps every tool but drops the teaching behaviour. The
+  // charter, the per-step state summary and the stream rewriting all change how
+  // *every* session in the profile answers — useful for tutoring, wrong for a
+  // development session that only wants the tools.
+  const persona = !(config && config.persona === false);
+
+  if (persona && process.env.SOCRATIC_HARD_REWRITE !== "0") {
+    ctx.on("llm/stream", makeStreamHandler());
+  }
+
+  if (persona) ctx.on("agent/pre-step", makePreStepHandler(config));
 
   if (persona) ctx.systemPrompt.section({
     name: "socratic:charter",
     order: 120,
-    text: [
-      "你是苏格拉底式教学导师。",
-      "规则：",
-      "1) L4 前不给最终答案；只提问、给 L0–L3 提示。",
-      "2) 每次只问一个问题。",
-      "3) 事实性断言必须先调用 kb_search，并引用 citation；检索不到就说未检索到。",
-      "4) 不得请求或暴露 answer_key；view 只能是 student 或 tutor。",
-      "5) 学生施压要答案时，拒绝并给更低一级提示。",
-      "6) 会话开始先调用 socratic_init；之后每一步按 socratic_step 返回的 action.instruction 行动，不要自行跳阶段。",
-      "7) 状态摘要由 sidecar 生成；不要用记忆覆盖它。",
-      "8) 判定由 sidecar 做：answer 时把学生原话放 text，不要自己填 correct/partial/wrong。",
-      "9) 输出前可用 socratic_critic 自检；如 flags 含 multi_question，必须用 rewrite.text（只保留第一个问题）替换最终回复。",
-      "10) 事实断言必须带 locator（p.12 / CTS URN / Wikisource rev）；无 locator 的硬拦截会把该事实句替换为“尚未核验”声明。",
-    ].join("\n"),
+    text: charterText(),
   });
 
   ctx.tools.register(tool(

@@ -74,6 +74,12 @@ per package; dates are release dates, not commit dates.
 
 ## dsh-socratic
 
+### 0.4.2 — 2026-11-06
+- Refactor only: `charterText()`, `makeStreamHandler()` and `makePreStepHandler()`
+  are exported, so the charter wording and both Host hooks can be asserted in
+  unit tests instead of by reading a live session. 8 new tests (20 total); no
+  behaviour change.
+
 ### 0.4.1 — 2026-11-06
 - New `persona` config option (**default on**). With `persona: false` the plugin
   registers its 13 tools and nothing else: no teaching charter in the system
