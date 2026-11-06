@@ -14,6 +14,10 @@
 
 schema: 1
 
+# NOTE: a section you write here replaces that whole section (no deep merge),
+# and validation is referentially strict — if you narrow `sources`, also narrow
+# `channels`, `routing` and `rules` so nothing points at a source you removed.
+
 # A logical source is the citation identity: role, trust tier, locator scheme.
 #   role = cite      -> produces a locator; needs locator_scheme
 #   role = template  -> structure reference only (NaturalProofs, TheorIA); never citated

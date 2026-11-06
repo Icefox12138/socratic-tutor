@@ -50,15 +50,22 @@ GET /v1/search?q=黃帝&scope=routed&limit=8
 
 ## 3. 路由（`scope=routed`）
 
-不做全查，先用**每个库一次 FTS 探针**（limit 3）判断覆盖，再只搜选中的库：
+不做全查，先用**每个库一次 FTS 探针**（limit 3）判断覆盖，再只搜选中的库。
 
-| 查询信号 | 优先库 | 理由 |
-|---|---|---|
-| 中国史标记（史記/黃帝/周文王…） | v2 | 干净文本 + revision 引用 |
-| v2 作品名（Iliad/Aeneid/史記/Homer/Virgil） | v2 | CTS/MediaWiki 引用 |
-| 短希腊文引文（≤80 字） | v2 | CTS 行级引用 |
-| 其他（现代中文/英文/拉丁） | v1 | 167k 页覆盖更大 |
-| 选中库 0 命中 | 另一库 | 一次 fallback，仍不双查 |
+路由表**不再写死在代码里**：M3 起由引用策略的 `routing` 段提供
+（`sidecar/app/citation_policy.py`，可用 `SOCRATIC_POLICY` 覆盖，
+`GET /v1/policy` 可查生效值）。默认表与旧行为等价：
+
+| 查询信号 | `route_reason` | 优先库 | 理由 |
+|---|---|---|---|
+| 中国史标记（史記/黃帝/周文王…，`markers.zh-history`） | `classical-zh` | v2 | 干净文本 + revision 引用 |
+| 作品名（Iliad/Aeneid/Homer/Virgil **及希腊文写法**，`markers.v2-works`） | `v2-work` | v2 | CTS/MediaWiki 引用 |
+| 短希腊文引文（≤80 字，正则规则） | `greek-quote` | v2 | CTS 行级引用 |
+| 其他（现代中文/英文/拉丁） | `v1-default` | v1 | 167k 页覆盖更大 |
+| 选中库 0 命中 | `+fallback` | 另一库 | 一次 fallback，仍不双查 |
+
+匹配对**变音符号不敏感**（NFD 去组合符、统一 σ/ς），所以 `Ἰλιάς` 与
+`Iliad` 命中同一条规则——旧的关键词表只收了拉丁转写，希腊文原写作会漏。
 
 响应额外带 `routed_to`、`route_reason`、`route_probe`、`errors`。
 实测：

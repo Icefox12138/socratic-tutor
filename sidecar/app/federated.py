@@ -5,15 +5,12 @@ module serialises config switching, runs each catalogue, then merges by RRF.
 Only `scope=all` uses it; normal searches are unchanged.
 """
 import os
-import re
 import threading
 import time
 
-from . import config, search, translate
+from . import citation_policy, config, search
 
 _LOCK = threading.Lock()
-_GREEK = re.compile(r"[\u0370-\u03ff\u1f00-\u1fff]")
-_V2_WORK = ("iliad", "aeneid", "史記", "史记", "homer", "virgil", "vergil")
 
 
 def _probe(db, is_v1, query):
@@ -31,18 +28,20 @@ def _probe(db, is_v1, query):
 
 
 def _route(query):
-    q = (query or "").casefold()
-    classical_zh = any(m.lower() in q for m in translate.ZH_HISTORY_MARKERS)
-    greek = bool(_GREEK.search(query or ""))
-    work = any(w in q for w in _V2_WORK)
-    reason = "v1-default"
-    if classical_zh:
-        reason = "classical-zh"
-    elif work:
-        reason = "v2-work"
-    elif greek and len(q) <= 80:
-        reason = "greek-quote"
-    return reason, classical_zh or work or (greek and len(q) <= 80)
+    """Routing comes from the policy table (M3); the decision order is unchanged.
+
+    The first preferred source of the winning rule decides which catalogue is
+    probed first: a v2 source prefers the public catalogue, a v1 source the
+    private one. Matching is diacritic-insensitive, so a Greek work name now
+    reaches the same rule as its Latin transliteration.
+    """
+    decision = citation_policy.route(query)
+    prefer = decision.get("prefer") or []
+    reason = decision.get("reason") or "default"
+    if reason == "default":
+        reason = "v1-default"          # keep the reported reason stable
+    prefer_v2 = bool(prefer) and citation_policy.catalogue_of(prefer[0]) == "v2"
+    return reason, prefer_v2
 
 
 def search_routed(query, view="student", limit=8, source=None, lang=None,

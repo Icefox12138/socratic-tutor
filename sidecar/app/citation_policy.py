@@ -20,6 +20,7 @@ import json
 import os
 import re
 import threading
+import unicodedata
 
 from . import config
 
@@ -62,23 +63,41 @@ def _builtin():
     today (config/pages). No subject rules yet: `cite` lists the routable set,
     not a merge order, because merging arrives in M4.
     """
+    from . import translate          # lazy: keeps the import graph acyclic
     return {
         "schema": SCHEMA,
         "sources": {
             "library-pdf": {"tier": "B", "tier_estimated": True, "role": "cite",
-                            "locator_scheme": "page",
+                            "catalogue": "v1", "locator_scheme": "page",
                             "display": "自扫 PDF（原页）"},
             "steadman": {"tier": "B", "tier_estimated": True, "role": "cite",
-                         "locator_scheme": "page",
+                         "catalogue": "v1", "locator_scheme": "page",
                          "display": "Steadman 教学本"},
             "teubner-conte": {"tier": "B", "tier_estimated": True, "role": "cite",
-                              "locator_scheme": "page",
+                              "catalogue": "v1", "locator_scheme": "page",
                               "display": "Teubner Aeneis"},
-            "wikisource": {"tier": "A", "role": "cite",
+            "wikisource": {"tier": "A", "role": "cite", "catalogue": "v2",
                            "locator_scheme": "mediawiki-rev",
                            "display": "Wikisource 校对本"},
-            "cts": {"tier": "A", "role": "cite", "locator_scheme": "cts-urn",
-                    "display": "Perseus CTS"},
+            "cts": {"tier": "A", "role": "cite", "catalogue": "v2",
+                    "locator_scheme": "cts-urn", "display": "Perseus CTS"},
+        },
+        # Routing hints are data now: the old keyword tables lived in federated.py.
+        "markers": {
+            "zh-history": list(translate.ZH_HISTORY_MARKERS),
+            "v2-works": ["iliad", "aeneid", "homer", "virgil", "vergil",
+                         "Ἰλιάς", "Ἰλιάδος", "Αἰνειάς", "Αἰνείας", "Αἰνειάδος"],
+        },
+        "routing": {
+            "rules": [
+                {"id": "classical-zh", "any_of": "zh-history",
+                 "prefer": ["wikisource", "cts"]},
+                {"id": "v2-work", "any_of": "v2-works",
+                 "prefer": ["wikisource", "cts"]},
+                {"id": "greek-quote", "regex": "[\u0370-\u03ff\u1f00-\u1fff]",
+                 "max_query_len": 80, "prefer": ["wikisource", "cts"]},
+            ],
+            "default_prefer": ["library-pdf"],
         },
         "channels": [
             {"source": "library-pdf", "kind": "local-file",
@@ -183,6 +202,9 @@ def validate(policy):
         est = src.get("tier_estimated")
         if est is not None and not isinstance(est, bool):
             errs.append("sources.%s.tier_estimated: must be true or false" % sid)
+        cat = src.get("catalogue")
+        if cat is not None and cat not in ("v1", "v2"):
+            errs.append("sources.%s.catalogue: must be v1 or v2" % sid)
 
     profiles = policy.get("weight_profiles") or {}
     if not isinstance(profiles, dict):
@@ -269,6 +291,42 @@ def validate(policy):
             if leak in ch:
                 errs.append("%s.%s: secrets belong in the environment, "
                             "name it with auth_env" % (where, leak))
+
+    markers = policy.get("markers") or {}
+    if not isinstance(markers, dict):
+        errs.append("markers: must be a mapping")
+        markers = {}
+    for name, values in markers.items():
+        if not isinstance(values, list) or not all(isinstance(v, str) for v in values):
+            errs.append("markers.%s: must be a list of strings" % name)
+
+    routing = policy.get("routing") or {}
+    if not isinstance(routing, dict):
+        errs.append("routing: must be a mapping")
+        routing = {}
+    for i, rule in enumerate(routing.get("rules") or []):
+        where = "routing.rules[%d]" % i
+        if not isinstance(rule, dict):
+            errs.append("%s: must be a mapping" % where)
+            continue
+        ref = rule.get("any_of")
+        if ref is None and not rule.get("regex"):
+            errs.append("%s: needs any_of or regex" % where)
+        if isinstance(ref, str) and ref not in markers:
+            errs.append("%s.any_of: unknown marker list %r" % (where, ref))
+        if isinstance(ref, list) and not all(isinstance(x, str) for x in ref):
+            errs.append("%s.any_of: must be a marker-list name or strings" % where)
+        if rule.get("regex"):
+            try:
+                re.compile(str(rule["regex"]))
+            except re.error as e:
+                errs.append("%s.regex: %s" % (where, e))
+        for sid in rule.get("prefer") or []:
+            if sid not in sources:
+                errs.append("%s.prefer.%s: unknown source" % (where, sid))
+    for sid in routing.get("default_prefer") or []:
+        if sid not in sources:
+            errs.append("routing.default_prefer.%s: unknown source" % sid)
     return errs
 
 
@@ -461,7 +519,54 @@ def tier_for_source(source_id):
 
 def enforced_parts():
     """Which parts of the serving path read the policy, per milestone."""
-    return {"channels": True, "tier": True, "ranking": False}
+    return {"channels": True, "tier": True, "routing": True, "ranking": False}
+
+
+# ── routing (M3) ─────────────────────────────────────────────────────────────
+
+def _norm(text):
+    """Casefold, strip diacritics, unify sigma: `Ἰλιάς` -> `ιλιασ`."""
+    s = unicodedata.normalize("NFD", str(text or "").casefold())
+    s = "".join(ch for ch in s if not unicodedata.combining(ch))
+    return s.replace("ς", "σ").replace("ϲ", "σ")
+
+
+def catalogue_of(source_id):
+    """Which catalogue a logical source belongs to (v1 private / v2 public)."""
+    meta = (current().get("sources") or {}).get(source_id) or {}
+    return meta.get("catalogue")
+
+
+def route(query):
+    """Pick the routing rule for a query from the policy. No probing here.
+
+    Rules are evaluated in order; the first hit wins. Matching is
+    diacritic-insensitive, so a Greek work name reaches the same rule as its
+    Latin transliteration (the old keyword table only had the Latin forms).
+    """
+    pol = current()
+    markers = pol.get("markers") or {}
+    conf = pol.get("routing") or {}
+    q = _norm(query)
+    for rule in conf.get("rules") or []:
+        if not isinstance(rule, dict):
+            continue
+        ref = rule.get("any_of")
+        names = markers.get(ref, []) if isinstance(ref, str) else (ref or [])
+        hit = any(_norm(name) and _norm(name) in q for name in names)
+        if not hit and rule.get("regex"):
+            try:
+                hit = bool(re.search(str(rule["regex"]), str(query or "")))
+            except re.error:
+                hit = False
+            limit = rule.get("max_query_len")
+            if hit and limit and len(str(query or "").casefold()) > int(limit):
+                hit = False
+        if hit:
+            return {"reason": rule.get("id") or "route",
+                    "prefer": list(rule.get("prefer") or [])}
+    return {"reason": "default",
+            "prefer": list(conf.get("default_prefer") or [])}
 
 
 def local_roots():
@@ -494,13 +599,15 @@ def effective():
         "policy_version": version(pol),
         "enforced": enforce_flag(),
         "enforced_parts": enforced_parts(),
-        "note": "M2: page roots, the render gate and the citation tier come from "
-                "the policy; search and ranking still use scope=auto/routed. "
+        "note": "M3: routing, page roots, the render gate and the citation tier "
+                "come from the policy; ranking still uses the existing merge. "
                 "See docs/CITATION-POLICY-PLAN.md.",
         "origins": origins(),
         "last_reload_error": last_error(),
         "sources": pol.get("sources") or {},
         "channels": channels(),
         "weight_profiles": pol.get("weight_profiles") or {},
+        "routing": {"rules": (pol.get("routing") or {}).get("rules") or [],
+                    "default_prefer": (pol.get("routing") or {}).get("default_prefer") or []},
         "rules": pol.get("rules") or [],
     }

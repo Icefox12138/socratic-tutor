@@ -68,9 +68,10 @@ class TestBuiltin(PolicyTestBase):
         payload = cp.effective()
         self.assertFalse(payload["enforced"])          # ranking still not policy-driven
         self.assertEqual(payload["enforced_parts"],
-                         {"channels": True, "tier": True, "ranking": False})
+                         {"channels": True, "tier": True, "routing": True,
+                          "ranking": False})
         self.assertEqual(payload["policy_version"], cp.version())
-        self.assertIn("M2", payload["note"])
+        self.assertIn("M3", payload["note"])
 
 
 class TestValidate(PolicyTestBase):
@@ -329,6 +330,8 @@ class TestTier(PolicyTestBase):
                          "  library-pdf: {tier: C, role: cite, locator_scheme: page,"
                          " tier_estimated: false}\n"
                          "channels: []\n"
+                         "routing:\n  rules: []\n"
+                         "  default_prefer: [library-pdf]\n"
                          "rules:\n"
                          "  - {when: {}, cite: [library-pdf]}\n")
             os.environ["SOCRATIC_POLICY"] = path
@@ -341,6 +344,84 @@ class TestTier(PolicyTestBase):
         p["sources"]["lib"]["tier_estimated"] = "yes"
         errs = cp.validate(p)
         self.assertTrue(any("tier_estimated" in e for e in errs), errs)
+
+
+class TestRouting(PolicyTestBase):
+    """M3: routing comes from the policy table, in the same decision order."""
+
+    def test_classical_chinese_prefers_v2(self):
+        d = cp.route("史記 黃帝")
+        self.assertEqual(d["reason"], "classical-zh")
+        self.assertEqual(d["prefer"][0], "wikisource")
+
+    def test_latin_work_prefers_v2(self):
+        self.assertEqual(cp.route("Iliad book 1")["reason"], "v2-work")
+        self.assertEqual(cp.route("Aeneid 1.1")["reason"], "v2-work")
+
+    def test_greek_work_name_matches_too(self):
+        # the old keyword table only carried the Latin transliterations
+        self.assertEqual(cp.route("Ἰλιάς")["reason"], "v2-work")
+
+    def test_greek_quote_uses_the_fallback_rule(self):
+        self.assertEqual(cp.route("μῆνιν ἄειδε θεά")["reason"], "greek-quote")
+
+    def test_long_greek_query_falls_through(self):
+        self.assertEqual(cp.route("μ" * 100)["reason"], "default")
+
+    def test_plain_query_uses_the_default_preference(self):
+        d = cp.route("微分")
+        self.assertEqual(d["reason"], "default")
+        self.assertEqual(d["prefer"], ["library-pdf"])
+
+    def test_catalogue_mapping(self):
+        self.assertEqual(cp.catalogue_of("wikisource"), "v2")
+        self.assertEqual(cp.catalogue_of("library-pdf"), "v1")
+        self.assertIsNone(cp.catalogue_of("ghost"))
+
+    def test_federated_route_keeps_the_reported_reasons(self):
+        from app import federated
+        self.assertEqual(federated._route("史記"), ("classical-zh", True))
+        self.assertEqual(federated._route("微分"), ("v1-default", False))
+        self.assertEqual(federated._route("Ἰλιάς"), ("v2-work", True))
+
+    def test_policy_can_drop_every_route_rule(self):
+        with TemporaryDirectory() as d:
+            path = os.path.join(d, "policy.yaml")
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write("routing:\n  rules: []\n"
+                         "  default_prefer: [library-pdf]\n")
+            os.environ["SOCRATIC_POLICY"] = path
+            ok, errs = cp.reload()
+            self.assertTrue(ok, errs)
+            self.assertEqual(cp.route("史記")["reason"], "default")
+
+    def test_unknown_prefer_source_is_rejected(self):
+        p = _policy(routing={"rules": [{"id": "x", "any_of": "zh-history",
+                                        "prefer": ["ghost"]}],
+                              "default_prefer": ["lib"]},
+                    markers={"zh-history": ["史記"]})
+        errs = cp.validate(p)
+        self.assertTrue(any("prefer.ghost" in e for e in errs), errs)
+
+    def test_unknown_marker_list_is_rejected(self):
+        p = _policy(routing={"rules": [{"id": "x", "any_of": "nope",
+                                        "prefer": ["lib"]}],
+                              "default_prefer": ["lib"]})
+        errs = cp.validate(p)
+        self.assertTrue(any("unknown marker list" in e for e in errs), errs)
+
+    def test_a_rule_needs_a_matcher(self):
+        p = _policy(routing={"rules": [{"id": "x", "prefer": ["lib"]}],
+                              "default_prefer": ["lib"]})
+        errs = cp.validate(p)
+        self.assertTrue(any("needs any_of or regex" in e for e in errs), errs)
+
+    def test_regex_must_compile(self):
+        p = _policy(routing={"rules": [{"id": "x", "regex": "[",
+                                        "prefer": ["lib"]}],
+                              "default_prefer": ["lib"]})
+        errs = cp.validate(p)
+        self.assertTrue(any("regex" in e for e in errs), errs)
 
 
 class TestM1Serving(unittest.TestCase):
