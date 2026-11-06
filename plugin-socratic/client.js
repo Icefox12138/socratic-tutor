@@ -89,6 +89,30 @@ window.__ModuleLoader__.load({
       const row = { display: 'flex', justifyContent: 'space-between', gap: 8, margin: '2px 0' };
       const link = { color: 'inherit', textDecoration: 'underline', cursor: 'pointer' };
 
+      // Same badges as the turn card; NULL means "not recorded", so render nothing.
+      const badge = (text, color, title) => h('span', {
+        style: { marginLeft: 6, fontSize: 10, lineHeight: '16px', padding: '0 5px',
+          borderRadius: 6, border: '1px solid ' + color, color: color },
+        title,
+      }, text);
+      const tierBadge = (c) => {
+        const tier = c.tier || null;
+        if (!tier) return null;
+        const est = c.tier_estimated === 1 || c.tier_estimated === true;
+        const color = { A: '#12b76a', B: '#2e90fa', C: '#f79009', D: '#98a2b3' }[tier]
+          || '#98a2b3';
+        return badge(tier + (est ? '*' : ''), color,
+          est ? '层级为粗判：库内没有校对层元数据' : '层级来自引用策略');
+      };
+      const roleBadge = (c) => {
+        const role = c.role_in_answer || null;
+        if (!role) return null;
+        return badge(role === 'anchor' ? '锚点' : '佐证',
+          role === 'anchor' ? '#6941c6' : '#667085',
+          role === 'anchor' ? '本轮该来源是锚点：据此翻页核对'
+            : '旁证来源，不占锚点席位');
+      };
+
       return h('div', { style: { margin: '4px 0' } },
         h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' } },
           h('button', { style: chip, onClick: () => setOpen(!open), title: '苏格拉底教学台' },
@@ -115,7 +139,8 @@ window.__ModuleLoader__.load({
             key: c.id,
             style: { borderTop: '1px dashed rgba(127,127,127,.25)', padding: '6px 0' },
           },
-            h('div', { style: { fontWeight: 600, wordBreak: 'break-all' } }, c.locator || ''),
+            h('div', { style: { fontWeight: 600, wordBreak: 'break-all' } },
+              c.locator || '', tierBadge(c), roleBadge(c)),
             c.url && h('a', {
               style: link, href: c.url, target: '_blank', rel: 'noreferrer',
             }, '原文 ↗'),
@@ -178,12 +203,34 @@ window.__ModuleLoader__.load({
         items.map((c) => {
           const greek = c.lang === 'greek';
           const pageOnly = c.lang === 'page';
+          // tier/role come from the citation row; NULL means "not recorded",
+          // which is not the same as tier "unknown" — render nothing then.
+          const tier = c.tier || null;
+          const estimated = c.tier_estimated === 1 || c.tier_estimated === true;
+          const role = c.role_in_answer || null;
+          const tierColor = { A: '#12b76a', B: '#2e90fa', C: '#f79009', D: '#98a2b3' }[tier] || '#98a2b3';
+          const pill = (color) => ({
+            fontSize: 10, lineHeight: '16px', padding: '0 5px', borderRadius: 6,
+            border: '1px solid ' + color, color: color, whiteSpace: 'nowrap',
+          });
           return h('div', {
             key: c.id,
             style: { display: 'flex', gap: 8, alignItems: 'center', fontSize: 12,
               padding: '2px 0', flexWrap: 'wrap' },
           },
             h('span', { style: { fontWeight: 600, wordBreak: 'break-all' } }, c.locator || ''),
+            tier && h('span', {
+              style: pill(tierColor),
+              title: estimated
+                ? '层级为粗判：库内没有校对层元数据'
+                : '层级来自引用策略',
+            }, tier + (estimated ? '*' : '')),
+            role && h('span', {
+              style: pill(role === 'anchor' ? '#6941c6' : '#667085'),
+              title: role === 'anchor'
+                ? '本轮该来源是锚点：据此翻页核对'
+                : '旁证来源，不占锚点席位',
+            }, role === 'anchor' ? '锚点' : '佐证'),
             c.url && h('a', {
               style: { color: 'inherit', textDecoration: 'underline' },
               href: c.url, target: '_blank', rel: 'noreferrer',
