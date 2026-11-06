@@ -69,7 +69,6 @@
 工具：`scripts/ragdb_check.py`（不起服务，直接检查配置指向的库/向量）、`scripts/contract_check.py`（对任意 URL 跑契约检查）、`scripts/ingest_public.py`（Wikisource/CTS 公开语料入库）、`scripts/embed_public.py`（v2 BGE-M3 向量增量编码）、`scripts/eval_public.py`（公开语料检索评估）、`scripts/eval_lexical.py`（grep/lemma 变格评估）、`scripts/publish_lint.py`（发布前查 license/绝对路径/密钥/数据文件）。
 | [P2-5-embedded-ui.md](P2-5-embedded-ui.md) | DSH 内嵌教学台 + K5 页图引用 |
 | [REVISION.md](REVISION.md) | 2026-11-03 全面修订记录 |
-| [NEW-PTC-SESSION.md](NEW-PTC-SESSION.md) | 新 PTC 会话开场模板 |
 
 ## 5. 阅读原则
 

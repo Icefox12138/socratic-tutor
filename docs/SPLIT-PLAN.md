@@ -67,7 +67,7 @@
 |---|---|
 | `README.md`（docs 索引） | 删除迁出条目，补 schema 契约与"自建数据库"入口 |
 | `STATUS.md` | 去掉数据管线状态，改为"运行时 + 三个发布物" |
-| `HANDOFF.md` / `NEW-PTC-SESSION.md` | 交接内容改为纯运行时 |
+| `HANDOFF.md` | 交接内容改为纯运行时（`NEW-PTC-SESSION.md` 已删除，并入 `HANDOFF.md` §11） |
 | `RELEASE-PLAN.md` / `RELEASE.md` | 增加"使用者需自建 RAG 数据库"的前置条件 |
 
 ### 3.4 纯仓库治理，留在本仓（5）

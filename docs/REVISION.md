@@ -6,7 +6,7 @@
 
 - `STATUS.md`：唯一当前状态快照（阶段、数字、阻塞、环境、新 PTC 会话建议）。
 - `REVISION.md`：本文件。
-- `NEW-PTC-SESSION.md`：新 PTC 会话开场模板。
+- ~~`NEW-PTC-SESSION.md`~~：新 PTC 会话开场模板（2026-11-06 删除，内容并入 `HANDOFF.md` §11）。
 
 ### 重写
 
