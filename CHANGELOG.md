@@ -74,7 +74,25 @@ per package; dates are release dates, not commit dates.
 
 ## dsh-socratic
 
-### 0.4.2 — 2026-11-06
+### 0.5.0 — 2026-11-06
+- **Breaking:** the teaching layer moved to the new `dsh-socratic-persona`
+  bundle. This package now ships the 13 tools and the console cards only — no
+  charter, no per-step state summary, no stream rewriting.
+- The `persona` config option is gone: installing (or not installing) the
+  persona bundle is the switch. Presence is clearer than a flag, and it works
+  per profile instead of forcing a development session to sit inside a teaching
+  charter.
+- `lib/stream-mode.js` moved with it; `lib/transport.js` stays here.
+
+## dsh-socratic-persona
+
+### 0.1.0 — 2026-11-06
+- First release: the charter (`systemPrompt` section `socratic:charter`), the
+  `agent/pre-step` state summary, and the `llm/stream` rewrite that enforces
+  citations, withholds answer leaks and keeps one question per turn.
+- Standalone: one `GET /v1/state/<session>` is the only sidecar call, so this
+  package does not depend on the tools bundle.
+- 12 contract tests.
 - Refactor only: `charterText()`, `makeStreamHandler()` and `makePreStepHandler()`
   are exported, so the charter wording and both Host hooks can be asserted in
   unit tests instead of by reading a live session. 8 new tests (20 total); no

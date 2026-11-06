@@ -1,0 +1,42 @@
+{
+  "name": "dsh-socratic-persona",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Teaching layer for dsh-socratic: charter, per-step state summary, and stream rewriting that enforces citations, no answer leaks, and one question at a time",
+  "keywords": [
+    "dsh-plugin",
+    "socratic",
+    "tutoring",
+    "persona"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "lib/",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./index.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "engines": {
+    "dsh": ">=0.2.1-rc.2 <0.3.0-0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Icefox12138/socratic-tutor.git",
+    "directory": "plugin-socratic-persona"
+  },
+  "homepage": "https://github.com/Icefox12138/socratic-tutor/tree/main/plugin-socratic-persona#readme",
+  "bugs": {
+    "url": "https://github.com/Icefox12138/socratic-tutor/issues"
+  },
+  "author": "Icefox12138"
+}

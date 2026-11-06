@@ -32,19 +32,21 @@ dsh --profile tutor --dump-config | Select-String socratic
 
 ## 人格开关（`persona`）
 
-插件默认注入**教学章程**、**每步状态摘要**与**流式硬拦截**。这三件事都作用在
-Host 层，因此对**该 profile 的所有会话**生效——开发会话也会被当成学生。
+**0.5.0 起，教学行为已拆到独立包 [dsh-socratic-persona](../plugin-socratic-persona/README.md)。**
 
-只想用工具时，在 profile patch 里关掉人格：
+本包只提供 13 个工具与内嵌卡片，**不注入章程、不加状态摘要、不改写流**。
+要教学行为，再装一个包即可：
 
-```yaml
-- id: socratic-teacher
-  config:
-    persona: false
+```powershell
+dsh plugin --profile tutor add "link:/path/to/socratic-tutor/plugin-socratic-persona"
 ```
 
-`persona: false` 时：13 个工具照常注册，章程、`agent/pre-step` 摘要、
-`llm/stream` 改写一律不注册。默认 `true`，与 0.4.0 行为一致。
+| 安装 | 效果 |
+|---|---|
+| 只装本包 | 13 个工具 + 策略卡/徽章，普通助手人格 |
+| 本包 + persona | 教学章程、每步状态摘要、引用/泄漏/单问硬拦截 |
+
+0.4.x 的 `persona: false` 配置项已移除——"装不装 persona 包"就是开关。
 
 ## 工具
 

@@ -125,6 +125,9 @@ def main():
     plugin = os.path.join(repo, "plugin-socratic")
     if os.path.isdir(plugin):
         roots.append(plugin)
+    persona = os.path.join(repo, "plugin-socratic-persona")
+    if os.path.isdir(persona):
+        roots.append(persona)
 
     rows = []
     if args.scope in ("artifacts", "all"):

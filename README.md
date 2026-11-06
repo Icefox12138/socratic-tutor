@@ -22,7 +22,8 @@ So the constraint here is inverted: **every claim must carry a locator (`book p.
 
 | Component | What it is | Status |
 |---|---|---|
-| `plugin-socratic` | DSH plugin, **13 tools**: cited retrieval, lexical search, chapter lookup, page images, math check, session review; embedded console with a policy card and per-citation tier/anchor badges | [npm `dsh-socratic@0.4.0`](https://www.npmjs.com/package/dsh-socratic) |
+| `plugin-socratic` | DSH plugin, **13 tools**: cited retrieval, lexical search, chapter lookup, page images, math check, session review; embedded console with a policy card and per-citation tier/anchor badges | [npm `dsh-socratic@0.5.0`](https://www.npmjs.com/package/dsh-socratic) |
+| `plugin-socratic-persona` | Teaching layer, **separate bundle**: charter, per-step state summary, citation/leak/single-question rewriting. Install it for teaching; leave it out and the tools behave as an ordinary assistant | [npm `dsh-socratic-persona@0.1.0`](https://www.npmjs.com/package/dsh-socratic-persona) |
 | `sidecar/` | FastAPI service: SQLite FTS5 + BGE-M3 + rerank + pypdfium2; public-corpus v2, federated `scope=all/routed`, grep/lemma, SymPy/SciPy/pint/control, **citation policy** (`/v1/policy`) | **0.2.1**, Dockerfile + compose |
 | `packages/classics-index` | Volume/chapter (`卷 / 篇 / 回`) indexer for scanned Chinese books, built from OCR of running headers | [PyPI `classics-index@0.1.3`](https://pypi.org/project/classics-index/) |
 | `packages/socratic-mcp` | MCP server exposing search, lexical lookup, chapters, review and state | [PyPI `socratic-mcp@0.2.0`](https://pypi.org/project/socratic-mcp/) |
@@ -38,6 +39,11 @@ same source is reached (local file, RAG db, public API, dataset, cloud), and the
 subject rules pick the order. Ranking is deliberately *not* policy-driven yet, so
 the published retrieval numbers stay comparable; see
 [docs/CITATION-POLICY.md](docs/CITATION-POLICY.md).
+
+**0.5.x** — the teaching layer is its own bundle. `dsh-socratic` is now just the
+tools and the console; `dsh-socratic-persona` adds the charter, the state summary
+and the stream rewrite. Presence, not a flag, decides — so a development session
+can use the tools without being turned into a student.
 
 ## Five page types it handles
 

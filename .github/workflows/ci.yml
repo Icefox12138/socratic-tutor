@@ -85,3 +85,9 @@ jobs:
       - name: syntax check
         working-directory: plugin-socratic
         run: node --check index.js && node --check client.js && node --check lib/transport.js
+      - name: persona contract tests
+        working-directory: plugin-socratic-persona
+        run: node --test test/persona.test.mjs
+      - name: persona syntax check
+        working-directory: plugin-socratic-persona
+        run: node --check index.js && node --check lib/stream-mode.js
