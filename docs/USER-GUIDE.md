@@ -36,8 +36,19 @@
 
 ## 3. 先确认数据
 
-sidecar 需要**一个符合契约的数据库**，格式见
-[`RAG-DB-SCHEMA.md`](RAG-DB-SCHEMA.md)（chunks 表 + chunks_fts + 向量 + 可选 toc）。
+sidecar 需要**一个符合契约的数据库**，按语料类型分两种：
+
+- 私有 PDF 库：格式见 [`RAG-DB-SCHEMA.md`](RAG-DB-SCHEMA.md)
+  （chunks 表 + chunks_fts + 向量 + 可选 toc）；
+- 公开语料（Wikisource / Perseus CTS 等）：格式见
+  [`RAG-DB-SCHEMA-V2.md`](RAG-DB-SCHEMA-V2.md)，用
+  `python scripts/ingest_public.py` 建库；可选
+  `python scripts/embed_public.py --db <库>` 建 BGE-M3 向量（有向量走混合检索，
+  没有则 FTS）。中文问题默认用离线词表扩成希腊/拉丁/英检索词
+  （`SOCRATIC_TRANSLATE=auto`；只有词表外的专名才调 LLM，无 key 自动退化词表）。
+  评估：`python scripts/eval_public.py --db <库>`。
+
+`SOCRATIC_SCHEMA=auto` 会按文件自动识别；两种库不要放进同一个文件。
 
 两条路：
 
@@ -137,15 +148,16 @@ pip install socratic-mcp
 }
 ```
 
-### 5.3 12 个工具
+### 5.3 13 个工具
 
 | 工具 | 用途 |
 |---|---|
-| `kb_search` | 检索并返回 citation + 页图 URL；可带 `book` / `chapter` 收窄 |
+| `kb_search` | 检索并返回 citation + 页图 URL；可带 `book` / `chapter`；`scope=all` 同时查 v1+v2 |
 | `kb_read` | 按 chunk id 读原文 |
+| `lexical_search` | grep 精确串 / lemma 词形归并；引文、人名、公式核验 |
 | `chapter_lookup` | 「卷3」「第7回」或标题片段 → 页码范围；给 page 则反查章回 |
 | `cite_verify` | 校验引用：给 `quote` 走页内文本比对（纯文本模式可用）；不给则取页图 |
-| `compute_math` | SymPy 校验（不是口算） |
+| `compute_math` | SymPy 符号 / SciPy 数值 / pint 单位 / control / 可选 Wolfram/Lean；不可用后端返回 503 |
 | `ptc_calc` | 沙箱里执行计算代码 |
 | `review_session` | 冻结会话并复盘：结论判定、错误分类、练习 |
 | `socratic_critic` | 输出前自检（多问句、越级提示等） |

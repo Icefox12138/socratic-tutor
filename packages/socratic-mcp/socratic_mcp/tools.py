@@ -17,8 +17,9 @@ VERSION = "0.1.0"
 TOOLS = [
     {
         "name": "kb_search",
-        "description": "Search the book library; returns citations and page-image URLs. "
-                       "Use book+chapter to narrow to one chapter of a scanned book.",
+        "description": "Search the library (private PDFs or public corpora); returns citations "
+                       "with a page-image URL or a source URL. Use book+chapter for a scanned "
+                       "chapter, document_id+section for a public text.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -29,6 +30,29 @@ TOOLS = [
                 "lang": {"type": "string"},
                 "book": {"type": "string"},
                 "chapter": {"type": "string"},
+                "document_id": {"type": "string"},
+                "section": {"type": "string"},
+                "scope": {"type": "string", "enum": ["auto", "all", "routed"]},
+            },
+            "required": ["query"],
+        },
+    },
+    {
+        "name": "kb_lexical",
+        "description": "Exact-substring (grep) or inflection-tolerant (lemma) lookup for "
+                       "quotations, names, formulas and identifiers. lemma needs a v2 catalogue.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "mode": {"type": "string", "enum": ["grep", "lemma"]},
+                "view": {"type": "string", "enum": ["student", "tutor"]},
+                "limit": {"type": "integer", "minimum": 1, "maximum": 50},
+                "source": {"type": "string"},
+                "lang": {"type": "string"},
+                "book": {"type": "string"},
+                "document_id": {"type": "string"},
+                "section": {"type": "string"},
             },
             "required": ["query"],
         },
@@ -137,10 +161,21 @@ def call_tool(name, args):
         q = {"q": str(args.get("query", "")),
              "view": str(args.get("view", "student")),
              "limit": str(args.get("limit", 8))}
-        for key in ("source", "lang", "book", "chapter"):
+        for key in ("source", "lang", "book", "chapter", "document_id", "section"):
             if args.get(key):
                 q[key] = str(args[key])
+        if args.get("scope") in ("all", "routed"):
+            q["scope"] = str(args["scope"])
         return _get("/v1/search?" + urllib.parse.urlencode(q))
+    if name == "kb_lexical":
+        mode = "lemma" if str(args.get("mode", "grep")) == "lemma" else "grep"
+        q = {"q": str(args.get("query", "")),
+             "view": str(args.get("view", "student")),
+             "limit": str(args.get("limit", 20))}
+        for key in ("source", "lang", "book", "document_id", "section"):
+            if args.get(key):
+                q[key] = str(args[key])
+        return _get("/v1/%s?%s" % (mode, urllib.parse.urlencode(q)))
     if name == "kb_read":
         q = {"view": str(args.get("view", "student"))}
         return _get("/v1/chunks/%d?%s" % (int(args["chunk_id"]), urllib.parse.urlencode(q)))

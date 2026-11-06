@@ -90,6 +90,9 @@ window.__ModuleLoader__.load({
             style: { borderTop: '1px dashed rgba(127,127,127,.25)', padding: '6px 0' },
           },
             h('div', { style: { fontWeight: 600, wordBreak: 'break-all' } }, c.locator || ''),
+            c.url && h('a', {
+              style: link, href: c.url, target: '_blank', rel: 'noreferrer',
+            }, '原文 ↗'),
             h('div', { style: { opacity: 0.75, margin: '2px 0' } },
               (c.snippet || '').slice(0, 120)),
             c.page_image && h('span', { style: link, onClick: () => setImg(c.page_image) }, '查看页图'),
@@ -147,6 +150,10 @@ window.__ModuleLoader__.load({
               padding: '2px 0', flexWrap: 'wrap' },
           },
             h('span', { style: { fontWeight: 600, wordBreak: 'break-all' } }, c.locator || ''),
+            c.url && h('a', {
+              style: { color: 'inherit', textDecoration: 'underline' },
+              href: c.url, target: '_blank', rel: 'noreferrer',
+            }, '原文 ↗'),
             pageOnly
               ? h('span', { style: { opacity: 0.75 } }, '扫描本：章回页图')
               : (greek

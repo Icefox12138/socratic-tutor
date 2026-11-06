@@ -22,6 +22,9 @@ sidecar/cache/
 sidecar/state.db
 plugin-socratic/pre-step.log
 
+# host-only test harness (Windows sandbox tempfile ACLs); see the 2026-11-05 handoff
+.tmp-*
+
 # builds
 dist/
 build/

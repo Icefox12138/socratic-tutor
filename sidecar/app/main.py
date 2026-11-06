@@ -9,9 +9,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from . import (citations, classifier, config, critic, evaluations, evaluator, learner,
-               pages, policy, review, search, state_machine, state_store, toc)
-from .compute import ComputeError, compute
+from . import (catalog, citations, classifier, config, critic, evaluations, evaluator,
+               learner, lexical, pages, policy, review, search, state_machine,
+               state_store, toc)
+from .compute import (BackendUnavailable, ComputeError, backend_status,
+                      compute)
 
 app = FastAPI(title="socratic-sidecar", version=config.VERSION)
 app.add_middleware(
@@ -57,8 +59,11 @@ def require_token(x_sidecar_token: Optional[str] = Header(default=None),
 
 @app.on_event("startup")
 def _startup():
-    if config.PRELOAD and config.BGE:
-        threading.Thread(target=search._load_bge, daemon=True).start()
+    if not (config.PRELOAD and config.BGE):
+        return
+    loader = (search._load_v2_bge if config.schema_version() == "v2"
+              else search._load_bge)
+    threading.Thread(target=loader, daemon=True).start()
 
 
 @app.get("/health")
@@ -81,6 +86,7 @@ def health():
             "vectors": config.BGE_VECTORS,
             "ids": config.BGE_IDS,
             "toc": config.toc_db(),
+            "schema": config.schema_version(),
             "bge": "missing: " + config.BGE_VECTORS if config.BGE else "disabled",
             "chunks": 0,
             "detail": str(e)[:200],
@@ -101,19 +107,75 @@ def ui():
 
 @app.get("/v1/verify", dependencies=[Depends(require_token)])
 def v1_verify(
-    book: str = Query(..., min_length=1),
-    page: int = Query(..., ge=1),
     quote: str = Query(..., min_length=1, max_length=400),
+    book: Optional[str] = None,
+    page: Optional[int] = Query(None, ge=1),
     source: Optional[str] = None,
+    document_id: Optional[str] = None,
+    section: Optional[str] = None,
+    revision: Optional[str] = None,
 ):
-    """Check a quotation against the stored text of one page.
+    """Check a quotation against the stored text of one citation target.
 
-    Works without PDFs or PDFium: it answers "does this string appear on that
-    page in the index", which catches fabricated or misplaced citations even
+    v1: ``book`` + ``page``. v2: ``document_id`` (optionally ``section`` and a
+    pinned ``revision``). Works without PDFs or PDFium: it answers "does this
+    string appear in the indexed text", which catches fabricated citations even
     when page images are unavailable.
     """
+    if not document_id and (not book or page is None):
+        raise HTTPException(status_code=400,
+                            detail="book+page or document_id is required")
     try:
-        return search.verify(book=book, page=page, quote=quote, source=source)
+        return search.verify(book=book, page=page, quote=quote, source=source,
+                             document_id=document_id, section=section,
+                             revision=revision)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=503,
+                            detail={"code": "no_index", "detail": str(e)[:200]})
+
+
+@app.get("/v1/grep", dependencies=[Depends(require_token)])
+def v1_grep(
+    q: str = Query(..., min_length=1, max_length=300),
+    view: str = Query("student"),
+    limit: int = Query(20, ge=1, le=50),
+    source: Optional[str] = None,
+    lang: Optional[str] = None,
+    book: Optional[str] = None,
+    document_id: Optional[str] = None,
+    section: Optional[str] = None,
+):
+    """Exact substring search: quotes, names, formulas, identifiers."""
+    try:
+        return lexical.grep(q, view=view, limit=limit, source=source, lang=lang,
+                            book=book, document_id=document_id, section=section)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=503,
+                            detail={"code": "no_index", "detail": str(e)[:200]})
+
+
+@app.get("/v1/lemma", dependencies=[Depends(require_token)])
+def v1_lemma(
+    q: str = Query(..., min_length=1, max_length=300),
+    view: str = Query("student"),
+    limit: int = Query(20, ge=1, le=50),
+    source: Optional[str] = None,
+    lang: Optional[str] = None,
+    book: Optional[str] = None,
+    document_id: Optional[str] = None,
+    section: Optional[str] = None,
+):
+    """Inflection-tolerant search over a v2 clean-text catalogue."""
+    try:
+        return lexical.lemma_search(q, view=view, limit=limit, source=source,
+                                    lang=lang, book=book,
+                                    document_id=document_id, section=section)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=503,
                             detail={"code": "no_index", "detail": str(e)[:200]})
@@ -128,6 +190,9 @@ def v1_search(
     lang: Optional[str] = None,
     book: Optional[str] = None,
     chapter: Optional[str] = None,
+    document_id: Optional[str] = None,
+    section: Optional[str] = None,
+    scope: str = Query("auto"),
     session_id: Optional[str] = None,
     turn: Optional[int] = None,
     step: Optional[int] = None,
@@ -136,6 +201,8 @@ def v1_search(
     try:
         return search.search(q, view=view, limit=limit, source=source,
                              lang=lang, book=book, chapter=chapter,
+                             document_id=document_id, section=section,
+                             scope=scope,
                              toc_source=source or "library",
                              session_id=session_id,
                              turn=turn, step=step, call_id=call_id)
@@ -162,6 +229,11 @@ def v1_cache_clear():
 def v1_chunk(chunk_id: int, view: str = Query("student")):
     if view not in ("student", "tutor"):
         raise HTTPException(status_code=400, detail="view must be student or tutor")
+    if config.schema_version() == "v2":
+        row = catalog.chunk(chunk_id, view=view)
+        if not row:
+            raise HTTPException(status_code=404, detail="chunk not found")
+        return row
     vis = "tutor"
     con = search._connect()
     try:
@@ -250,7 +322,44 @@ def v1_chapter(source: str = Query("library"), book: str = Query(...),
 @app.get("/v1/books", dependencies=[Depends(require_token)])
 def v1_books():
     """Volumes that carry a chapter index (built from OCR of the running header)."""
+    if config.schema_version() == "v2":
+        # v2 has no page-level toc; documents are the discoverable units.
+        return {"books": [], "schema": "v2",
+                "documents": catalog.document_list(limit=500)}
     return {"books": toc.books()}
+
+
+@app.get("/v1/sources", dependencies=[Depends(require_token)])
+def v1_sources():
+    """Declared corpora: adapter, licence, redistribution and rate limit."""
+    if config.schema_version() != "v2":
+        raise HTTPException(status_code=404, detail={
+            "code": "schema_v1", "detail": "sources need a v2 catalogue"})
+    return {"schema": "v2", "sources": catalog.source_list()}
+
+
+@app.get("/v1/documents", dependencies=[Depends(require_token)])
+def v1_documents(source: Optional[str] = None, lang: Optional[str] = None,
+                 limit: int = Query(100, ge=1, le=500), offset: int = Query(0, ge=0)):
+    """Documents in a v2 catalogue, without their text."""
+    if config.schema_version() != "v2":
+        raise HTTPException(status_code=404, detail={
+            "code": "schema_v1", "detail": "documents need a v2 catalogue"})
+    return {"schema": "v2",
+            "documents": catalog.document_list(source=source, lang=lang,
+                                               limit=limit, offset=offset)}
+
+
+@app.get("/v1/documents/{document_id:path}", dependencies=[Depends(require_token)])
+def v1_document(document_id: str):
+    """One document: metadata, section list and chunk count."""
+    if config.schema_version() != "v2":
+        raise HTTPException(status_code=404, detail={
+            "code": "schema_v1", "detail": "documents need a v2 catalogue"})
+    doc = catalog.document(document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="document not found")
+    return doc
 
 
 @app.get("/v1/toc", dependencies=[Depends(require_token)])
@@ -293,6 +402,9 @@ class ComputeIn(BaseModel):
     operation: str = "simplify"
     variable: str = "x"
     point: str = "0"
+    backend: str = "auto"
+    target: Optional[str] = None
+    data: Optional[dict] = None
 
 
 class StateInitIn(BaseModel):
@@ -515,10 +627,27 @@ def state_replay(session_id: str):
             "allowed_events": state_machine.allowed(loaded)}
 
 
+@app.get("/v1/compute/backends", dependencies=[Depends(require_token)])
+def v1_compute_backends():
+    try:
+        from . import sandbox
+        sb = sandbox.status()
+    except Exception as e:
+        sb = {"available": False, "error": str(e)[:200]}
+    return {"backends": backend_status(), "sandbox": sb}
+
+
 @app.post("/v1/compute", dependencies=[Depends(require_token)])
 def v1_compute(body: ComputeIn):
     try:
-        return compute(body.expression, body.operation, body.variable, body.point)
+        return compute(body.expression, body.operation, body.variable,
+                       body.point, backend=body.backend, target=body.target,
+                       data=body.data)
+    except BackendUnavailable as e:
+        raise HTTPException(status_code=503,
+                            detail={"code": "backend_unavailable",
+                                    "detail": str(e),
+                                    "backends": backend_status()})
     except ComputeError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

@@ -61,7 +61,18 @@ Then open <http://127.0.0.1:8765/ui?q=极限> — search, citation, and page ima
 
 The ingestion pipeline (OCR → chunk → embed) is **not in this repository** — it is a
 separate private project. This repository reads a database that satisfies
-[docs/RAG-DB-SCHEMA.md](docs/RAG-DB-SCHEMA.md):
+[docs/RAG-DB-SCHEMA.md](docs/RAG-DB-SCHEMA.md) (private PDFs) or
+[docs/RAG-DB-SCHEMA-V2.md](docs/RAG-DB-SCHEMA-V2.md) (public corpora: Wikisource
+revisions, Perseus CTS URNs). Public text can be ingested with
+`python scripts/ingest_public.py`; `python scripts/embed_public.py` adds BGE-M3
+vectors, after which the sidecar uses FTS + BGE + rerank for a v2 catalogue.
+Chinese questions are expanded into Greek/Latin/English search terms by an
+offline glossary; `SOCRATIC_TRANSLATE=auto` (default) calls an optional LLM only
+for out-of-vocabulary names (Chinese-history questions are gated out).
+`python scripts/eval_public.py` reproduces the 130 human-written query evaluation
+and `eval/public/queries-unknown.jsonl` the OOV/LLM comparison. For exact
+quotations and inflected Greek/Latin forms, use `/v1/grep` and `/v1/lemma`
+(see [docs/LEXICAL-SEARCH.md](docs/LEXICAL-SEARCH.md)).
 
 ```powershell
 $env:SOCRATIC_DATA='D:\path\to\rag-data'    # holds indexes/search.db + vectors/*.npy
@@ -146,14 +157,15 @@ Known sharp edges: Greek OCR on degraded scans is unusable (the service falls ba
 ## Tests
 
 ```bash
-cd sidecar                     && python -m unittest discover -s tests -p "test_*.py"   # 125
+cd sidecar                     && python -m unittest discover -s tests -p "test_*.py"   # 263
 cd packages/classics-index     && python -m unittest discover -s tests -p "test_*.py" -t .   # 18
 cd packages/socratic-mcp       && python -m unittest discover -s tests -p "test_*.py" -t .   # 6
 cd plugin-socratic             && node --test test/plugin.test.mjs                     # 8
 ```
 
 See [CHANGELOG.md](CHANGELOG.md) for what changed in each release, and
-[CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+[docs/RELEASE-2026-11-06.md](docs/RELEASE-2026-11-06.md) for the current release
+artifacts/versions. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 ## Repository layout
 

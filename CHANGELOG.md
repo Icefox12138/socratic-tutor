@@ -8,6 +8,23 @@ per package; dates are release dates, not commit dates.
 ### Unreleased
 - `sidecar/` renders pages with **pypdfium2** instead of PyMuPDF. The whole
   repository is MIT again: no AGPL dependency remains.
+- Release prep for 2026-11-06: sidecar 0.2.0, socratic-mcp 0.2.0,
+  dsh-socratic 0.3.0; Dockerfile + compose for the sidecar.
+
+## sidecar
+
+### 0.2.0 — 2026-11-06
+- Public corpora v2: Wikisource / Perseus CTS adapters, locator/stream/license,
+  revision/URN citations, BGE-M3 vectors, FTS + BGE + rerank.
+- Query translation: offline glossary + optional LLM only for OOV terms;
+  Chinese-history domain gate.
+- Lexical channels: `/v1/grep`, `/v1/lemma`; grep/lemma fused into v2 RRF.
+- v1 retrieval: selective non-Chinese translation and base top-1 anchoring;
+  opt-in Greek lemma / commentary / edition alignment experiments.
+- Federated search: `scope=all` and `scope=routed` (`v1+v2`).
+- Compute backends: SymPy/SciPy/pint/control; optional Wolfram/Lean; killed
+  subprocess worker; audit sandbox fallback; credentials + disputed marker.
+- 263 sidecar tests.
 
 ## classics-index
 
@@ -16,12 +33,10 @@ per package; dates are release dates, not commit dates.
   private ingestion project, and that ingestion code does not live here.
 
 ### 0.1.2 — 2026-11-04
-- The optional `ocr` extra no longer pulls PyMuPDF (AGPL); OCR helpers use
-  `paddleocr` + `pillow` only. Keyword list follows.
-
-### 0.1.2 — 2026-11-04
 - README: the prerequisite is a database that satisfies `docs/RAG-DB-SCHEMA.md`;
   ingestion is not part of this repository.
+- The optional `ocr` extra no longer pulls PyMuPDF (AGPL); OCR helpers use
+  `paddleocr` + `pillow` only. Keyword list follows.
 
 ### 0.1.1 — 2026-11-04
 - Metadata only: `Homepage` / `Repository` / `Issues` now point at this repository
@@ -34,6 +49,12 @@ per package; dates are release dates, not commit dates.
 
 ## socratic-mcp
 
+### 0.2.0 — 2026-11-06
+- New `kb_lexical` tool (grep / lemma) for exact quotations and inflected forms.
+- `kb_search` accepts `scope=all|routed` for federated v1+v2 routing.
+- `kb_search` / `kb_lexical` pass `source/lang/book/document_id/section`.
+- 6 tests.
+
 ### 0.1.1 — 2026-11-04
 - Metadata only: repository URLs added.
 
@@ -45,6 +66,14 @@ per package; dates are release dates, not commit dates.
   a dropped connection.
 
 ## dsh-socratic
+
+### 0.3.0 — 2026-11-06
+- New `lexical_search` tool: grep exact strings / lemma inflected forms.
+- `kb_search` accepts `scope=all` (merge v1+v2) and `scope=routed`.
+- `compute_math` supports backend/target/data: SymPy, SciPy, pint, control,
+  optional Wolfram/Lean; unavailable backends return 503.
+- `compute_math` renders credentials/disputed metadata.
+- `files` whitelist keeps logs/screenshots out of the tarball.
 
 ### 0.2.4 — 2026-11-04
 - `cite_verify` accepts an optional `quote`: with it the check runs against the

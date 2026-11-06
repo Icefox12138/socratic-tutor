@@ -1,5 +1,8 @@
 # 发布流程（如果要开源）
 
+> **2026-11-06 更新**：本次发版清单见 [RELEASE-2026-11-06.md](RELEASE-2026-11-06.md)。
+> sidecar 已有 Dockerfile/compose；版本 sidecar 0.2.0 / mcp 0.2.0 / plugin 0.3.0。
+
 > 先看 [RELEASE-PLAN.md](RELEASE-PLAN.md)：发哪 4 个单元、分几批、为什么其余代码不能发。本文件只写“怎么发”。
 
 | 项 | 值 |

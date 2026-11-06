@@ -7,6 +7,10 @@
 | 适用 | `sidecar` 读取的检索数据。**由使用者自建**，不属于 socratic-tutor 仓库 |
 | 实现 | `sidecar/app/search.py`（唯一读取方）、`sidecar/app/toc.py`（章回） |
 
+> **v2（公开语料）见 [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md)。**
+> 本文件的 `chunks(page, book, source)` 只适用于私有 PDF 库；引用单位不是页的
+> 语料（Wikisource/CTS/数据集）请写 v2 库，不要混进 v1 文件。
+
 ---
 
 ## 0. 一句话

@@ -244,13 +244,13 @@ export function apply(ctx, config) {
       "7) 状态摘要由 sidecar 生成；不要用记忆覆盖它。",
       "8) 判定由 sidecar 做：answer 时把学生原话放 text，不要自己填 correct/partial/wrong。",
       "9) 输出前可用 socratic_critic 自检；如 flags 含 multi_question，必须用 rewrite.text（只保留第一个问题）替换最终回复。",
-      "10) 事实断言必须带 locator（p.12）；无 locator 的硬拦截会把该事实句替换为“尚未核验”声明。",
+      "10) 事实断言必须带 locator（p.12 / CTS URN / Wikisource rev）；无 locator 的硬拦截会把该事实句替换为“尚未核验”声明。",
     ].join("\n"),
   });
 
   ctx.tools.register(tool(
     "kb_search",
-    "检索馆藏/Steadman 片段，返回 citation 与页图 URL；事实断言前必须调用。",
+    "检索馆藏/Steadman/公开语料片段，返回 citation（页图或原文 URL）；事实断言前必须调用。",
     {
       type: "object",
       properties: {
@@ -259,8 +259,11 @@ export function apply(ctx, config) {
         limit: { type: "integer", minimum: 1, maximum: 12 },
         source: { type: "string" },
         lang: { type: "string" },
-        book: { type: "string", description: "限定书目（侧栏书键，如 library 下相对路径）" },
+        book: { type: "string", description: "限定书目（侧栏书键，如 library 下相对路径；v2 也接受 document_id）" },
         chapter: { type: "string", description: "限定章回：'卷3' / '第7回' / 标题片段" },
+        document_id: { type: "string", description: "v2：限定文档，如 wikisource:zh:史記/卷001" },
+        section: { type: "string", description: "v2：限定章节标题" },
+        scope: { type: "string", enum: ["auto", "all", "routed"], description: "all = 同时检索 v1+v2；routed = 按语言/覆盖路由到一个库" },
       },
       required: ["query"],
     },
@@ -273,7 +276,10 @@ export function apply(ctx, config) {
       if (args.source) q.set("source", String(args.source));
       if (args.lang) q.set("lang", String(args.lang));
       if (args.book) q.set("book", String(args.book));
+      if (args.scope === "all" || args.scope === "routed") q.set("scope", args.scope);
       if (args.chapter) q.set("chapter", String(args.chapter));
+      if (args.document_id) q.set("document_id", String(args.document_id));
+      if (args.section) q.set("section", String(args.section));
       const sid = sessionId(exec);
       if (sid) q.set("session_id", sid);
       const phase = exec && exec.agent && exec.agent.phase;
@@ -328,33 +334,82 @@ export function apply(ctx, config) {
   ));
 
   ctx.tools.register(tool(
-    "cite_verify",
-    "核验引用。给 quote 时按页内文本比对（不需要 PDF，纯文本模式也能用）；" +
-      "不给 quote 时取页图核对（渲染关闭时返回 page_rendering_disabled）。",
+    "lexical_search",
+    "精确串（grep）或词形归并（lemma）检索；用于引文、人名、公式、代码标识符的精确核验。" +
+      "grep 支持 v1/v2；lemma 只支持 v2 干净文本。",
     {
       type: "object",
       properties: {
+        query: { type: "string" },
+        mode: { type: "string", enum: ["grep", "lemma"] },
+        view: { type: "string", enum: ["student", "tutor"] },
+        limit: { type: "integer", minimum: 1, maximum: 50 },
+        source: { type: "string" },
+        lang: { type: "string" },
+        book: { type: "string" },
+        document_id: { type: "string" },
+        section: { type: "string" },
+      },
+      required: ["query"],
+    },
+    async (args, exec) => {
+      const mode = args.mode === "lemma" ? "lemma" : "grep";
+      const q = new URLSearchParams({
+        q: String(args.query || ""),
+        view: String(args.view || "student"),
+        limit: String(args.limit || 20),
+      });
+      for (const key of ["source", "lang", "book", "document_id", "section"]) {
+        if (args[key]) q.set(key, String(args[key]));
+      }
+      const r = await call(config, `/v1/${mode}?` + q.toString(),
+        { signal: exec?.signal });
+      return JSON.stringify(r.body);
+    },
+  ));
+
+  ctx.tools.register(tool(
+    "cite_verify",
+    "核验引用。v1：book+page+quote 按页内文本比对，或不给 quote 取页图；" +
+      "v2：document_id+quote（可加 section/revision）按文档文本比对。",
+    {
+      type: "object",
+      properties: {
+        quote: { type: "string", maxLength: 400 },
         source: { type: "string" },
         book: { type: "string" },
         page: { type: "integer", minimum: 1 },
-        quote: { type: "string", maxLength: 400 },
+        document_id: { type: "string" },
+        section: { type: "string" },
+        revision: { type: "string" },
         dpi: { type: "integer", minimum: 72, maximum: 300 },
       },
-      required: ["source", "book", "page"],
+      required: [],
     },
     async (args, exec) => {
       if (args.quote) {
-        const q = new URLSearchParams({
-          book: String(args.book),
-          page: String(args.page),
-          quote: String(args.quote),
-        });
-        if (args.source) q.set("source", String(args.source));
+        const q = new URLSearchParams({ quote: String(args.quote) });
+        if (args.document_id) {
+          q.set("document_id", String(args.document_id));
+          if (args.section) q.set("section", String(args.section));
+          if (args.revision) q.set("revision", String(args.revision));
+        } else if (args.book && args.page) {
+          q.set("book", String(args.book));
+          q.set("page", String(args.page));
+          if (args.source) q.set("source", String(args.source));
+        } else {
+          return JSON.stringify({ ok: false, error: "bad_request",
+            hint: "quote 需要配 document_id，或配 book+page" });
+        }
         return JSON.stringify(await call(config, "/v1/verify?" + q.toString(),
           { signal: exec?.signal }));
       }
+      if (!(args.book && args.page)) {
+        return JSON.stringify({ ok: false, error: "bad_request",
+          hint: "不给 quote 时按页图核对，需要 book+page" });
+      }
       const q = new URLSearchParams({
-        source: String(args.source),
+        source: String(args.source || ""),
         book: String(args.book),
         page: String(args.page),
         dpi: String(args.dpi || 150),
@@ -366,14 +421,18 @@ export function apply(ctx, config) {
 
   ctx.tools.register(tool(
     "compute_math",
-    "SymPy 计算：expression + operation（simplify/diff/integrate/solve/limit/value/latex）。",
+    "计算：SymPy 符号 / SciPy 数值 / pint 单位 / control / 可选 Wolfram/Lean；" +
+      "不可用后端返回 503，不伪造结果。",
     {
       type: "object",
       properties: {
         expression: { type: "string" },
-        operation: { type: "string", enum: ["simplify", "diff", "integrate", "solve", "limit", "value", "latex"] },
+        operation: { type: "string", enum: ["simplify", "diff", "integrate", "solve", "limit", "value", "latex", "factor", "expand", "quad", "minimize", "root", "convert", "step", "eval", "check"] },
         variable: { type: "string" },
         point: { type: "string" },
+        backend: { type: "string", enum: ["auto", "sympy", "scipy", "pint", "control", "wolfram", "lean"] },
+        target: { type: "string", description: "SciPy 上界 / pint 目标单位" },
+        data: { type: "object", description: "control: {num,den}" },
       },
       required: ["expression", "operation"],
     },
@@ -386,6 +445,9 @@ export function apply(ctx, config) {
           operation: String(args.operation || "simplify"),
           variable: String(args.variable || "x"),
           point: String(args.point || "0"),
+          backend: String(args.backend || "auto"),
+          target: args.target ? String(args.target) : null,
+          data: args.data || null,
         }),
         signal: exec?.signal,
       });

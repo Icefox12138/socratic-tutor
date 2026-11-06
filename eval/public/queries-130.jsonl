@@ -1,0 +1,130 @@
+{"id": "zh-lex-01-01", "subset": "zh-lexical", "query": "黃帝者少典之子姓公孫名曰軒轅", "gold": [{"document_id": "wikisource:zh:史記/卷001", "section": "黃帝"}], "note": "auto prefix"}
+{"id": "zh-lex-01-02", "subset": "zh-lexical", "query": "帝顓頊高陽者黃帝之孫而昌意之", "gold": [{"document_id": "wikisource:zh:史記/卷001", "section": "帝顓頊"}], "note": "auto prefix"}
+{"id": "zh-lex-01-03", "subset": "zh-lexical", "query": "帝嚳高辛者黃帝之曾孫也高辛父", "gold": [{"document_id": "wikisource:zh:史記/卷001", "section": "帝嚳"}], "note": "auto prefix"}
+{"id": "zh-lex-01-04", "subset": "zh-lexical", "query": "帝堯者放勳其仁如天其知如神就", "gold": [{"document_id": "wikisource:zh:史記/卷001", "section": "帝堯"}], "note": "auto prefix"}
+{"id": "zh-lex-01-05", "subset": "zh-lexical", "query": "虞舜者名曰重華重華父曰瞽叟瞽", "gold": [{"document_id": "wikisource:zh:史記/卷001", "section": "帝舜"}], "note": "auto prefix"}
+{"id": "zh-lex-01-06", "subset": "zh-lexical", "query": "自黃帝至舜禹皆同姓而異其國號", "gold": [{"document_id": "wikisource:zh:史記/卷001", "section": "結語"}], "note": "auto prefix"}
+{"id": "zh-lex-02-01", "subset": "zh-lexical", "query": "夏禹名曰文命禹之父曰鯀鯀之父", "gold": [{"document_id": "wikisource:zh:史記/卷002", "section": "禹"}], "note": "auto prefix"}
+{"id": "zh-lex-02-02", "subset": "zh-lexical", "query": "夏后帝啓禹之子其母塗山氏之女", "gold": [{"document_id": "wikisource:zh:史記/卷002", "section": "啓"}], "note": "auto prefix"}
+{"id": "zh-lex-02-03", "subset": "zh-lexical", "query": "夏后帝啓崩子帝太康立帝太康失", "gold": [{"document_id": "wikisource:zh:史記/卷002", "section": "太康"}], "note": "auto prefix"}
+{"id": "zh-lex-02-04", "subset": "zh-lexical", "query": "太康崩弟中康立是爲帝中康帝中", "gold": [{"document_id": "wikisource:zh:史記/卷002", "section": "中康"}], "note": "auto prefix"}
+{"id": "zh-lex-02-05", "subset": "zh-lexical", "query": "中康崩子帝相立帝相崩子帝少康", "gold": [{"document_id": "wikisource:zh:史記/卷002", "section": "相至孔甲"}], "note": "auto prefix"}
+{"id": "zh-lex-02-06", "subset": "zh-lexical", "query": "孔甲崩子帝皋立帝皋崩子帝發立", "gold": [{"document_id": "wikisource:zh:史記/卷002", "section": "皋至履癸"}], "note": "auto prefix"}
+{"id": "zh-lex-02-07", "subset": "zh-lexical", "query": "禹爲姒姓其後分封用國爲姓故有", "gold": [{"document_id": "wikisource:zh:史記/卷002", "section": "太史公論"}], "note": "auto prefix"}
+{"id": "zh-lex-03-01", "subset": "zh-lexical", "query": "殷契母曰簡狄有娀氏之女為帝嚳", "gold": [{"document_id": "wikisource:zh:史記/卷003", "section": "殷先祖"}], "note": "auto prefix"}
+{"id": "zh-lex-03-02", "subset": "zh-lexical", "query": "成湯自契至湯八遷湯始居亳從先", "gold": [{"document_id": "wikisource:zh:史記/卷003", "section": "成湯"}], "note": "auto prefix"}
+{"id": "zh-lex-03-03", "subset": "zh-lexical", "query": "湯崩太子太丁未立而卒於是迺立", "gold": [{"document_id": "wikisource:zh:史記/卷003", "section": "太丁至太甲"}], "note": "auto prefix"}
+{"id": "zh-lex-03-04", "subset": "zh-lexical", "query": "太宗崩子沃丁立帝沃丁之時伊尹", "gold": [{"document_id": "wikisource:zh:史記/卷003", "section": "沃丁至太戊"}], "note": "auto prefix"}
+{"id": "zh-lex-03-05", "subset": "zh-lexical", "query": "中宗崩子帝中丁立帝中丁遷于隞", "gold": [{"document_id": "wikisource:zh:史記/卷003", "section": "九世亂"}], "note": "auto prefix"}
+{"id": "zh-lex-03-06", "subset": "zh-lexical", "query": "帝陽甲崩弟盤庚立是為帝盤庚帝", "gold": [{"document_id": "wikisource:zh:史記/卷003", "section": "盤庚"}], "note": "auto prefix"}
+{"id": "zh-lex-03-07", "subset": "zh-lexical", "query": "帝盤庚崩弟小辛立是為帝小辛帝", "gold": [{"document_id": "wikisource:zh:史記/卷003", "section": "小辛至帝乙"}], "note": "auto prefix"}
+{"id": "zh-lex-04-01", "subset": "zh-lexical", "query": "周后稷名棄其母有邰氏女曰姜原", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "后稷"}], "note": "auto prefix"}
+{"id": "zh-lex-04-02", "subset": "zh-lexical", "query": "成王少周初定天下周公恐諸侯畔", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周成王"}], "note": "auto prefix"}
+{"id": "zh-lex-04-03", "subset": "zh-lexical", "query": "懿王之時王室遂衰詩人作刺", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周懿王"}], "note": "auto prefix"}
+{"id": "zh-lex-04-04", "subset": "zh-lexical", "query": "四十六年宣王崩子幽王宮𣵀又作", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周幽王"}], "note": "auto prefix"}
+{"id": "zh-lex-04-05", "subset": "zh-lexical", "query": "五年釐王崩子惠王閬立惠王二年", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周惠王"}], "note": "auto prefix"}
+{"id": "zh-lex-04-06", "subset": "zh-lexical", "query": "二十七年靈王崩子景王貴立景王", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周景王、周悼王、周敬王"}], "note": "auto prefix"}
+{"id": "zh-lex-04-07", "subset": "zh-lexical", "query": "安王立二十六年崩子烈王喜立烈", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周烈王"}], "note": "auto prefix"}
+{"id": "zh-lex-05-01", "subset": "zh-lexical", "query": "秦之先帝顓頊之苗裔孫曰女修女", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦先祖"}], "note": "auto prefix"}
+{"id": "zh-lex-05-02", "subset": "zh-lexical", "query": "莊公居其故西犬丘生子三人其長", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦莊公"}], "note": "auto prefix"}
+{"id": "zh-lex-05-03", "subset": "zh-lexical", "query": "武公元年伐彭戲氏至于華山下居", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦武公"}], "note": "auto prefix"}
+{"id": "zh-lex-05-04", "subset": "zh-lexical", "query": "康公元年往歲繆公之卒晉襄公亦", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦康公"}], "note": "auto prefix"}
+{"id": "zh-lex-05-05", "subset": "zh-lexical", "query": "惠公元年孔子行魯相事五年晉卿", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦惠公 (春秋)"}], "note": "auto prefix"}
+{"id": "zh-lex-05-06", "subset": "zh-lexical", "query": "靈公六年晉城少梁秦擊之十三年", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦靈公"}], "note": "auto prefix"}
+{"id": "zh-lex-05-07", "subset": "zh-lexical", "query": "孝公元年河山以東彊國六與齊威", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦孝公"}], "note": "auto prefix"}
+{"id": "el-lex-01", "subset": "el-lexical", "query": "μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.1"}], "note": "auto line"}
+{"id": "el-lex-02", "subset": "el-lexical", "query": "ἡρώων, αὐτοὺς δὲ ἑλώρια τεῦχε κύνεσσιν", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.4"}], "note": "auto line"}
+{"id": "el-lex-03", "subset": "el-lexical", "query": "Ἀτρεΐδης τε ἄναξ ἀνδρῶν καὶ δῖος Ἀχιλλεύς.", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.7"}], "note": "auto line"}
+{"id": "el-lex-04", "subset": "el-lexical", "query": "νοῦσον ἀνὰ στρατὸν ὄρσε κακήν, ὀλέκοντο δὲ λαοί,", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.10"}], "note": "auto line"}
+{"id": "el-lex-05", "subset": "el-lexical", "query": "λυσόμενός τε θύγατρα φέρων τ᾽ ἀπερείσι᾽ ἄποινα,", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.13"}], "note": "auto line"}
+{"id": "el-lex-06", "subset": "el-lexical", "query": "Ἀτρεΐδα δὲ μάλιστα δύω, κοσμήτορε λαῶν:", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.16"}], "note": "auto line"}
+{"id": "el-lex-07", "subset": "el-lexical", "query": "ἐκπέρσαι Πριάμοιο πόλιν, εὖ δ᾽ οἴκαδ᾽ ἱκέσθαι:", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.19"}], "note": "auto line"}
+{"id": "el-lex-08", "subset": "el-lexical", "query": "ἔνθ᾽ ἄλλοι μὲν πάντες ἐπευφήμησαν Ἀχαιοὶ", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.22"}], "note": "auto line"}
+{"id": "el-lex-09", "subset": "el-lexical", "query": "ἀλλὰ κακῶς ἀφίει, κρατερὸν δ᾽ ἐπὶ μῦθον ἔτελλε:", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.25"}], "note": "auto line"}
+{"id": "el-lex-10", "subset": "el-lexical", "query": "μή νύ τοι οὐ χραίσμῃ σκῆπτρον καὶ στέμμα θεοῖο:", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.28"}], "note": "auto line"}
+{"id": "el-lex-11", "subset": "el-lexical", "query": "ὣς ἔφατ᾽, ἔδεισεν δ᾽ ὃ γέρων καὶ ἐπείθετο μύθῳ:", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.33"}], "note": "auto line"}
+{"id": "el-lex-12", "subset": "el-lexical", "query": "Ἀπόλλωνι ἄνακτι, τὸν ἠΰκομος τέκε Λητώ:", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.36"}], "note": "auto line"}
+{"id": "el-lex-13", "subset": "el-lexical", "query": "Σμινθεῦ εἴ ποτέ τοι χαρίεντ᾽ ἐπὶ νηὸν ἔρεψα,", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.39"}], "note": "auto line"}
+{"id": "la-lex-01", "subset": "la-lexical", "query": "Arma virumque cano, Troiae", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.1"}], "note": "auto line"}
+{"id": "la-lex-02", "subset": "la-lexical", "query": "vi superum saevae memorem", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.4"}], "note": "auto line"}
+{"id": "la-lex-03", "subset": "la-lexical", "query": "quidve dolens, regina deum", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.9"}], "note": "auto line"}
+{"id": "la-lex-04", "subset": "la-lexical", "query": "Karthago, Italiam contra Tiberinaque", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.13"}], "note": "auto line"}
+{"id": "la-lex-05", "subset": "la-lexical", "query": "posthabita coluisse Samo; hic", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.16"}], "note": "auto line"}
+{"id": "la-lex-06", "subset": "la-lexical", "query": "Progeniem sed enim Troiano", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.19"}], "note": "auto line"}
+{"id": "la-lex-07", "subset": "la-lexical", "query": "venturum excidio Libyae: sic", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.22"}], "note": "auto line"}
+{"id": "la-lex-08", "subset": "la-lexical", "query": "necdum etiam causae irarum", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.25"}], "note": "auto line"}
+{"id": "la-lex-09", "subset": "la-lexical", "query": "et genus invisum, et", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.28"}], "note": "auto line"}
+{"id": "la-lex-10", "subset": "la-lexical", "query": "Vix e conspectu Siculae", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.34"}], "note": "auto line"}
+{"id": "la-lex-11", "subset": "la-lexical", "query": "haec secum: “Mene incepto", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.37"}], "note": "auto line"}
+{"id": "la-lex-12", "subset": "la-lexical", "query": "Argivum atque ipsos potuit", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.40"}], "note": "auto line"}
+{"id": "zh-sem-01", "subset": "zh-semantic", "query": "黄帝的出身", "gold": [{"document_id": "wikisource:zh:史記/卷001", "section": "黃帝"}]}
+{"id": "zh-sem-02", "subset": "zh-semantic", "query": "尧舜禅让", "gold": [{"document_id": "wikisource:zh:史記/卷001", "section": "帝堯"}, {"document_id": "wikisource:zh:史記/卷001", "section": "帝舜"}]}
+{"id": "zh-sem-03", "subset": "zh-semantic", "query": "大禹治水", "gold": [{"document_id": "wikisource:zh:史記/卷002", "section": "禹"}]}
+{"id": "zh-sem-04", "subset": "zh-semantic", "query": "夏朝为什么会灭亡", "gold": [{"document_id": "wikisource:zh:史記/卷002", "section": "皋至履癸"}]}
+{"id": "zh-sem-05", "subset": "zh-semantic", "query": "启讨伐有扈氏", "gold": [{"document_id": "wikisource:zh:史記/卷002", "section": "啓"}]}
+{"id": "zh-sem-06", "subset": "zh-semantic", "query": "商纣王宠幸妲己", "gold": [{"document_id": "wikisource:zh:史記/卷003", "section": "帝辛"}]}
+{"id": "zh-sem-07", "subset": "zh-semantic", "query": "成汤任用伊尹", "gold": [{"document_id": "wikisource:zh:史記/卷003", "section": "成湯"}]}
+{"id": "zh-sem-08", "subset": "zh-semantic", "query": "盘庚迁都于殷", "gold": [{"document_id": "wikisource:zh:史記/卷003", "section": "盤庚"}]}
+{"id": "zh-sem-09", "subset": "zh-semantic", "query": "殷契玄鸟生商", "gold": [{"document_id": "wikisource:zh:史記/卷003", "section": "殷先祖"}]}
+{"id": "zh-sem-10", "subset": "zh-semantic", "query": "伊尹放太甲", "gold": [{"document_id": "wikisource:zh:史記/卷003", "section": "太丁至太甲"}]}
+{"id": "zh-sem-11", "subset": "zh-semantic", "query": "周人始祖后稷", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "后稷"}]}
+{"id": "zh-sem-12", "subset": "zh-semantic", "query": "周文王积德行仁", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周文王"}]}
+{"id": "zh-sem-13", "subset": "zh-semantic", "query": "周武王伐纣", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周武王"}]}
+{"id": "zh-sem-14", "subset": "zh-semantic", "query": "周公辅佐成王", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周成王"}]}
+{"id": "zh-sem-15", "subset": "zh-semantic", "query": "周厉王暴政", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周厲王"}]}
+{"id": "zh-sem-16", "subset": "zh-semantic", "query": "周幽王宠幸褒姒", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周幽王"}]}
+{"id": "zh-sem-17", "subset": "zh-semantic", "query": "周平王东迁", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周平王"}]}
+{"id": "zh-sem-18", "subset": "zh-semantic", "query": "齐桓公称霸", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周釐王"}]}
+{"id": "zh-sem-19", "subset": "zh-semantic", "query": "楚庄王问鼎", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周頃王、周匡王、周定王"}]}
+{"id": "zh-sem-20", "subset": "zh-semantic", "query": "秦襄公护送周平王", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦襄公"}]}
+{"id": "zh-sem-21", "subset": "zh-semantic", "query": "秦穆公任用百里傒", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦繆公"}]}
+{"id": "zh-sem-22", "subset": "zh-semantic", "query": "商鞅变法", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦孝公"}]}
+{"id": "zh-sem-23", "subset": "zh-semantic", "query": "秦始皇统一天下", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "始皇帝"}]}
+{"id": "zh-sem-24", "subset": "zh-semantic", "query": "赵高杀秦二世", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "二世皇帝"}]}
+{"id": "zh-sem-25", "subset": "zh-semantic", "query": "秦人的祖先", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦先祖"}]}
+{"id": "zh-sem-26", "subset": "zh-semantic", "query": "孔子做鲁国相", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦惠公 (春秋)"}]}
+{"id": "zh-sem-27", "subset": "zh-semantic", "query": "吴王夫差黄池会盟", "gold": [{"document_id": "wikisource:zh:史記/卷005", "section": "秦悼公"}]}
+{"id": "zh-sem-28", "subset": "zh-semantic", "query": "三家分晋", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周元王、周貞定王"}]}
+{"id": "zh-sem-29", "subset": "zh-semantic", "query": "周穆王征犬戎", "gold": [{"document_id": "wikisource:zh:史記/卷004", "section": "周穆王"}]}
+{"id": "zh-gr-01", "subset": "zh-to-greek", "query": "阿喀琉斯的愤怒", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.1"}]}
+{"id": "zh-gr-02", "subset": "zh-to-greek", "query": "女神啊，请歌唱佩琉斯之子的愤怒", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.1"}]}
+{"id": "zh-gr-03", "subset": "zh-to-greek", "query": "阿喀琉斯与阿伽门农的争执", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.6"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.7"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.8"}]}
+{"id": "zh-gr-04", "subset": "zh-to-greek", "query": "阿波罗降下瘟疫", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.9"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.10"}]}
+{"id": "zh-gr-05", "subset": "zh-to-greek", "query": "宙斯的意志", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.5"}]}
+{"id": "zh-gr-06", "subset": "zh-to-greek", "query": "英雄的灵魂被送往冥府", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.3"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.4"}]}
+{"id": "zh-gr-07", "subset": "zh-to-greek", "query": "阿开亚人遭受苦难", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.2"}]}
+{"id": "zh-gr-08", "subset": "zh-to-greek", "query": "克鲁塞斯赎回女儿", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.11"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.13"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.20"}]}
+{"id": "zh-gr-09", "subset": "zh-to-greek", "query": "阿伽门农拒绝赎金", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.24"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.25"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.29"}]}
+{"id": "zh-gr-10", "subset": "zh-to-greek", "query": "银弓之神阿波罗", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.14"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.21"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.37"}]}
+{"id": "zh-gr-11", "subset": "zh-to-greek", "query": "普里阿摩斯的城市", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.19"}]}
+{"id": "zh-gr-12", "subset": "zh-to-greek", "query": "奥林波斯众神", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.18"}]}
+{"id": "zh-la-01", "subset": "zh-to-latin", "query": "埃涅阿斯的漂泊", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.1"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.2"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.3"}]}
+{"id": "zh-la-02", "subset": "zh-to-latin", "query": "特洛伊战争", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.1"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.5"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.1"}]}
+{"id": "zh-la-03", "subset": "zh-to-latin", "query": "朱诺的愤怒", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.4"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.15"}]}
+{"id": "zh-la-04", "subset": "zh-to-latin", "query": "迦太基建城", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.12"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.13"}]}
+{"id": "zh-la-05", "subset": "zh-to-latin", "query": "意大利", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.2"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.13"}]}
+{"id": "zh-la-06", "subset": "zh-to-latin", "query": "建立城市", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.5"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.12"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.13"}]}
+{"id": "zh-la-07", "subset": "zh-to-latin", "query": "泰尔人的殖民城市", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.12"}]}
+{"id": "zh-la-08", "subset": "zh-to-latin", "query": "朱诺偏爱迦太基", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.15"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.16"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.17"}]}
+{"id": "zh-la-09", "subset": "zh-to-latin", "query": "帕里斯的裁判", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.27"}]}
+{"id": "zh-la-10", "subset": "zh-to-latin", "query": "特洛伊王子伽倪墨得斯", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.28"}]}
+{"id": "zh-la-11", "subset": "zh-to-latin", "query": "萨图恩的女儿朱诺", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.23"}]}
+{"id": "zh-la-12", "subset": "zh-to-latin", "query": "达那俄斯人的残余", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.30"}]}
+{"id": "en-01", "subset": "en-lexical", "query": "Achilles", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.1"}]}
+{"id": "en-02", "subset": "en-lexical", "query": "wrath", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.1"}]}
+{"id": "en-03", "subset": "en-lexical", "query": "Aeneas", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.1"}]}
+{"id": "en-04", "subset": "en-lexical", "query": "Carthage", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.13"}]}
+{"id": "en-05", "subset": "en-lexical", "query": "Juno", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.4"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.15"}]}
+{"id": "en-06", "subset": "en-lexical", "query": "Chryses", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.11"}]}
+{"id": "en-07", "subset": "en-lexical", "query": "Priam", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.19"}]}
+{"id": "en-08", "subset": "en-lexical", "query": "Tyrians", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.12"}]}
+{"id": "en-09", "subset": "en-lexical", "query": "Italy", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.2"}]}
+{"id": "en-10", "subset": "en-lexical", "query": "Troy", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.1"}]}
+{"id": "zh-unk-01", "subset": "zh-unknown", "query": "克鲁塞斯", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.11"}]}
+{"id": "zh-unk-02", "subset": "zh-unknown", "query": "普里阿摩斯", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.19"}]}
+{"id": "zh-unk-03", "subset": "zh-unknown", "query": "阿特柔斯之子", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.12"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.16"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.17"}]}
+{"id": "zh-unk-04", "subset": "zh-unknown", "query": "银弓之神", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.14"}]}
+{"id": "zh-unk-05", "subset": "zh-unknown", "query": "伽倪墨得斯", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.28"}]}
+{"id": "zh-unk-06", "subset": "zh-unknown", "query": "萨图恩之女", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.23"}]}
+{"id": "zh-unk-07", "subset": "zh-unknown", "query": "泰尔人", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.12"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.20"}]}
+{"id": "zh-unk-08", "subset": "zh-unknown", "query": "泰尔殖民者", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.12"}]}

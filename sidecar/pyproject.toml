@@ -1,6 +1,6 @@
 [project]
 name = "socratic-sidecar"
-version = "0.1.0"
+version = "0.2.0"
 description = "Minimal Socratic tutor sidecar: search, pages, compute"
 requires-python = ">=3.12"
 license = { text = "MIT" }
@@ -10,6 +10,7 @@ dependencies = [
   "pypdfium2>=4.30",
   "pillow>=10.0",
   "sympy>=1.13",
+  "scipy>=1.11",
   # chapter-index logic lives in the published package (packages/classics-index);
   # until it is on PyPI, install it with: pip install -e packages/classics-index
   "classics-index>=0.1",
@@ -18,3 +19,8 @@ dependencies = [
 [project.optional-dependencies]
 # starlette's TestClient imports httpx2 in the FastAPI versions we pin
 test = ["requests", "httpx2"]
+# Optional numeric/units/control backends beyond SymPy+SciPy.
+compute = ["pint>=0.23", "control>=0.10"]
+# Better Greek/Latin lemmatisation for /v1/lemma; without it a small
+# suffix-stripping fallback is used.
+lemma = ["simplemma>=2.0"]

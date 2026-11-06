@@ -1,0 +1,21 @@
+services:
+  sidecar:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8765:8765"
+    environment:
+      SOCRATIC_DB: /data/search.db
+      SOCRATIC_PUBLIC_DB: /data/public.db
+      SOCRATIC_STATE_DB: /data/state.db
+      SOCRATIC_CACHE: /data/cache
+      SOCRATIC_ROOT: /books
+      SOCRATIC_LIBRARY: /books
+      SOCRATIC_BGE: "0"
+      SOCRATIC_TRANSLATE: glossary
+      # SOCRATIC_TOKEN: change-me
+    volumes:
+      - ./data:/data
+      - ${BOOKS_DIR:-./samples/PDF}:/books:ro
+    restart: unless-stopped

@@ -1,0 +1,8 @@
+{"id": "zh-unk-01", "subset": "zh-unknown", "query": "克鲁塞斯", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.11"}]}
+{"id": "zh-unk-02", "subset": "zh-unknown", "query": "普里阿摩斯", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.19"}]}
+{"id": "zh-unk-03", "subset": "zh-unknown", "query": "阿特柔斯之子", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.12"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.16"}, {"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.17"}]}
+{"id": "zh-unk-04", "subset": "zh-unknown", "query": "银弓之神", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.14"}]}
+{"id": "zh-unk-05", "subset": "zh-unknown", "query": "伽倪墨得斯", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.28"}]}
+{"id": "zh-unk-06", "subset": "zh-unknown", "query": "萨图恩之女", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.23"}]}
+{"id": "zh-unk-07", "subset": "zh-unknown", "query": "泰尔人", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.12"}, {"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.20"}]}
+{"id": "zh-unk-08", "subset": "zh-unknown", "query": "泰尔殖民者", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.12"}]}

@@ -40,9 +40,10 @@ beforeEach(() => { reset(); });
 test("registers the full tool surface", () => {
   const { tools } = harness("http://127.0.0.1:8765");
   const names = tools.map((t) => t.name).sort();
-  for (const want of ["kb_search", "kb_read", "chapter_lookup", "cite_verify",
-    "compute_math", "ptc_calc", "review_session", "socratic_critic",
-    "socratic_health", "socratic_init", "socratic_state", "socratic_step"]) {
+  for (const want of ["kb_search", "kb_read", "lexical_search", "chapter_lookup",
+    "cite_verify", "compute_math", "ptc_calc", "review_session",
+    "socratic_critic", "socratic_health", "socratic_init", "socratic_state",
+    "socratic_step"]) {
     assert.ok(names.includes(want), "missing " + want);
   }
 });

@@ -1,10 +1,24 @@
-# sidecar（最小服务）
+# sidecar（最小服务，v0.2.0）
 
 只做四件事：`/health`、`/v1/search`、`/v1/pages`、`/v1/compute`。
 
 检索默认走 **FTS bigram + BGE-M3 + bge-reranker**；模型不可用时自动退回 FTS。
 
 浏览器教学台：**http://127.0.0.1:8765/ui**（引用卡、提示级别、页图回看、掌握度）。
+
+## Docker（配套服务）
+
+```bash
+# 在仓库根目录
+docker compose up --build
+# 或
+docker build -t socratic-sidecar:0.2.0 .
+docker run -p 8765:8765 -v "$PWD/data:/data" -v "$PWD/samples/PDF:/books:ro" \
+  socratic-sidecar:0.2.0
+```
+
+镜像不带书、不带 BGE 权重；默认 `SOCRATIC_BGE=0`，需要 BGE 时挂载模型并设
+`SOCRATIC_BGE=1`。`/data` 必须可写（SQLite journal、state.db、页图缓存）。
 
 ## 运行
 
@@ -57,12 +71,13 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 8765
 | 预热后 p50 | ~700 ms |
 | 预热后 p95 | ~830 ms |
 | **缓存命中** | **~10 ms** |
-| 100 问句 page recall@10 | **0.76** |
-| 中文 / 拉丁 / 希腊 / 英文 | 93% / 60% / 42% / 50% |
+| 100 问句 page recall@10 | **0.80–0.82**（选择性翻译；默认关闭） |
+| 中文 / 拉丁 / 希腊 / 英文 | 93% / 70% / 42–58% / 70% |
 
 缓存：`/v1/search` 按 `(query,view,limit,source,lang,BGE)` 缓存，TTL 300 s、LRU 256；命中仍会写 `citations`。管理端点 `/v1/cache`、`POST /v1/cache/clear`，健康检查含 `cache` 统计。
 
-说明：评测脚本的 0.82 含“希/拉查询翻译”，sidecar 暂未接翻译；当前只到 0.76。
+说明：0.80–0.82 需要 `SOCRATIC_V1_RETRIEVAL=1` + LLM key；默认路径仍约 0.76。
+v2 公开语料 130 人工题的 R@5 为 0.977（见 `eval/public/RESULTS-project.md`）。
 
 ## 端点
 

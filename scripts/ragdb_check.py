@@ -16,7 +16,7 @@ import sys
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "sidecar"))
 
-from app import config  # noqa: E402
+from app import config, schema  # noqa: E402
 
 
 def size_mb(path):
@@ -40,8 +40,16 @@ def db_stats(path):
                 fts = con.execute("SELECT count(*) FROM chunks_fts").fetchone()[0]
             except sqlite3.Error:
                 fts = None
+            tables = {r[0] for r in con.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'")}
+            documents = sources = 0
+            if "documents" in tables:
+                documents = con.execute("SELECT count(*) FROM documents").fetchone()[0]
+            if "sources" in tables:
+                sources = con.execute("SELECT count(*) FROM sources").fetchone()[0]
             return {"ok": True, "chunks": chunks, "tutor": tutor,
-                    "answer_key": secret, "fts": fts}
+                    "answer_key": secret, "fts": fts,
+                    "documents": documents, "sources": sources}
         finally:
             con.close()
     except Exception as e:
@@ -92,8 +100,13 @@ def main():
     args = ap.parse_args()
 
     db = db_stats(config.DB)
-    vec = vector_stats(config.BGE_VECTORS, config.BGE_IDS)
+    ver = config.schema_version()
+    vec_path, ids_path = ((config.BGE_V2_VECTORS, config.BGE_V2_IDS)
+                          if ver == "v2" else
+                          (config.BGE_VECTORS, config.BGE_IDS))
+    vec = vector_stats(vec_path, ids_path)
     toc = toc_stats(config.toc_db())
+    use_vectors = config.BGE and ver != "v2"
 
     problems = []
     if not db.get("ok"):
@@ -102,19 +115,29 @@ def main():
         problems.append("database has no chunks")
     elif db.get("fts") is not None and db["fts"] != db["chunks"]:
         problems.append("chunks_fts rows (%s) != chunks rows (%s)" % (db["fts"], db["chunks"]))
-    if config.BGE and not vec.get("ok"):
-        problems.append("vectors: %s" % vec.get("error"))
-    if vec.get("ok") and vec.get("aligned") is False:
-        problems.append("bge-ids rows (%s) != vector rows (%s)" % (vec.get("ids"), vec.get("rows")))
-    if not toc.get("ok") and config.TOC_IN == "search":
+    if ver == "v2" and db.get("ok") and not db.get("documents"):
+        problems.append("v2 catalogue has no documents")
+    if ver == "v2":
+        # Vectors are optional in v2: missing files degrade to FTS, not failure.
+        if vec.get("ok") and vec.get("aligned") is False:
+            problems.append("v2 bge-ids rows (%s) != vector rows (%s)"
+                            % (vec.get("ids"), vec.get("rows")))
+    else:
+        if use_vectors and not vec.get("ok"):
+            problems.append("vectors: %s" % vec.get("error"))
+        if use_vectors and vec.get("ok") and vec.get("aligned") is False:
+            problems.append("bge-ids rows (%s) != vector rows (%s)"
+                            % (vec.get("ids"), vec.get("rows")))
+    if ver != "v2" and not toc.get("ok") and config.TOC_IN == "search":
         problems.append("toc (from search db): %s" % toc.get("error"))
 
     report = {
         "ok": not problems,
+        "schema": ver,
         "data": config.DATA,
         "database": {"path": config.DB, "size_mb": size_mb(config.DB), **db},
-        "vectors": {"path": config.BGE_VECTORS, "size_mb": size_mb(config.BGE_VECTORS), **vec},
-        "ids": {"path": config.BGE_IDS, "size_mb": size_mb(config.BGE_IDS)},
+        "vectors": {"path": vec_path, "size_mb": size_mb(vec_path), **vec},
+        "ids": {"path": ids_path, "size_mb": size_mb(ids_path)},
         "toc": {"path": config.toc_db(), "source": config.TOC_IN, **toc},
         "bge_enabled": config.BGE,
         "library": config.LIBRARY,
@@ -124,24 +147,45 @@ def main():
     if args.json:
         print(json.dumps(report, ensure_ascii=False, indent=1))
     else:
+        print("schema    : %s" % report["schema"])
         print("data root : %s" % report["data"])
         print("library   : %s" % report["library"])
         print("database  : %s  %s MB  %s" % (
             report["database"]["path"], report["database"]["size_mb"],
-            ("chunks=%s tutor=%s answer_key=%s fts=%s" % (
+            (("chunks=%s documents=%s sources=%s fts=%s" % (
+                db.get("chunks"), db.get("documents"), db.get("sources"), db.get("fts")))
+             if ver == "v2" else
+             "chunks=%s tutor=%s answer_key=%s fts=%s" % (
                 db.get("chunks"), db.get("tutor"), db.get("answer_key"), db.get("fts")))
             if db.get("ok") else "ERROR: " + str(db.get("error"))))
-        print("vectors   : %s  %s MB  %s" % (
-            report["vectors"]["path"], report["vectors"]["size_mb"],
-            ("%sx%s %s ids=%s aligned=%s" % (vec.get("rows"), vec.get("dim"),
-                                             vec.get("dtype"), vec.get("ids"), vec.get("aligned")))
-            if vec.get("ok") else "ERROR: " + str(vec.get("error"))))
-        print("ids       : %s  %s MB" % (report["ids"]["path"], report["ids"]["size_mb"]))
+        if ver == "v2":
+            print("vectors   : %s  %s MB  %s" % (
+                vec_path, size_mb(vec_path),
+                ("%sx%s %s ids=%s aligned=%s" % (
+                    vec.get("rows"), vec.get("dim"), vec.get("dtype"),
+                    vec.get("ids"), vec.get("aligned")))
+                if vec.get("ok") else "not built (FTS-only)"))
+            if vec.get("ok"):
+                print("ids       : %s  %s MB" % (ids_path, size_mb(ids_path)))
+        else:
+            print("vectors   : %s  %s MB  %s" % (
+                vec_path, size_mb(vec_path),
+                ("%sx%s %s ids=%s aligned=%s" % (vec.get("rows"), vec.get("dim"),
+                                                 vec.get("dtype"), vec.get("ids"), vec.get("aligned")))
+                if vec.get("ok") else "ERROR: " + str(vec.get("error"))))
+            print("ids       : %s  %s MB" % (ids_path, size_mb(ids_path)))
         print("toc       : %s  (%s)  %s" % (
             report["toc"]["path"], report["toc"]["source"],
             ("%s chapters / %s books" % (toc.get("chapters"), toc.get("books")))
             if toc.get("ok") else "ERROR: " + str(toc.get("error"))))
-        print("bge       : %s" % ("enabled" if config.BGE else "disabled"))
+        if not config.BGE:
+            print("bge       : disabled")
+        elif ver == "v2":
+            print("bge       : %s" % (
+                "enabled (v2 hybrid)" if vec.get("ok")
+                else "no v2 vectors (FTS-only)"))
+        else:
+            print("bge       : enabled")
         print()
         if problems:
             for p in problems:

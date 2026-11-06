@@ -1,0 +1,12 @@
+{"id": "el-inf-01", "subset": "el-inflected", "query": "μῆνις", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.1"}]}
+{"id": "el-inf-02", "subset": "el-inflected", "query": "Ἀχιλλεύς", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.1"}]}
+{"id": "el-inf-03", "subset": "el-inflected", "query": "Πρίαμος", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.19"}]}
+{"id": "el-inf-04", "subset": "el-inflected", "query": "Ἀπόλλωνα", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.14"}]}
+{"id": "el-inf-05", "subset": "el-inflected", "query": "Ἀτρείδης", "gold": [{"document_id": "urn:cts:greekLit:tlg0012.tlg001.perseus-grc1", "section": "1.12"}]}
+{"id": "la-inf-01", "subset": "la-inflected", "query": "irae", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.4"}]}
+{"id": "la-inf-02", "subset": "la-inflected", "query": "Iunonem", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.4"}]}
+{"id": "la-inf-03", "subset": "la-inflected", "query": "Troiam", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.1"}]}
+{"id": "la-inf-04", "subset": "la-inflected", "query": "Italiae", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.2"}]}
+{"id": "la-inf-05", "subset": "la-inflected", "query": "pietatis", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.10"}]}
+{"id": "la-inf-06", "subset": "la-inflected", "query": "bellum", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.5"}]}
+{"id": "la-inf-07", "subset": "la-inflected", "query": "laborum", "gold": [{"document_id": "urn:cts:latinLit:phi0690.phi003.perseus-lat1", "section": "1.10"}]}

@@ -85,8 +85,10 @@ def main():
     status, health = request(args.base, "/health", args.token)
     alive = status == 200 and isinstance(health, dict)
     has_data = bool(alive and health.get("ok") is True)
+    schema = health.get("schema") if isinstance(health, dict) else None
     if has_data:
-        rep.add("health", True, "HTTP %s chunks=%s" % (status, health.get("chunks")))
+        rep.add("health", True, "HTTP %s schema=%s chunks=%s" % (
+            status, schema or "v1", health.get("chunks")))
     else:
         reason = (health or {}).get("reason") if isinstance(health, dict) else None
         detail = "HTTP %s reason=%s" % (status, reason or "unknown")
@@ -102,21 +104,50 @@ def main():
     status, search = request(args.base, "/v1/search?" + urllib.parse.urlencode(
         {"q": args.query, "limit": 3}), args.token)
     mode = search.get("mode") if isinstance(search, dict) else None
-    rep.add("search", status == 200 and mode in ("fts", "bge+rerank", "page_only"),
-            "HTTP %s mode=%s" % (status, mode))
+    rep.add("search", status == 200 and mode in (
+        "fts", "bge+rerank", "page_only", "fts-public", "bge+rerank-public"),
+        "HTTP %s mode=%s" % (status, mode))
     results = search.get("results") or []
     if results:
         first = results[0]
         fields = ("chunk_id", "document_id", "page", "citation", "score", "similarity")
         missing = [f for f in fields if f not in first]
         rep.add("result shape", not missing, ", ".join(missing) or "ok")
-        image = (first.get("citation") or {}).get("page_image")
-        if image:
-            st, body = request(args.base, image, args.token, raw=True)
-            rep.add("page image", st == 200 and len(body) > 1000,
-                    "HTTP %s %d bytes" % (st, len(body)))
+        if schema == "v2":
+            cit = first.get("citation") or {}
+            rep.add("citation scheme",
+                    cit.get("scheme") in ("mediawiki", "cts", "pdf_page",
+                                          "lean", "dataset", "ia"),
+                    "scheme=%s" % cit.get("scheme"))
+            rep.add("citation url", bool(cit.get("url")),
+                    "url=%s" % (cit.get("url") or "")[:60])
+            st, srcs = request(args.base, "/v1/sources", args.token)
+            rep.add("sources", st == 200 and isinstance(srcs.get("sources"), list),
+                    "HTTP %s %d sources" % (st, len(srcs.get("sources") or [])))
+        else:
+            image = (first.get("citation") or {}).get("page_image")
+            if image:
+                st, body = request(args.base, image, args.token, raw=True)
+                rep.add("page image", st == 200 and len(body) > 1000,
+                        "HTTP %s %d bytes" % (st, len(body)))
     else:
         rep.add("result shape", mode == "page_only", "no results (empty corpus?)")
+
+    if isinstance(doc, dict) and "/v1/grep" in doc.get("paths", {}):
+        st, got = request(args.base, "/v1/grep?" + urllib.parse.urlencode(
+            {"q": args.query, "limit": 1}), args.token)
+        rep.add("grep", st == 200 and got.get("mode") == "grep",
+                "HTTP %s %d hits" % (st, len(got.get("results") or [])))
+    if (schema == "v2" and isinstance(doc, dict)
+            and "/v1/lemma" in doc.get("paths", {})):
+        st, got = request(args.base, "/v1/lemma?" + urllib.parse.urlencode(
+            {"q": args.query, "limit": 1}), args.token)
+        rep.add("lemma", st == 200 and got.get("mode") == "lemma",
+                "HTTP %s %d hits" % (st, len(got.get("results") or [])))
+    if isinstance(doc, dict) and "/v1/compute/backends" in doc.get("paths", {}):
+        st, got = request(args.base, "/v1/compute/backends", args.token)
+        rep.add("compute backends", st == 200 and "sympy" in got.get("backends", {}),
+                "HTTP %s" % st)
 
     status, books = request(args.base, "/v1/books", args.token)
     rep.add("books", status == 200 and isinstance(books.get("books"), list),
