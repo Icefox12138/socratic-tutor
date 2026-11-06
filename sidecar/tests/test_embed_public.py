@@ -2,13 +2,14 @@ import os
 import shutil
 import sqlite3
 import sys
-import tempfile
 import unittest
 
 import numpy as np
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 sys.path.insert(0, os.path.join(ROOT, "sidecar"))
 
 import embed_public                                   # noqa: E402
@@ -49,7 +50,7 @@ def spec():
 
 class TestEmbedPublic(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.db = os.path.join(self.tmp, "public.db")
         self.vec = os.path.join(self.tmp, "vectors", "public-vectors.npy")

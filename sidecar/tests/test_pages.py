@@ -1,8 +1,11 @@
 import math
 import os
 import shutil
-import tempfile
 import unittest
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 
 import pypdfium2 as pdfium
 
@@ -16,7 +19,7 @@ def _png_size(data):
 
 class TestPages(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.pdf_dir = os.path.join(self.tmp, "PDF")

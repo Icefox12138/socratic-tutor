@@ -1,9 +1,10 @@
 import os
 import sys
-import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import TemporaryDirectory  # noqa: E402
 from app import critic, evaluations, evaluator  # noqa: E402
 from app.state_machine import init, step  # noqa: E402
 
@@ -44,7 +45,7 @@ class TestEvaluator(unittest.TestCase):
             evaluator._parse("not json")
 
     def test_save_and_list(self):
-        with tempfile.TemporaryDirectory() as d:
+        with TemporaryDirectory() as d:
             p = os.path.join(d, "state.db")
             ev = evaluator.evaluate("q", "4", expected="4", use_llm=False)
             eid = evaluations.save("s1", "q", "4", ev, path=p)

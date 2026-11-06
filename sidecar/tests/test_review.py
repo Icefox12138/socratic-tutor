@@ -1,10 +1,11 @@
 import os
 import shutil
 import sys
-import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 from app import review, state_machine  # noqa: E402
 
 
@@ -89,7 +90,7 @@ class TestAttribute(unittest.TestCase):
 
 class TestReview(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.db = os.path.join(self.tmp, "state.db")
 

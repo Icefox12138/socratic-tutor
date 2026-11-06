@@ -55,7 +55,7 @@
 6. **LLM 只在 OOV 时启用**（默认 `auto`）：已知词表/中国史问题不调；无 key 自动退化为纯词表。
 7. **lemma 只支持 v2 干净文本**；已融合进 v2 检索，但 v1 仍只有独立 grep。
 8. **希腊专项未稳定提升**：lemma/注释页索引均默认关闭；v1 希腊 0.417–0.583。
-9. **本地沙箱下测试不可全跑**：`tempfile.mkdtemp()` 在 Windows 上建的是 owner-only ACL 目录，DSH `workspace-write` 沙箱下 SQLite/open 被拒。实测：sidecar 264 用例中 106 个 `OperationalError: unable to open database file`、classics-index 2 个 `PermissionError`、plugin `spawn EPERM`（`.venv-bge` 下 `socratic-mcp` 6/6 通过）。**这是环境限制，不是代码失败**——CI 为 Linux，`02a5bfa` 全绿；要在本地全跑，需完整文件权限，或改测试临时目录策略。
+9. **DSH 沙箱与本地跑测试**：`tempfile.mkdtemp()` 建的目录带 owner-only DACL，`workspace-write` 下写入/删除都被拒。已改为 `sidecar/tests/_tmp.py`（`os.makedirs` 实现）：本地 **264/264 通过**，classics-index **18/18**，socratic-mcp **6/6**；仅 plugin 的 `node --test` 仍 `spawn EPERM`（沙箱禁止子进程管道，非代码问题）。权限档矩阵见 `PORTABILITY.md` §3b。
 10. **项目整体不是生产级**：v1 recall 0.80–0.82 未过门槛、计算后端有 SymPy/SciPy/pint/control（Wolfram/Lean 未装）、人工评分为 0；详见 `eval/public/RESULTS-project.md`。
 
 ## 4. 与旧快照的差异

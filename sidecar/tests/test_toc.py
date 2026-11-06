@@ -1,10 +1,11 @@
 import os
 import shutil
 import sys
-import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 from app import toc  # noqa: E402
 
 
@@ -52,7 +53,7 @@ class TestBuild(unittest.TestCase):
 
 class TestStore(unittest.TestCase):
     def test_roundtrip(self):
-        tmp = tempfile.mkdtemp()
+        tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, tmp, True)
         path = os.path.join(tmp, "state.db")
         chapters = [{"ord": 0, "level": 1, "title": "卷1", "page_start": 1,

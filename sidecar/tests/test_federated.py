@@ -1,8 +1,11 @@
 import os
 import shutil
 import sqlite3
-import tempfile
 import unittest
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 
 from fastapi.testclient import TestClient
 
@@ -40,7 +43,7 @@ def _make_v2(path):
 
 class TestFederated(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.v1 = os.path.join(self.tmp, "v1.db")
         self.v2 = os.path.join(self.tmp, "public.db")

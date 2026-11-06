@@ -1,15 +1,16 @@
 import os
 import sys
-import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import TemporaryDirectory  # noqa: E402
 from app import state_machine, state_store  # noqa: E402
 
 
 class TestStateStore(unittest.TestCase):
     def test_persist_and_replay(self):
-        with tempfile.TemporaryDirectory() as d:
+        with TemporaryDirectory() as d:
             p = os.path.join(d, "state.db")
             s = state_machine.init("s1", goal="导数", concept="导数")
             state_store.create_session("s1", goal="导数", concept="导数", state=s, path=p)
@@ -31,7 +32,7 @@ class TestStateStore(unittest.TestCase):
             self.assertTrue(loaded.attempts >= 1)
 
     def test_reinit_resets_events(self):
-        with tempfile.TemporaryDirectory() as d:
+        with TemporaryDirectory() as d:
             p = os.path.join(d, "state.db")
             s = state_machine.init("s1")
             state_store.create_session("s1", state=s, path=p)
@@ -42,7 +43,7 @@ class TestStateStore(unittest.TestCase):
             self.assertEqual(len(state_store.events("s1", path=p)), 1)
 
     def test_missing_session(self):
-        with tempfile.TemporaryDirectory() as d:
+        with TemporaryDirectory() as d:
             p = os.path.join(d, "state.db")
             self.assertIsNone(state_store.get_session("nope", path=p))
             self.assertIsNone(state_store.replay("nope", path=p))

@@ -1,7 +1,10 @@
 import os
 import shutil
-import tempfile
 import unittest
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 
 from app import config, ingest, schema, search, translate
 from app.adapters.base import Document, Section, SourceSpec
@@ -22,7 +25,7 @@ def _spec(source_id):
 
 class TestV2TranslationSearch(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.db = os.path.join(self.tmp, "public.db")
         schema.ensure_v2(self.db)

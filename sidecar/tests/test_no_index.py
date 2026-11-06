@@ -1,8 +1,11 @@
 import os
 import shutil
 import sqlite3
-import tempfile
 import unittest
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 
 from fastapi.testclient import TestClient
 
@@ -13,7 +16,7 @@ class TestNoIndex(unittest.TestCase):
     """A fresh install has no RAG database; the service must stay usable."""
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.old_db = config.DB
         config.DB = os.path.join(self.tmp, "missing", "search.db")
@@ -43,7 +46,7 @@ class TestHealthPayload(unittest.TestCase):
 
     def test_health_names_paths_and_vector_state(self):
         import tempfile
-        tmp = tempfile.mkdtemp()
+        tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, tmp, True)
         db = os.path.join(tmp, "search.db")
         con = sqlite3.connect(db)
@@ -73,7 +76,7 @@ class TestTocSource(unittest.TestCase):
     """The chapter index is data: it must be readable from the RAG database."""
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.search_db = os.path.join(self.tmp, "search.db")
         con = sqlite3.connect(self.search_db)

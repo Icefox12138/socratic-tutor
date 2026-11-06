@@ -1,8 +1,11 @@
 import os
 import shutil
 import sqlite3
-import tempfile
 import unittest
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 
 from fastapi.testclient import TestClient
 
@@ -25,7 +28,7 @@ def _spec(source_id):
 
 class _Base(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.db = os.path.join(self.tmp, "public.db")
         schema.ensure_v2(self.db)
@@ -157,7 +160,7 @@ class TestEndpoints(_Base):
 
 class TestGrepV1(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.db = os.path.join(self.tmp, "search.db")
         con = sqlite3.connect(self.db)

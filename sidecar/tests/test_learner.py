@@ -1,9 +1,10 @@
 import os
 import sys
-import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import TemporaryDirectory  # noqa: E402
 from app import learner  # noqa: E402
 
 
@@ -39,7 +40,7 @@ class TestBKT(unittest.TestCase):
 
 class TestStore(unittest.TestCase):
     def test_record_and_get(self):
-        with tempfile.TemporaryDirectory() as d:
+        with TemporaryDirectory() as d:
             p = os.path.join(d, "state.db")
             r = learner.record("导数", "correct", path=p)
             self.assertGreater(r["after"], r["before"])
@@ -49,7 +50,7 @@ class TestStore(unittest.TestCase):
             self.assertEqual(len(learner.list_all(p)), 1)
 
     def test_invalid_result(self):
-        with tempfile.TemporaryDirectory() as d:
+        with TemporaryDirectory() as d:
             p = os.path.join(d, "state.db")
             with self.assertRaises(ValueError):
                 learner.record("x", "maybe", path=p)
@@ -58,7 +59,7 @@ class TestStore(unittest.TestCase):
 @unittest.skipUnless(learner._SCHED, "fsrs not installed")
 class TestFSRS(unittest.TestCase):
     def test_add_review_due(self):
-        with tempfile.TemporaryDirectory() as d:
+        with TemporaryDirectory() as d:
             p = os.path.join(d, "state.db")
             card = learner.add_card("lim", "极限", path=p)
             self.assertGreater(card["id"], 0)
@@ -68,7 +69,7 @@ class TestFSRS(unittest.TestCase):
             self.assertEqual(learner.due_cards(path=p), [])
 
     def test_invalid_rating(self):
-        with tempfile.TemporaryDirectory() as d:
+        with TemporaryDirectory() as d:
             p = os.path.join(d, "state.db")
             card = learner.add_card("lim", "极限", path=p)
             with self.assertRaises(ValueError):

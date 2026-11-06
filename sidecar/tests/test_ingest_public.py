@@ -4,12 +4,13 @@ import os
 import shutil
 import sqlite3
 import sys
-import tempfile
 import unittest
 from argparse import Namespace
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 sys.path.insert(0, os.path.join(ROOT, "sidecar"))
 
 import ingest_public                                    # noqa: E402
@@ -58,7 +59,7 @@ def args(db, **over):
 
 class TestIngest(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.db = os.path.join(self.tmp, "public.db")
 
@@ -108,7 +109,7 @@ class TestIngest(unittest.TestCase):
 
 class TestCli(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.db = os.path.join(self.tmp, "public.db")
 

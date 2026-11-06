@@ -1,10 +1,11 @@
 import os
 import shutil
 import sys
-import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 from app import citations, config, search, toc  # noqa: E402
 
 ROWS = [
@@ -18,7 +19,7 @@ ROWS = [
 
 class TestChapterRange(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.db = os.path.join(self.tmp, "state.db")
         self.old = config.STATE_DB

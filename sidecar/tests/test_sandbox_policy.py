@@ -3,8 +3,11 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
 import unittest
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PYTHON = sys.executable
@@ -12,7 +15,7 @@ PYTHON = sys.executable
 
 class TestSandboxPolicy(unittest.TestCase):
     def test_network_and_writes_are_denied(self):
-        tmp = tempfile.mkdtemp(prefix="policy-test-")
+        tmp = mkdtemp(prefix="policy-test-")
         self.addCleanup(shutil.rmtree, tmp, True)
         outside = os.path.join(os.path.dirname(tmp), "policy-denied.txt")
         script = os.path.join(tmp, "probe.py")

@@ -2,8 +2,11 @@ import json
 import os
 import shutil
 import sqlite3
-import tempfile
 import unittest
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 
 from fastapi.testclient import TestClient
 
@@ -32,7 +35,7 @@ def _make_db(path):
 
 class _Base(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.db = os.path.join(self.tmp, "search.db")
         _make_db(self.db)

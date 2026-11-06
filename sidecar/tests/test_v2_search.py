@@ -1,8 +1,11 @@
 import os
 import shutil
 import sqlite3
-import tempfile
 import unittest
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tmp import mkdtemp  # noqa: E402
 
 from fastapi.testclient import TestClient
 
@@ -42,7 +45,7 @@ def _insert_chunk(db, document_id, text, stream="text", visibility="tutor",
 
 class _V2Base(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.db = os.path.join(self.tmp, "public.db")
         schema.ensure_v2(self.db)
@@ -196,7 +199,7 @@ class TestV2Endpoints(_V2Base):
 
 class TestV1StillWorks(unittest.TestCase):
     def test_v1_schema_is_reported_and_documents_are_absent(self):
-        tmp = tempfile.mkdtemp()
+        tmp = mkdtemp()
         self.addCleanup(shutil.rmtree, tmp, True)
         db = os.path.join(tmp, "search.db")
         con = sqlite3.connect(db)
