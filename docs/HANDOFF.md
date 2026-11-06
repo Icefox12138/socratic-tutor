@@ -3,7 +3,7 @@
 | 项 | 值 |
 |---|---|
 | 日期 | **2026-11-06** |
-| 提交 | `4e11195`（38 commits / 17 tags） |
+| 提交 | `222ce39` 之后（39 commits / 17 tags） |
 | 项目 | `D:\Guo-Code\socratic-tutor` |
 | 范围 | 只含**教学运行时**：sidecar + DSH 插件 + MCP + 章回索引器 |
 | 不含 | OCR / 解析 / 切块 / 向量化 / 库构建 → 私有工程 `D:\Guo-Code\rag-build` |
