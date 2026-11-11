@@ -22,7 +22,7 @@ _STOP = {"the", "and", "with", "from", "that", "this", "which", "what",
 
 
 def _connect():
-    con = sqlite3.connect(config.DB, timeout=10)
+    con = config.open_db(config.DB)
     con.row_factory = sqlite3.Row
     return con
 

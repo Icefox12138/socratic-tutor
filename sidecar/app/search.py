@@ -47,7 +47,7 @@ def tokens_v2(s: str):
 
 
 def _connect():
-    con = sqlite3.connect(config.DB, timeout=5)
+    con = config.open_db(config.DB)
     con.row_factory = sqlite3.Row
     return con
 

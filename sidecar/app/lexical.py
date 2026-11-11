@@ -11,6 +11,8 @@ import math
 import os
 import re
 import sqlite3
+
+from . import config
 import threading
 import time
 from functools import lru_cache
@@ -39,7 +41,7 @@ _LATIN_SUFFIXES = (
 
 
 def _connect():
-    con = sqlite3.connect(config.DB, timeout=10)
+    con = config.open_db(config.DB)
     con.row_factory = sqlite3.Row
     return con
 

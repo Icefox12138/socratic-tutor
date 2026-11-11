@@ -24,8 +24,8 @@ class TestSymPy(unittest.TestCase):
 
     def test_audit_sandbox_marker(self):
         out = compute.compute("x^2", "diff")
-        self.assertEqual(out["sandbox"], "audit")
-        self.assertEqual(out["credentials"]["sandbox"], "audit")
+        self.assertEqual(out["sandbox"], "audit-only")
+        self.assertEqual(out["credentials"]["sandbox"], "audit-only")
 
 
 @unittest.skipUnless(BACKENDS["scipy"]["available"], "scipy not installed")
@@ -58,7 +58,7 @@ class TestSciPy(unittest.TestCase):
                 "disputed": True,
                 "cross_check": {"backend": "sympy", "value": 2.0,
                                 "difference": 1.0}}
-        with mock.patch.object(compute, "_run_worker", return_value=fake):
+        with mock.patch("calcbox.backends._run_worker", return_value=fake):
             out = compute.compute("x", "diff")
         self.assertTrue(out["disputed"])
         self.assertTrue(out["credentials"]["disputed"])

@@ -67,6 +67,15 @@ def _startup():
     threading.Thread(target=loader, daemon=True).start()
 
 
+def _schema_version_or_none():
+    """The schema probe opens the database again; when the index is unusable that
+    must not turn the no_index report into a 500."""
+    try:
+        return config.schema_version()
+    except Exception:
+        return None
+
+
 @app.get("/health")
 def health():
     """Liveness plus index status.
@@ -87,7 +96,7 @@ def health():
             "vectors": config.BGE_VECTORS,
             "ids": config.BGE_IDS,
             "toc": config.toc_db(),
-            "schema": config.schema_version(),
+            "schema": _schema_version_or_none(),
             "bge": "missing: " + config.BGE_VECTORS if config.BGE else "disabled",
             "chunks": 0,
             "detail": str(e)[:200],

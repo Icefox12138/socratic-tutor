@@ -88,7 +88,7 @@ DDL = [
 
 def connect(path=None):
     from . import config
-    con = sqlite3.connect(path or config.DB, timeout=10)
+    con = config.open_db(path or config.DB)
     con.row_factory = sqlite3.Row
     return con
 
@@ -125,8 +125,8 @@ def version(path=None):
     if not os.path.exists(path):
         return "none"
     try:
-        con = sqlite3.connect(path)
-    except sqlite3.Error:
+        con = config.open_db(path)
+    except (sqlite3.Error, OSError):
         return "unknown"
     try:
         tables = _tables(con)

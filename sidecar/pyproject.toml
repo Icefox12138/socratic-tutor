@@ -5,6 +5,7 @@ description = "Minimal Socratic tutor sidecar: search, pages, compute"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 dependencies = [
+  "calcbox>=0.3,<0.4",
   "fastapi>=0.110",
   "uvicorn>=0.29",
   "pypdfium2>=4.30",

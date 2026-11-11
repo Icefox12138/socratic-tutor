@@ -5,6 +5,14 @@ per package; dates are release dates, not commit dates.
 
 ## Repository
 
+### 2026-11-11
+- Compute moved to the standalone **calcbox** package (MIT). `sidecar/app/compute.py`
+  is now a thin adapter; `compute_worker.py` and `sandbox_policy.py` are gone.
+- `config.open_db()` opens an index that lives on read-only media: normal connection,
+  then `?mode=ro`, then `?mode=ro&immutable=1`. Fixes /health, /v1/grep and search on
+  a database the process cannot write to.
+- /health no longer 500s when the schema probe cannot open the index.
+
 ### Unreleased
 - `sidecar/` renders pages with **pypdfium2** instead of PyMuPDF. The whole
   repository is MIT again: no AGPL dependency remains.

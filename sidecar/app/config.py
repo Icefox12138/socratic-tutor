@@ -216,3 +216,38 @@ def toc_db():
     if TOC_DB_OVERRIDE:
         return TOC_DB_OVERRIDE
     return DB if TOC_IN == "search" else STATE_DB
+
+
+def open_db(path=None, timeout=5):
+    """Open the RAG database for reading, degrading when the location is sealed.
+
+    SQLite touches -wal/-shm next to the file even for a read. On read-only media
+    (or a directory the sandbox forbids) that fails, so try, in order:
+
+      1. a normal connection;
+      2. ?mode=ro;
+      3. ?mode=ro&immutable=1 — no locking at all, safe because the sidecar never
+         writes the index and a builder is expected to be offline.
+
+    The sidecar never writes to the index, so the read-only fallbacks are sound.
+    """
+    import sqlite3
+    import urllib.parse
+
+    target = path or os.environ.get("SOCRATIC_DB") or DB
+    quoted = urllib.parse.quote(os.path.abspath(target).replace("\\", "/"), safe="/:")
+    attempts = [None, "mode=ro", "mode=ro&immutable=1"]
+    last = None
+    for mode in attempts:
+        try:
+            if mode:
+                con = sqlite3.connect("file:%s?%s" % (quoted, mode), uri=True,
+                                      timeout=timeout)
+            else:
+                con = sqlite3.connect(target, timeout=timeout)
+            con.execute("SELECT 1").fetchone()
+            con.row_factory = sqlite3.Row
+            return con
+        except sqlite3.Error as e:
+            last = e
+    raise last

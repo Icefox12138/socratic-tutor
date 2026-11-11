@@ -240,6 +240,12 @@ POST /v1/review {"session_id","state?","answers?","record?"}
 
 `citation.document_id` 也同步给出。
 
+## 10b. 计算后端
+
+`/v1/compute` 与 `/v1/compute/backends` 的实现来自独立包 **calcbox**（MIT）。请求与响应字段不变；
+`sandbox` 字段的值从 `audit` 改为 `audit-only`。契约权威版在 calcbox 仓库的 `docs/CONTRACT.md`
+（当前为 README 的 Contract 一节）。
+
 ## 11. 契约探针
 
 ```bash
