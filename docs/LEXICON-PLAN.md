@@ -166,7 +166,7 @@ GET /v1/lexicon/search?q=absolute+ablative&lang=en&kind=grammar
 |---|---|---|
 | LSJ（Liddell-Scott-Jones, 9th ed.） | 公版 | ✅ 文本可分发（仍建议只发代码） |
 | Lewis & Short | 公版 | ✅ |
-| Perseus 的词典 XML | 多为公版/CC | ⚠️ 逐文件核对 |
+| **PerseusDL/lexica**（LSJ、L&S 的 TEI/XML） | **CC BY-SA 4.0**（数字化版权，非公版） | ⚠️ 可本地用；若分发派生的 `lexicon.db` 必须同样 BY-SA + 署名 Perseus |
 | Wiktionary | CC BY-SA | ⚠️ 需署名 + 相同方式共享，**不能只写 MIT** |
 | 王力《古汉语字典》等现代辞书 | 版权保护 | ❌ 仅本地 personal |
 | 现代语法书（如 Cambridge Grammar） | 版权保护 | ❌ 仅本地 personal |
@@ -174,15 +174,39 @@ GET /v1/lexicon/search?q=absolute+ablative&lang=en&kind=grammar
 因此 `documents.license` 与 `documents.redistribution` 必须在入库时填写，
 `/v1/lexicon` 原样返回；导出/分享工具按这两个字段拒绝。
 
-## 7. 在线适配器（可选，最后做）
+## 7. 公共 API 与批量数据（2026-11-12 核查）
 
-| 源 | 接口 | 注意 |
-|---|---|---|
-| Perseus | CTS + 词典文本 | 429 限流，需缓存 |
-| Wiktionary | MediaWiki API | CC BY-SA，需署名 |
-| 本地词典 | — | 默认路线，离线可用 |
+**结论：能，但"一次性拉取入库"优于"运行时调用"。**
 
-原则：**离线优先**；在线适配器只做"本地没有时的补充"，并在响应里标注来源。
+| 来源 | 形态 | 许可 | 建议 |
+|---|---|---|---|
+| **PerseusDL/lexica**（LSJ / Lewis & Short，TEI XML） | 批量下载（GitHub 仓库，`grc/lsj`、`lat/ls`） | **CC BY-SA 4.0** | ✅ **首选**：入库后离线查，引用稳定 |
+| **Wiktionary** | MediaWiki API / dump | CC BY-SA | ✅ 兜底：本地查不到时按词取 |
+| **CC-CEDICT** | 批量（`cedict_1_0_ts_utf-8_mdbg.txt.gz`） | CC BY-SA 4.0 | ✅ 中文词目/释义的首选开源来源 |
+| **Unihan** | 批量 | Unicode License | ✅ 读音、异体字、部首 |
+| **Whitaker's Words** | 批量（数据文件） | 公版 | ✅ 拉丁词形还原（与 simplemma 互补） |
+| **Logeion** | JSON API：`anastrophe.uchicago.edu/logeion-api/detail?w=&type=normal&key=` | 条款不明；key 是网页 JS 里的公共 Firebase key | ⚠️ **仅实验**：key 非官方发布、随时可能失效，不进生产 |
+| **ctext** | API，订阅制 | 机构订阅 | ❌ 不接（禁止抓取，前面已定） |
+| 汉典 / zdic 等 | 无公开 API | 禁止抓取 | ❌ |
+
+### 三个设计后果
+
+1. **入库而不是代理**：把 LSJ/L&S/CC-CEDICT 一次性转成 `lexicon.db`，
+   运行时零网络、毫秒级、引用稳定；API 只在"本地没有"时兜底。
+2. **CC BY-SA 是传染性的**：Perseus 数字化文本是 BY-SA，不是公版。
+   派生的 `lexicon.db` 若分发，必须同样 BY-SA 并署名 Perseus；
+   这与本仓 "数据不随仓库分发" 的既有策略一致——**留在本地即可**。
+3. **API 兜底要可降级**：超时/限流/失效时返回"本地无此词条"，不要伪造。
+
+### 若确实要运行时调用
+
+```
+GET /v1/lexicon?word=X&allow_remote=1
+→ entries[].source = "local:lsj" | "remote:wiktionary"
+→ 每条都带 license 与 retrieved_at；remote 结果不入库
+```
+
+默认 `allow_remote=0`，由使用者显式开启；响应里必须标明来源与许可。
 
 ## 8. 里程碑
 
