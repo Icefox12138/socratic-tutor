@@ -208,6 +208,60 @@ GET /v1/lexicon?word=X&allow_remote=1
 
 默认 `allow_remote=0`，由使用者显式开启；响应里必须标明来源与许可。
 
+## 7b. 句法 / 形态 API（2026-11-12 实测）
+
+**有，而且一套服务覆盖三种语言**——但不是同一个接口。
+
+| 能力 | 服务 | 覆盖 | 调用方式 | 结果 |
+|---|---|---|---|---|
+| **形态分析**（词形 → 词元 + 语法属性） | **Morpheus**（Perseus）`morph.perseids.org/analysis/word?word=&lang=&engine=` | 拉丁 `morpheuslat`、古希腊 `morpheusgrc` | GET，无 key，返回 RDF/JSON | `cano` → verb, 1st sg pres act（正确） |
+| 形态分析 | Alpheios morph | 同上 | GET，`engine` 参数必须匹配（否则 404 unknown engine） | 同源 |
+| **句法分析**（依存树） | **UDPipe REST**（LINDAT）`lindat.mff.cuni.cz/services/udpipe/api/process` | **古希腊**（perseus/proiel/ptnk）、**拉丁**（perseus/ittb/llct/udante/circse/proiel）、**文言**（`classical_chinese-kyoto`） | POST 表单，无 key | CoNLL-U：lemma/POS/feats/head/deprel |
+| 句法（离线） | UDPipe 二进制 + 模型下载 | 同上 | 本地进程 | 同上 |
+| 文言句法 | **没有专门的商业 API** | — | UDPipe 的 `classical_chinese-kyoto` 是当前唯一可用通道 | 见下 |
+
+### 实测样例
+
+```
+# 古希腊（UDPipe perseus）
+1 μῆνιν  μῆνις  NOUN  Case=Acc|Gender=Fem|Number=Sing  2 obj
+2 ἄειδε   ἀείδω  VERB  Mood=Imp|...                     0 root
+
+# 文言（UDPipe kyoto）
+1 學  學  VERB  v,動詞,行為,動作   0 root
+2 而  而  CCONJ p,助詞,接続,並列   4 cc
+3 時  時  NOUN  n,名詞,時,*        4 obl:tmod
+4 習  習  VERB  v,動詞,行為,動作   1 conj
+```
+
+### 质量警告（必须记住）
+
+同一句拉丁文，两个服务给出不同答案：
+
+| 词 | UDPipe（latin-perseus） | Morpheus |
+|---|---|---|
+| `cano` | `canus` **形容词**（错） | `cano` 动词 1st sg pres act（对） |
+| `virumque` | `virumque` ADV（错） | — |
+
+**结论：句法用 UDPipe，词形归调用 Morpheus。** 不要让句法模型的 lemma 直接进词典索引。
+
+### 许可
+
+UDPipe 的模型来自 UD 各树库，**许可逐库不同**（Perseus 系多为 CC BY-SA，
+PROIEL 系为 CC BY-NC-SA，含非商用条款）。因此：
+
+- 用哪个树库，就在 `documents.license` 记哪个；
+- 若将来商用，需替换掉 NC 条款的模型。
+
+### 架构建议：解析在构建期，不在每轮对话里
+
+```
+构建期：书 → 分句 → UDPipe（本地）→ CoNLL-U 入库（tokens/heads/deprels）
+运行期：/v1/syntax?sentence=&lang=  只做短句、带缓存；查不到就走词典/语法书
+```
+
+理由：句法解析是 O(句长) 的重活，且结果对同一句是确定的——没有理由每轮重算。
+
 ## 8. 里程碑
 
 | 阶段 | 内容 | 产出 | 估时 |
@@ -218,6 +272,7 @@ GET /v1/lexicon?word=X&allow_remote=1
 | **M3** | 语法书：小节切分 + 交叉引用 + **小节级向量索引** + `kind=grammar` 检索 | "什么是绝对夺格"可答 | 2–3 天 |
 | **M4** | 插件工具 `lexicon_lookup` + critic/cite_verify 适配 | 教学流程可用 | 1–2 天 |
 | M5 | 在线适配器（Perseus/Wiktionary） | 本地缺失时兜底 | 3 天 |
+| M6 | 句法：UDPipe 本地解析 + `/v1/syntax` + 构建期入库 | "这句为什么用与格"可解释 | 3–4 天 |
 
 ## 9. 评测
 
