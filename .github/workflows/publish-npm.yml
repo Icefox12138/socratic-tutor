@@ -1,18 +1,21 @@
 # Publish the two npm bundles with npm Trusted Publishing (OIDC).
 #
-# No NPM_TOKEN secret: GitHub mints a short-lived OIDC token, npm exchanges it
-# for a publish credential. Requirements, all confirmed against
-# https://docs.npmjs.com/trusted-publishers/ (checked 2026-11-12):
+# No NPM_TOKEN secret: GitHub mints a short-lived OIDC token and npm exchanges
+# it for a publish credential. Requirements, checked against
+# https://docs.npmjs.com/trusted-publishers/ on 2026-11-12:
 #   * npm CLI >= 11.5.1 and Node >= 22.14  -> node-version 24 below
 #   * permissions: id-token: write
-#   * this file's name must match the "Workflow filename" configured on
-#     npmjs.com for EACH package, byte for byte: publish-npm.yml
+#   * this filename must match the "Workflow filename" configured on npmjs.com
+#     for EACH package, byte for byte: publish-npm.yml
 #   * package.json "repository.url" must point at this GitHub repo
-#   * a newly created trusted publisher must publish successfully within 2 days
-#     or it expires and must be recreated
+#   * a new trusted publisher must publish successfully within 2 days or expire
 #
-# Provenance is generated automatically for trusted publishing; do not pass
-# --provenance (it is redundant and can be disabled, not enabled, by config).
+# Provenance is generated automatically; do not pass --provenance.
+#
+# Normal releases use a tag (dsh-socratic-vX.Y.Z /
+# dsh-socratic-persona-vX.Y.Z). workflow_dispatch is the recovery path: pick
+# one bundle and it publishes the version currently in its package.json, which
+# is how a failed tag run is retried without bumping a version.
 
 name: publish-npm
 
@@ -21,6 +24,15 @@ on:
     tags:
       - "dsh-socratic-v*"
       - "dsh-socratic-persona-v*"
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "Bundle to publish (recovery; normal releases use a tag)"
+        required: true
+        type: choice
+        options:
+          - plugin-socratic
+          - plugin-socratic-persona
 
 permissions:
   contents: read
@@ -44,45 +56,66 @@ jobs:
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
-          package-manager-cache: false
 
-      # A tag names exactly one package, so the matrix entry that does not own
-      # this tag exits here instead of trying to republish an old version.
-      - name: Match the tag to its package
+      # Values reach the shell through env, never through text substitution
+      # inside the script: that keeps the quoting trivial and the failure
+      # message readable.
+      - name: Decide whether this entry publishes
         id: pick
         shell: bash
+        env:
+          DIR: ${{ matrix.dir }}
+          PREFIX: ${{ matrix.prefix }}
+          EVENT: ${{ github.event_name }}
+          TAG_REF: ${{ github.ref_name }}
+          INPUT_PACKAGE: ${{ inputs.package }}
         run: |
           set -euo pipefail
-          ref="${GITHUB_REF_NAME}"
-          if [[ "$ref" != "${{ matrix.prefix }}"* ]]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "not this bundle: $ref"
+          pkg_name="$(jq -r .name "$DIR/package.json")"
+          pkg_version="$(jq -r .version "$DIR/package.json")"
+          echo "dir=$DIR name=$pkg_name version=$pkg_version event=$EVENT ref=$TAG_REF"
+
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            if [ "${INPUT_PACKAGE:-}" != "$DIR" ]; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "not selected by the dispatch input: $DIR"
+              exit 0
+            fi
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "dispatching $pkg_name@$pkg_version"
             exit 0
           fi
-          tag_version="${ref#"${{ matrix.prefix }}"}
-          pkg_version="$(node -p "require('./${{ matrix.dir }}/package.json').version")"
-          echo "tag=$ref tag_version=$tag_version package_version=$pkg_version"
-          if [[ "$tag_version" != "$pkg_version" ]]; then
-            echo "::error::tag $ref says $tag_version but ${{ matrix.dir }}/package.json says $pkg_version"
+
+          case "$TAG_REF" in
+            "$PREFIX"*) ;;
+            *)
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "tag $TAG_REF does not name this bundle"
+              exit 0
+              ;;
+          esac
+
+          tag_version="${TAG_REF#"$PREFIX"}"
+          if [ "$tag_version" != "$pkg_version" ]; then
+            echo "::error::tag $TAG_REF implies $tag_version but $DIR/package.json is $pkg_version"
             exit 1
           fi
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
-      - name: npm and node versions
-        if: steps.pick.outputs.skip == 'false'
-        run: |
-          node --version
-          npm --version
-          test "$(npm --version | cut -d. -f1)" -ge 11 || { echo "::error::npm 11.5.1+ is required for trusted publishing"; exit 1; }
-
-      # No dependencies to restore: these bundles are dependency-free, which also
-      # keeps this job free of any token-based npm install.
       - name: Publish
         if: steps.pick.outputs.skip == 'false'
         working-directory: ${{ matrix.dir }}
-        run: npm publish --access public
+        run: |
+          set -euo pipefail
+          node --version
+          npm --version
+          npm publish --access public
 
-      - name: Show provenance summary
+      - name: Verify the registry entry and its provenance
         if: steps.pick.outputs.skip == 'false'
         working-directory: ${{ matrix.dir }}
-        run: npm view "$(node -p "require('./package.json').name")@$(node -p "require('./package.json').version")" dist.attestations --json || true
+        run: |
+          set -euo pipefail
+          name="$(jq -r .name package.json)"
+          version="$(jq -r .version package.json)"
+          npm view "$name@$version" version dist-tags dist.attestations --json || true
