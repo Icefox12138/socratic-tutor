@@ -111,6 +111,7 @@ L1 数据：search.db（chunks + chunks_fts）· bge-*.npy · state.db
 | `PORTABILITY.md` | 跨平台 + **DSH 权限档矩阵** |
 | calcbox（外部） | 计算内核的权威文档：[github.com/Icefox12138/calcbox](https://github.com/Icefox12138/calcbox)，PyPI `calcbox` |
 | `FEDERATED-SEARCH.md` / `LEXICAL-SEARCH.md` | 两套检索扩展的设计 |
+| `LEXICON-PLAN.md` | 语法书/词典能力方案（未开工） |
 | `SPLIT-PLAN.md` / `RELEASE-PLAN.md` / `RELEASE-2026-11-06.md` | 拆分与发布 |
 
 ## 8. 代码与数据
