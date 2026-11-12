@@ -251,7 +251,7 @@ export function makePreStepHandler(config) {
         const st = await fetchStateSummary(config, key);
         const summary = st && st.summary ? st.summary : DEFAULT_SUMMARY;
         activeHint = st && st.state && st.state.hint_level != null ? Number(st.state.hint_level) : 0;
-        res.messages.unshift({
+        const injected = {
           role: "user",
           content: [{ type: "text", text: summary }],
           source: {
@@ -259,8 +259,12 @@ export function makePreStepHandler(config) {
             form: "snapshot",
             sections: [{ name: "socratic-state", text: summary }],
           },
-        });
-        log("inject", { key, n: res.messages.length, roles: res.messages.map((m) => m.role), summary });
+        };
+        log("inject", { key, n: res.messages.length + 1,
+          roles: [injected.role, ...res.messages.map((m) => m.role)], summary });
+        // Return a NEW decision: next() may hand back a frozen object (DSH 0.2.2
+        // already deep-freezes llm/stream options), so never mutate it in place.
+        return { ...res, messages: [injected, ...res.messages] };
       }
     } catch (e) {
       log("inject_error", { error: String(e && e.message || e) });

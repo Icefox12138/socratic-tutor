@@ -143,3 +143,17 @@ test("the pre-step handler ignores a call without a next function", async () => 
   const handler = makePreStepHandler({});
   assert.equal(await handler({ agent: { session: { id: "s-3" } } }), undefined);
 });
+
+test("the pre-step handler returns a new decision and leaves a frozen one alone", async () => {
+  downFetch();
+  const handler = makePreStepHandler({ baseUrl: "http://127.0.0.1:8765" });
+  const messages = Object.freeze([]);
+  const decision = Object.freeze({ kind: "enter", messages, startsRequestSeries: true });
+  // `agent.id` is the only identity DSH 0.2.2's Agent interface guarantees.
+  const out = await handler({ agent: { id: "s-4" } }, async () => decision);
+  assert.notEqual(out, decision, "must not reuse the decision object");
+  assert.equal(out.kind, "enter");
+  assert.equal(out.startsRequestSeries, true, "spread keeps the other fields");
+  assert.equal(out.messages.length, 1);
+  assert.equal(decision.messages.length, 0, "the input must not be mutated");
+});

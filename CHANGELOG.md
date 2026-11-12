@@ -82,6 +82,14 @@ per package; dates are release dates, not commit dates.
 
 ## dsh-socratic
 
+### 0.5.1 — 2026-11-12
+- `engines.dsh` widened to `>=0.2.1-rc.2 <0.3.0-0 || >=0.2.2-rc.2 <0.3.0-0`.
+  Strict semver excludes a prerelease unless a comparator carries the same
+  `major.minor.patch`, so the old single range did **not** strictly match
+  `0.2.2-rc.2` even though DSH (which evaluates with `includePrerelease`) accepted
+  it. The union matches `0.2.2-rc.2` strictly, keeps the 0.2.1 releases, and still
+  refuses every 0.3.x. Verified against DSH 0.2.2-rc.2's own semver.
+
 ### 0.5.0 — 2026-11-06
 - **Breaking:** the teaching layer moved to the new `dsh-socratic-persona`
   bundle. This package now ships the 13 tools and the console cards only — no
@@ -92,7 +100,22 @@ per package; dates are release dates, not commit dates.
   charter.
 - `lib/stream-mode.js` moved with it; `lib/transport.js` stays here.
 
+### 0.4.2 — 2026-11-06
+- Refactor only: `charterText()`, `makeStreamHandler()` and `makePreStepHandler()`
+  are exported, so the charter wording and both Host hooks can be asserted in
+  unit tests instead of by reading a live session. 8 new tests (20 total); no
+  behaviour change.
+
 ## dsh-socratic-persona
+
+### 0.1.1 — 2026-11-12
+- The `agent/pre-step` handler no longer mutates the decision returned by
+  `next()`; it returns `{ ...decision, messages: [injected, ...messages] }`.
+  DSH 0.2.2 deep-freezes `llm/stream` options, so mutating a returned object is a
+  hazard worth avoiding before it bites.
+- Same `engines.dsh` widening as the tools bundle.
+- 13 contract tests (one new: a frozen decision is returned intact, and the
+  identity fallback `agent.id` is covered).
 
 ### 0.1.0 — 2026-11-06
 - First release: the charter (`systemPrompt` section `socratic:charter`), the
@@ -101,10 +124,6 @@ per package; dates are release dates, not commit dates.
 - Standalone: one `GET /v1/state/<session>` is the only sidecar call, so this
   package does not depend on the tools bundle.
 - 12 contract tests.
-- Refactor only: `charterText()`, `makeStreamHandler()` and `makePreStepHandler()`
-  are exported, so the charter wording and both Host hooks can be asserted in
-  unit tests instead of by reading a live session. 8 new tests (20 total); no
-  behaviour change.
 
 ### 0.4.1 — 2026-11-06
 - New `persona` config option (**default on**). With `persona: false` the plugin
