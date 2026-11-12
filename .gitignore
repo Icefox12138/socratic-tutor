@@ -71,3 +71,6 @@ data/
 jieba.cache
 blobs/
 .mineru-service.lock
+
+# ssh working file used when pushing from the sandbox
+.ssh_known_hosts
