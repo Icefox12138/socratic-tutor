@@ -42,7 +42,7 @@
 | 判定 / critic | 完成 | 单问、引用、leak 硬拦截；`/v1/critic*` |
 | 学习者模型 | 完成 | BKT + FSRS（缺 `fsrs` 时跳过） |
 | 复盘 | 完成 | 判定 100%、错误分类 **86.7%**、undetermined 0% |
-| 计算后端 | 完成（首版） | SymPy/SciPy/pint/control；audit-only 沙箱；Wolfram/Lean 未装 |
+| 计算后端 | 完成 | 实现已拆为独立包 **calcbox 0.3.0**（PyPI, MIT）；SymPy/SciPy/pint/control + 可选 Wolfram/Lean；audit-only 沙箱 |
 | 内嵌 UI | 完成 | `/ui`、引用卡、提示级别、页图 |
 | 打包 | 完成 | `Dockerfile` + `docker-compose.yml`（Linux 镜像未实跑） |
 | PTC | 条件通过 | 原生 `run_code` 可用；token −2.2%，**不默认** |
@@ -109,6 +109,7 @@ L1 数据：search.db（chunks + chunks_fts）· bge-*.npy · state.db
 | `SIDECAR-CONTRACT.md` | 插件 ↔ sidecar 接口 |
 | `USER-GUIDE.md` | 安装与使用 |
 | `PORTABILITY.md` | 跨平台 + **DSH 权限档矩阵** |
+| calcbox（外部） | 计算内核的权威文档：[github.com/Icefox12138/calcbox](https://github.com/Icefox12138/calcbox)，PyPI `calcbox` |
 | `FEDERATED-SEARCH.md` / `LEXICAL-SEARCH.md` | 两套检索扩展的设计 |
 | `SPLIT-PLAN.md` / `RELEASE-PLAN.md` / `RELEASE-2026-11-06.md` | 拆分与发布 |
 

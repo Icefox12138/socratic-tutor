@@ -155,7 +155,8 @@ DSH GUI / any MCP host
                           ├─ SQLite FTS5   (167k chunks, CJK bigrams)
                           ├─ BGE-M3 vectors (in-process matrix, no vector DB)
                           ├─ bge-reranker   (cross-encoder)
-                          └─ pypdfium2       (renders book p.N on demand)
+                          ├─ pypdfium2       (renders book p.N on demand)
+                          └─ calcbox        (compute: sympy/scipy/pint/control, PyPI)
         │
         └─ classics-index: OCR of running headers → 卷 / 篇 / 回 boundaries
 ```
