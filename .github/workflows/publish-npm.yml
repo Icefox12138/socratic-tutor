@@ -1,21 +1,23 @@
 # Publish the two npm bundles with npm Trusted Publishing (OIDC).
 #
-# No NPM_TOKEN secret: GitHub mints a short-lived OIDC token and npm exchanges
-# it for a publish credential. Requirements, checked against
+# No NPM_TOKEN: GitHub mints a short-lived OIDC token that npm exchanges for a
+# publish credential. Requirements, checked against
 # https://docs.npmjs.com/trusted-publishers/ on 2026-11-12:
 #   * npm CLI >= 11.5.1 and Node >= 22.14  -> node-version 24 below
 #   * permissions: id-token: write
 #   * this filename must match the "Workflow filename" configured on npmjs.com
 #     for EACH package, byte for byte: publish-npm.yml
 #   * package.json "repository.url" must point at this GitHub repo
-#   * a new trusted publisher must publish successfully within 2 days or expire
+#   * a new trusted publisher must publish within 2 days or it expires
 #
-# Provenance is generated automatically; do not pass --provenance.
+# Provenance is automatic; do not pass --provenance.
 #
-# Normal releases use a tag (dsh-socratic-vX.Y.Z /
-# dsh-socratic-persona-vX.Y.Z). workflow_dispatch is the recovery path: pick
-# one bundle and it publishes the version currently in its package.json, which
-# is how a failed tag run is retried without bumping a version.
+# One job per bundle, selected by `if:` rather than by a matrix plus a shell case
+# over the tag: an earlier version subscribed the tag with `${{ }}` inside a
+# `[[ ... ]]` test and died with bash exit code 2 before printing anything.
+#
+# Release path: push a tag. Recovery path: workflow_dispatch, pick a bundle, and
+# it publishes whatever version its package.json holds.
 
 name: publish-npm
 
@@ -39,83 +41,38 @@ permissions:
   id-token: write
 
 jobs:
-  publish:
+  tools:
+    name: dsh-socratic
+    if: >-
+      github.event_name == 'push' && startsWith(github.ref_name, 'dsh-socratic-v') ||
+      github.event_name == 'workflow_dispatch' && inputs.package == 'plugin-socratic'
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - dir: plugin-socratic
-            prefix: dsh-socratic-v
-          - dir: plugin-socratic-persona
-            prefix: dsh-socratic-persona-v
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
-
-      # Values reach the shell through env, never through text substitution
-      # inside the script: that keeps the quoting trivial and the failure
-      # message readable.
-      - name: Decide whether this entry publishes
-        id: pick
-        shell: bash
+      - name: Publish dsh-socratic
         env:
-          DIR: ${{ matrix.dir }}
-          PREFIX: ${{ matrix.prefix }}
-          EVENT: ${{ github.event_name }}
-          TAG_REF: ${{ github.ref_name }}
-          INPUT_PACKAGE: ${{ inputs.package }}
-        run: |
-          set -euo pipefail
-          pkg_name="$(jq -r .name "$DIR/package.json")"
-          pkg_version="$(jq -r .version "$DIR/package.json")"
-          echo "dir=$DIR name=$pkg_name version=$pkg_version event=$EVENT ref=$TAG_REF"
+          DIR: plugin-socratic
+          TAG_PREFIX: dsh-socratic-v
+        run: bash .github/scripts/publish-one.sh
 
-          if [ "$EVENT" = "workflow_dispatch" ]; then
-            if [ "${INPUT_PACKAGE:-}" != "$DIR" ]; then
-              echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "not selected by the dispatch input: $DIR"
-              exit 0
-            fi
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-            echo "dispatching $pkg_name@$pkg_version"
-            exit 0
-          fi
-
-          case "$TAG_REF" in
-            "$PREFIX"*) ;;
-            *)
-              echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "tag $TAG_REF does not name this bundle"
-              exit 0
-              ;;
-          esac
-
-          tag_version="${TAG_REF#"$PREFIX"}"
-          if [ "$tag_version" != "$pkg_version" ]; then
-            echo "::error::tag $TAG_REF implies $tag_version but $DIR/package.json is $pkg_version"
-            exit 1
-          fi
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-
-      - name: Publish
-        if: steps.pick.outputs.skip == 'false'
-        working-directory: ${{ matrix.dir }}
-        run: |
-          set -euo pipefail
-          node --version
-          npm --version
-          npm publish --access public
-
-      - name: Verify the registry entry and its provenance
-        if: steps.pick.outputs.skip == 'false'
-        working-directory: ${{ matrix.dir }}
-        run: |
-          set -euo pipefail
-          name="$(jq -r .name package.json)"
-          version="$(jq -r .version package.json)"
-          npm view "$name@$version" version dist-tags dist.attestations --json || true
+  persona:
+    name: dsh-socratic-persona
+    if: >-
+      github.event_name == 'push' && startsWith(github.ref_name, 'dsh-socratic-persona-v') ||
+      github.event_name == 'workflow_dispatch' && inputs.package == 'plugin-socratic-persona'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+      - name: Publish dsh-socratic-persona
+        env:
+          DIR: plugin-socratic-persona
+          TAG_PREFIX: dsh-socratic-persona-v
+        run: bash .github/scripts/publish-one.sh
