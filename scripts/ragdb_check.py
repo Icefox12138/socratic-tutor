@@ -20,6 +20,11 @@ sys.path.insert(0, os.path.join(REPO, "sidecar"))
 from app import config, schema  # noqa: E402
 
 
+def _open(path):
+    """Use the sidecar's opener so a WAL index on sealed media still opens."""
+    return config.open_db(path)
+
+
 def size_mb(path):
     try:
         return round(os.path.getsize(path) / (1024 * 1024), 1)
@@ -32,8 +37,7 @@ def db_stats(path):
     if not os.path.exists(path):
         return {"ok": False, "error": "missing"}
     try:
-        con = sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro",
-                              uri=True, timeout=5)
+        con = _open(path)
         try:
             chunks = con.execute("SELECT count(*) FROM chunks").fetchone()[0]
             tutor = con.execute("SELECT count(*) FROM chunks WHERE visibility='tutor'").fetchone()[0]
@@ -85,8 +89,7 @@ def toc_stats(path):
     if not os.path.exists(path):
         return {"ok": False, "error": "missing"}
     try:
-        con = sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro",
-                              uri=True, timeout=5)
+        con = _open(path)
         try:
             n = con.execute("SELECT count(*) FROM toc").fetchone()[0]
             books = con.execute("SELECT count(DISTINCT source || ':' || book) FROM toc").fetchone()[0]
