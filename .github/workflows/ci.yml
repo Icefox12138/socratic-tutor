@@ -38,7 +38,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e packages/classics-index
-      - run: pip install fastapi pydantic pypdfium2 pillow sympy scipy pint control simplemma httpx2 PyYAML PyYAML
+      - run: pip install "calcbox>=0.3,<0.4" fastapi pydantic pypdfium2 pillow sympy scipy pint control simplemma httpx2 PyYAML PyYAML
       - name: tests
         working-directory: sidecar
         env:
@@ -54,7 +54,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e packages/classics-index
-      - run: pip install fastapi pydantic pypdfium2 pillow sympy scipy pint control simplemma httpx2 PyYAML
+      - run: pip install "calcbox>=0.3,<0.4" fastapi pydantic pypdfium2 pillow sympy scipy pint control simplemma httpx2 PyYAML
       - name: tests
         working-directory: sidecar
         env:
