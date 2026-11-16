@@ -8,6 +8,7 @@
 | 实现 | `sidecar/app/schema.py`（DDL/检测）、`catalog.py`（读取）、`ingest.py`（写入） |
 | 适配器 | `sidecar/app/adapters/wikisource.py`、`cts.py` |
 | v1 | 仍是私有 PDF 库的契约，见 [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md) |
+| 差异 | 数据工程的目标契约（词典 `dict` / 语法 `grammar` / 教材块流）与本文的差距、迁移顺序见 [SCHEMA-GAP.md](SCHEMA-GAP.md)；测量用 `scripts/schema_check.py` |
 
 ---
 

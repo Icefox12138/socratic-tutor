@@ -55,6 +55,7 @@
 | [USER-GUIDE.md](USER-GUIDE.md) | **安装与使用说明**：装包、起服务、接 Agent、排查 |
 | [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md) | **数据库契约 v1**：私有 PDF 库的形状 |
 | [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md) | **数据库契约 v2**：公开语料（Wikisource/CTS）、locator/stream/license、向量 |
+| [SCHEMA-GAP.md](SCHEMA-GAP.md) | **契约差异账本**：数据工程的目标契约 vs 已实现契约，含迁移顺序与验收 |
 | [CITATION-POLICY.md](CITATION-POLICY.md) | **引用策略（设计稿）**：cite / template / verify 三角色、tier 阶梯、分科默认表、为什么暂不做设置界面 |
 | [CITATION-POLICY-PLAN.md](CITATION-POLICY-PLAN.md) | **引用策略实施（方案稿）**：逻辑源 × 通道（本地 PDF / RAG 库 / 公共 API / 数据集 / 云存储）分层、能力矩阵、多源合并与锚点、命名权重档、M0–M5 里程碑与等价性回归 |
 | [LEXICAL-SEARCH.md](LEXICAL-SEARCH.md) | grep/lemma 词法通道：端点、语义、simplemma、评估 |
@@ -78,7 +79,7 @@
 
 合成演示语料：[samples/README.md](../samples/README.md)（5 页自制书 + 索引，零版权）。
 
-工具：`scripts/ragdb_check.py`（不起服务，直接检查配置指向的库/向量）、`scripts/contract_check.py`（对任意 URL 跑契约检查）、`scripts/ingest_public.py`（Wikisource/CTS 公开语料**构建期**入库）、`scripts/embed_public.py`（v2 BGE-M3 向量增量编码）、`scripts/eval_public.py`（公开语料检索评估）、`scripts/eval_lexical.py`（grep/lemma 变格评估）、`scripts/publish_lint.py`（发布前查 license/绝对路径/密钥/数据文件）、`scripts/docs_audit.py`（文档断链/孤儿/过期数字体检）。
+工具：`scripts/ragdb_check.py`（不起服务，直接检查配置指向的库/向量）、`scripts/contract_check.py`（对任意 URL 跑契约检查）、`scripts/ingest_public.py`（Wikisource/CTS 公开语料**构建期**入库）、`scripts/embed_public.py`（v2 BGE-M3 向量增量编码）、`scripts/eval_public.py`（公开语料检索评估）、`scripts/eval_lexical.py`（grep/lemma 变格评估）、`scripts/publish_lint.py`（发布前查 license/绝对路径/密钥/数据文件）、`scripts/docs_audit.py`（文档断链/孤儿/过期数字体检）、`scripts/schema_check.py`（库 vs 契约：未知 stream / 被拒 locator / 缺列）。
 
 补充报告：
 
