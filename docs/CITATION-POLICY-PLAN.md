@@ -3,7 +3,7 @@
 | 项 | 值 |
 |---|---|
 | 日期 | **2026-11-06** |
-| 状态 | **M0–M4 已实现；M5 消费端已接通**（2026-11-06）：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生（缺 `page_render` → 422）；`tier`/`tier_estimated` 查表；`routed` 关键词表进 `routing` 段（变音不敏感，`Ἰλιάς` 命中）；`scope=all` 支持 `rrf`/`weighted`/`tiered` 并标注 `role_in_answer`，**默认 `rrf` 与改前逐位相同**；`book_meta.json` 已读取，citation 带 `doc_kind`/`subject`，`?subject=&doc_kind=` 可显式选规则。开启权重前必须重跑 100 问 |
+| 状态 | **M0–M4 已实现；M5 消费端已接通；M6（服务时 `public-api` 通道）仅方案**（2026-11-16）：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生（缺 `page_render` → 422）；`tier`/`tier_estimated` 查表；`routed` 关键词表进 `routing` 段（变音不敏感，`Ἰλιάς` 命中）；`scope=all` 支持 `rrf`/`weighted`/`tiered` 并标注 `role_in_answer`，**默认 `rrf` 与改前逐位相同**；`book_meta.json` 已读取，citation 带 `doc_kind`/`subject`，`?subject=&doc_kind=` 可显式选规则。M6 见 §5.1。开启权重前必须重跑 100 问 |
 | 依据 | [CITATION-POLICY.md](CITATION-POLICY.md)（是什么 / 为什么） |
 | 目标 | 让"引用谁、从哪取、怎么定位、谁裁决"成为**数据**，且默认配置下行为与今天逐条一致 |
 
@@ -345,10 +345,44 @@ rules:
 | **M3 路由表化** | `federated._route` 关键词表搬进规则；`routed` 退化为 `all` 特例 | 无（等价）；顺带修 `Ἰλιάς` |
 | **M4 合并与锚点** | `merge.mode`（`rrf` 默认 / `weighted` / `tiered`）、按 catalogue 的权重（命名档，RRF 名次空间）、`role_in_answer` 标注 | **默认无**；开权重才有 |
 | **M5 元数据补全** | `doc_kind` 标注（801 本）、v1 旁表、按 `doc_kind` 选规则、云副本接入 | 无（新增能力） |
+| **M6 服务时通道**（未实现） | `public-api` 通道真正可用：按 locator **现场**取文本（CTS URN / Wikisource revision），带缓存、超时、离线跳过与来源快照 | 无（默认关闭；开启后只增引用，不改排序） |
 
 > M5 已**移交 rag-build 执行**（数据标注属数据工程，且标注文件不得进公开仓）：
 > `D:\Guo-Code\rag-build\docs\BOOK-META-TASK.md`。产出 `data/book_meta.json`，
-> 本仓只在文件存在时读它；文件缺失则一律按 `unknown` 处理，行为不变。
+> 本仓只在文件存在时读它；文件缺失则一律按 `unknown` 处理，行为不变。**已完成**：
+> 文件 800 条，sidecar 自 2026-11-06 起消费（citation 带 `doc_kind`/`subject`）。
+
+### 5.1 M6：服务时 `public-api` 通道
+
+**为什么单列**：`channel.kind = public-api` 从 M0 起就在能力矩阵里，`/v1/channels`
+也会把它报成 `unused`，但**没有任何代码路径真正调用它**——它是这套里唯一"定义了却没实现"
+的通道类型。其余通道（本地文件 / RAG 库 / 数据集 / 云对象）都在 M1 收敛完了。
+
+**判据（与数据工程的分界）**：下载物**拿来即用**才归运行时；要先解析/切块/建索引的（Perseus
+版本 XML、archive.org 元数据、Wikisource 页面入库、LSJ TEI）是**构建输入**，归数据工程。
+所以 M6 只做"读取已有结构化标识"这一件事，不做语料建设。
+
+| 子项 | 内容 |
+|---|---|
+| 定位符 | `cts-urn`（可带 `:1.1` 引用范围）与 `mediawiki`（`revid` + `section`）；两者都已在 `locators.SCHEMES` 里 |
+| 取文本 | CTS：Perseus/Scaife CTS API（本仓 `adapters/cts.py` 已有解析逻辑，含 legacy hopper 回退）；Wikisource：`action=query&prop=revisions&rvslots=main` |
+| 缓存 | 键 `(source, locator, revid)`；TTL 与 `SOCRATIC_CACHE_TTL` 一致；**只缓存成功结果** |
+| 超时 | 单次 ≤ 2 s，超时即 `unavailable`，**不阻塞教学回合**；离线/不可达时该通道被跳过，行为与"通道缺失"一致 |
+| 溯源 | `citations` 记录 `locator_scheme`、`retrieved_at`、`revid`（Wikisource）或 `urn`（CTS）、`text_sha256`；`tier_estimated=true` 表示"取的是实时文本，可能与本地 edition 不同版" |
+| 角色 | 默认 `verify`/`corroborating`，**不当 anchor**——活文本与学生手里的版本可能不一致；只有当 locator 本身就是该 revision/URN 时才可 `cite` |
+| 规则 | 必须由 `policy.yaml` 的 `prefer`/`cite` 显式列出才启用；默认关闭，等价性快照因此不变 |
+| 礼节 | 固定 UA、Wikimedia ≤1 req/s、失败退避；不抓取 ctext 之类禁止抓取的入口 |
+
+**验收**（进 §6 表）：
+
+1. 关掉时：20 条固定查询快照与今天逐条一致，`/v1/channels` 仍报 `unused`；
+2. 断网时：带 `public-api` 的规则不报错，只是不产出引用，`/v1/channels` 报 `unavailable`；
+3. 在线时：同一 URN 连续两次取回文本 `text_sha256` 一致；对一条 Wikisource 引文按 `revid` 复核通过；
+4. 性能：缓存命中 p95 < 50 ms，未命中 p95 < 2 s（100 次混合）；
+5. 溯源：每条 live 引用都能从 `citations` 行还原出"哪个 revision/URN、什么时候取的"。
+
+> **不做**：不把取回的文本落库（那是构建输入，会与 `public.db` 形成第二份真源）；不在这里做
+> 语料建设；不引入搜索（`deepseek_web_search` 之类服务端工具）——它们绕过 tier/role/locator。
 
 M0–M3 是纯重构 + 契约补齐，用快照证明零行为变化；M4 才可能动数字。
 
@@ -362,6 +396,7 @@ M0–M3 是纯重构 + 契约补齐，用快照证明零行为变化；M4 才可
 | M3 | `routed`/`all` 默认行为快照一致；`Ἰλιάς` 命中 v2 |
 | M4 | 100 问 R@10、130 题 R@5/R@1 记录在案；R@10 下降 > 1 点则权重回滚为等权。另需三条断言：每条事实句**恰好一个** `anchor`；`anchor` 必来自该学科 `cite` 列表；源间冲突时两说并存、未被静默压制。权重改动必须附 `weight_profile` 与等权基线对比 |
 | M5 | `doc_kind` 覆盖率报告 + 30 本抽样人工核对 |
+| M6（未实现） | 关闭时快照零差异；断网不报错只跳过；同 URN 两次取回 `text_sha256` 一致；按 `revid` 复核引文通过；缓存命中 p95 < 50 ms、未命中 < 2 s；每条 live 引用可从 `citations` 还原 revision/URN 与取回时间 |
 
 **核心保障是等价性回归**：风险不是"做得不好"，而是"悄悄改变了已有排序"。
 

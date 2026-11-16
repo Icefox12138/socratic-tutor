@@ -59,8 +59,16 @@
 | [CITATION-POLICY-PLAN.md](CITATION-POLICY-PLAN.md) | **引用策略实施（方案稿）**：逻辑源 × 通道（本地 PDF / RAG 库 / 公共 API / 数据集 / 云存储）分层、能力矩阵、多源合并与锚点、命名权重档、M0–M5 里程碑与等价性回归 |
 | [LEXICAL-SEARCH.md](LEXICAL-SEARCH.md) | grep/lemma 词法通道：端点、语义、simplemma、评估 |
 | [FEDERATED-SEARCH.md](FEDERATED-SEARCH.md) | `scope=all`/`routed`：合并、路由、边界 |
+| [LLM-BACKEND.md](LLM-BACKEND.md) | **模型底座**：两处调用点、换底座的步骤、换完要重测什么 |
+| [PLUGIN-MARKET.md](PLUGIN-MARKET.md) | 插件市场索引格式与校验规则；当前目录在 `market/index.json` |
+| [REPOSITORY-TOPOLOGY.md](REPOSITORY-TOPOLOGY.md) | 仓库拓扑：哪些目录属运行时、哪些属数据工程 |
+| [decisions/ADR-012-retrieval-selection.md](decisions/ADR-012-retrieval-selection.md) | ADR：检索选型（FTS + BGE + rerank，不用向量库） |
+| [decisions/ADR-013-llm-selection.md](decisions/ADR-013-llm-selection.md) | ADR：LLM 选型与约束 |
 | [../eval/v1/RESULTS.md](../eval/v1/RESULTS.md) | v1 P1 100 问：0.760→0.820 |
 | [../eval/public/RESULTS-project.md](../eval/public/RESULTS-project.md) | **项目综合评估**：v1 + v2 + 统一检索 |
+| [../eval/public/README.md](../eval/public/README.md) | 公开语料评测的产物、口径与复跑方法 |
+| [../eval/public/RESULTS.md](../eval/public/RESULTS.md) | 公开语料评测（130 题口径） |
+| [../eval/public/RESULTS-lexical.md](../eval/public/RESULTS-lexical.md) | 词法通道评测（grep / lemma 变格） |
 | [SPLIT-PLAN.md](SPLIT-PLAN.md) | 拆分计划：运行时 / 数据工程、docs 归属 |
 | [SIDECAR-CONTRACT.md](SIDECAR-CONTRACT.md) | 插件 ↔ sidecar 的 9 组端点契约与降级规则 |
 | [RELEASE-PLAN.md](RELEASE-PLAN.md) | **发布计划（双重开源）**：源码轨 + 产物轨、三个批次、资产门 |
@@ -70,9 +78,17 @@
 
 合成演示语料：[samples/README.md](../samples/README.md)（5 页自制书 + 索引，零版权）。
 
-工具：`scripts/ragdb_check.py`（不起服务，直接检查配置指向的库/向量）、`scripts/contract_check.py`（对任意 URL 跑契约检查）、`scripts/ingest_public.py`（Wikisource/CTS 公开语料入库）、`scripts/embed_public.py`（v2 BGE-M3 向量增量编码）、`scripts/eval_public.py`（公开语料检索评估）、`scripts/eval_lexical.py`（grep/lemma 变格评估）、`scripts/publish_lint.py`（发布前查 license/绝对路径/密钥/数据文件）。
+工具：`scripts/ragdb_check.py`（不起服务，直接检查配置指向的库/向量）、`scripts/contract_check.py`（对任意 URL 跑契约检查）、`scripts/ingest_public.py`（Wikisource/CTS 公开语料**构建期**入库）、`scripts/embed_public.py`（v2 BGE-M3 向量增量编码）、`scripts/eval_public.py`（公开语料检索评估）、`scripts/eval_lexical.py`（grep/lemma 变格评估）、`scripts/publish_lint.py`（发布前查 license/绝对路径/密钥/数据文件）、`scripts/docs_audit.py`（文档断链/孤儿/过期数字体检）。
+
+补充报告：
+
+| 文件 | 内容 |
+|---|---|
 | [P2-5-embedded-ui.md](P2-5-embedded-ui.md) | DSH 内嵌教学台 + K5 页图引用 |
 | [REVISION.md](REVISION.md) | 2026-11-03 全面修订记录 |
+
+**历史文档**：`HANDOFF-2026-11-*` 是各阶段交接，保留**当时**的数字与结论（如 264 条测试、
+插件 0.1.0）；`RELEASE-2026-11-06.md` 同理。当前状态只看 `STATUS.md` + `HANDOFF.md`。
 
 ## 5. 阅读原则
 
