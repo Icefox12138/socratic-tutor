@@ -58,7 +58,7 @@
 3. **中文标签**：判定的 misconception 标签是中文，供中文教学界面使用；英文底座可能改变标签分布。
 4. **延迟**：reasoner 类模型会显著变慢，25 秒超时可能不够；`judge_unavailable` 会变多。
 5. **不要把内置工具放进检索路径**：DeepSeek 的 `deepseek_web_search` / `deepseek_read_url` 由服务端自己发起检索并拼上下文，**绕过引用策略**（没有 tier、没有 role、没有 locator、进不了 `citations` 表）。检索只能用本仓的 sidecar 通道。
-6. **公开数据抓取在运行时，不在数据工程**：Perseus / archive.org / Wikisource 的联网访问统一由 `scripts/fetch_public.py` 完成（见该脚本 docstring 与 `docs/SIDECAR-CONTRACT.md` 的 public-api 通道）。数据工程只处理已下载文件。
+6. **公开数据的归属看"要不要先加工"，不看"是不是调 API"**：下载下来必须先解析/切块/建索引才能用的（Perseus 版本 XML、archive.org 元数据、Wikisource 页面入库），是**构建输入**，归数据工程；只有"拿来即用"的才算运行时的服务时调用（例如按 CTS URN 现场取一段、按 revision 复核一条引文）。**运行时目前没有任何服务时公开 API 调用**：唯一的联网路径是 `scripts/ingest_public.py` + `app/adapters/`，它把公开语料写进 `public.db`，是构建步骤，不参与答题。
 
 ## 6. 相关代码与测试
 
@@ -68,4 +68,4 @@
 | `sidecar/app/evaluator.py` | 判定，走 `llm.chat_json()`，结果带 `judge` |
 | `sidecar/app/translate.py` | OOV 翻译，走 `llm.chat()`，失败返回 `[]` |
 | `sidecar/tests/test_llm.py` | 11 条：路由来自配置、密钥优先级、loader 注入、HTTP/形状错误包装、JSON 容错、判定落到配置端点、verdict 带 judge 入库 |
-| `scripts/fetch_public.py` | 公开数据的一次性抓取（Perseus / archive.org / Wikisource） |
+| `scripts/ingest_public.py` + `app/adapters/` | 公开语料的**构建期**导入（写 `public.db`）；不是服务时调用 |
