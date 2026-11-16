@@ -3,7 +3,7 @@
 | 项 | 值 |
 |---|---|
 | 扫描 | `python scripts/portability_check.py` → **PORTABLE** |
-| Windows | 本机 Windows 11 / Python 3.12：sidecar **264/264** |
+| Windows | 本机 Windows 11 / Python 3.12：sidecar **341/341**（2026-11-16 复核） |
 | Linux | GitHub Actions `ubuntu-latest`（Python 3.12）+ Dockerfile；本机无 Docker/WSL，未实跑镜像 |
 | macOS | **未实测**；纯 Python/Node 代码，无 Windows API 依赖 |
 | CI | 新增 `sidecar-windows` job；原有 ubuntu packages/sidecar/plugin job 保留 |

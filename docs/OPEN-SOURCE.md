@@ -76,7 +76,7 @@ python -m classics_index.cli hui     --ocr ../../eval/p3/out/hui.jsonl --names "
 
 ### 耦合面有多大
 
-12 个工具，9 组端点，全部走同一个 HTTP 边界：
+13 个工具（2026-11-16 起工具包与人格包分开），9 组端点，全部走同一个 HTTP 边界：
 
 | 层 | 内容 | 是否领域 |
 |---|---|---|

@@ -2,8 +2,8 @@
 
 | 项 | 值 |
 |---|---|
-| 适用版本 | `classics-index` 0.1.3 · `socratic-mcp` 0.1.2 · `dsh-socratic` 0.2.3 |
-| 日期 | 2026-11-04 |
+| 适用版本 | `classics-index` 0.1.3 · `socratic-mcp` 0.2.0 · `dsh-socratic` 0.5.1 · `dsh-socratic-persona` 0.1.1 |
+| 日期 | 2026-11-16（版本号随发布更新；安装步骤不变） |
 | 一句话 | 本项目**只负责读库教学**；数据（OCR/切块/向量）由你自己构建或取得 |
 
 ---
@@ -12,7 +12,7 @@
 
 ```
 你的书库 ──(另一套管线)──► RAG 数据库 ──► sidecar ──► 插件 / MCP ──► 你
-                            search.db      FastAPI      12 个工具
+                            search.db      FastAPI      13 个工具
                             vectors/*.npy
 ```
 
@@ -20,7 +20,8 @@
 
 | 组件 | 形态 | 装法 |
 |---|---|---|
-| `dsh-socratic` | DSH 插件（12 个工具） | `dsh plugin add dsh-socratic` |
+| `dsh-socratic` | DSH 插件（13 个工具 + 卡片），**不含教学人格** | `dsh plugin add dsh-socratic` |
+| `dsh-socratic-persona` | 教学层（章程 / 每步摘要 / 流改写），**作用于整个 profile** | `dsh plugin add dsh-socratic-persona` |
 | `socratic-mcp` | MCP server（任意 host） | `pip install socratic-mcp` |
 | `sidecar` | 本地 FastAPI 服务 | 从源码跑（未发布到 PyPI） |
 | `classics-index` | 章回索引器（可选） | `pip install classics-index` |

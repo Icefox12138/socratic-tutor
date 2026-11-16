@@ -1,6 +1,6 @@
 # docs 索引
 
-> **先读 [STATUS.md](STATUS.md)**：2026-11-05 当前状态快照；与旧报告冲突时以它和 [HANDOFF.md](HANDOFF.md) 为准。
+> **先读 [STATUS.md](STATUS.md)**：2026-11-16 当前状态快照；与旧报告冲突时以它和 [HANDOFF.md](HANDOFF.md) 为准。
 
 ## 1. 入口（按顺序）
 

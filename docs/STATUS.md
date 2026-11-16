@@ -1,16 +1,18 @@
 # 项目当前状态（canonical）
 
-> 快照日期 **2026-11-06**（公开语料 v2 + 词法 + v1/统一检索）。**最后核对：2026-11-06 13:2x，HEAD `02a5bfa`，CI 绿。** 历史报告保留原始结论；与旧文档冲突时，以本文件 + [USER-GUIDE.md](USER-GUIDE.md) 为准。
+> 快照日期 **2026-11-16**（插件拆包 + DSH 0.2.2 兼容 + OIDC 发布）。**最后核对：2026-11-16，HEAD `72f9c10`，CI 绿。** 历史报告保留原始结论；与旧文档冲突时，以本文件 + [USER-GUIDE.md](USER-GUIDE.md) 为准。
 
 | 项 | 值 |
 |---|---|
-| 范围 | **只含教学运行时**：sidecar + DSH 插件 + MCP + 章回索引器 |
+| 范围 | **教学运行时**：sidecar + 两个 DSH 插件（工具 / 人格）+ MCP + 章回索引器 + 发布工作流 |
 | 不含 | OCR / 解析 / 切块 / 向量化 / RAG 库构建 → 私有工程 `rag-build`（见 [SPLIT-PLAN.md](SPLIT-PLAN.md)） |
-| 数据 | 外部：符合 [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md)（私有 PDF）或 [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md)（公开语料）的库 |
-| 发布 | PyPI `classics-index` 0.1.3、`socratic-mcp` **0.2.0**；npm `dsh-socratic` **0.4.0**；sidecar **0.2.1**（仅源码，未发 PyPI） |
-| 引用策略 | **M0–M4 已实现**：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生（缺 `page_render` → 422）；`tier`/`tier_estimated` 查表；`routed` 关键词表进 `routing` 段；`scope=all` 支持 `rrf`/`weighted`/`tiered` 并标注 `role_in_answer`。**默认 `rrf` 与改前逐位相同**（[CITATION-POLICY-PLAN.md](CITATION-POLICY-PLAN.md)） |
-| 测试 | sidecar **264**、classics-index **18**、socratic-mcp **6**、plugin（node --test）。本地沙箱下 106 错，见 §3.10 |
-| CI | 全绿（四 job：sidecar / packages×2 / plugin） |
+| 数据 | 外部：符合 [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md)（私有 PDF）或 [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md)（公开语料）的库；`book_meta.json` 可选 |
+| 发布 | npm **`dsh-socratic` 0.5.1**、**`dsh-socratic-persona` 0.1.1**（OIDC trusted publishing，带 SLSA provenance）；PyPI `classics-index` 0.1.3、`socratic-mcp` 0.2.0；`calcbox` 0.3.1（独立仓库）；sidecar **0.2.1**（仅源码，未发 PyPI） |
+| 插件形态 | **拆成两个 bundle**：工具包（13 工具 + 卡片）与人脑包（章程 / 每步摘要 / 流改写）。desktop 只装工具，`tutor` / `web` 两个都装 |
+| DSH 兼容 | 实测 **0.2.2-rc.2**；`engines.dsh` = `>=0.2.1-rc.2 <0.3.0-0 \|\| >=0.2.2-rc.2 <0.3.0-0`（严格 semver 也接受 0.2.2-rc.2） |
+| 引用策略 | **M0–M5 消费端全部落地**：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生（缺 `page_render` → 422）；`tier`/`tier_estimated` 查表；`scope=all` 支持 `rrf`/`weighted`/`tiered`；`book_meta` → citation 带 `doc_kind`/`subject`。**默认 `rrf` 与改前逐位相同** |
+| 测试 | sidecar **341**、plugin **6 + 13**（工具 / 人格）、classics-index **18**、socratic-mcp **6** |
+| CI | 全绿：`ci.yml` 四组 job + `publish-npm.yml`（tag 触发，OIDC） |
 | 人工评分 | **延后**（用户决定）；仍不能声称人类验证 |
 
 ---
@@ -19,20 +21,21 @@
 
 | 模块 | 状态 | 说明 |
 |---|---|---|
-| 检索 | 完成 | FTS5（中文二元组）+ BGE-M3 + reranker；v1 0.82、v2 0.977；`scope=all` 联邦 |
-| 页图 | 完成（可选） | pypdfium2 按需渲染；`SOCRATIC_RENDER=off` 时纯文本模式 |
+| 检索 | 完成 | FTS5（中文二元组）+ BGE-M3 + reranker；v1 0.80–0.82、v2 R@5 0.977；`scope=all` 联邦 |
+| 页图 | 完成（可选） | pypdfium2 按需渲染（加锁串行，防 PDFium 线程崩溃）；`SOCRATIC_RENDER=off` 为纯文本模式 |
 | 引用核验 | 完成 | 页图（`/v1/pages`）或页内文本比对（`/v1/verify`） |
 | 章回 | 完成 | `classics-index` 产出的 卷/篇/回；`toc` 可存 `state.db` 或 RAG 库 |
 | 状态机 | 完成 | 初始化 / 推进 / 判定 / critic |
 | 学习者模型 | 完成 | BKT + FSRS（`fsrs` 缺省时跳过） |
 | 复盘 | 完成 | 判定 100%、错误分类 **86.7%**（留出集）、undetermined 0% |
-| 内嵌 UI | 完成 | 引用卡 / 提示级别 / 页图 |
+| 内嵌 UI | 完成 | 引用卡（含 tier / 锚点角色）、引用策略卡、页图、提示级别 |
+| 计算后端 | 完成 | 实现已迁到独立包 **calcbox 0.3.1**（PyPI, MIT）；`sidecar/app/compute.py` 只是适配层 |
+| DSH 插件 | 完成（已拆包） | `dsh-socratic` 13 工具 + `client.js` 卡片；`dsh-socratic-persona` 章程 + `agent/pre-step` + `llm/stream` |
 | PTC | 条件通过 | 原生 `run_code` 可用；token −2.2%，**不默认** |
-| 公开语料 | 完成（首版） | schema v2 + Wikisource/CTS + BGE + OOV 闸门；130 人工题 R@5 **0.977** / R@1 0.862（含词法融合）；未知子集 1.000 |
-| 词法通道 | 完成（含融合） | `/v1/grep`、`/v1/lemma`；已作为 v2 检索的 RRF 列表；变格 R@5 0.917–1.000 |
-| 统一检索 | 完成（首版） | `scope=all` 合并、`scope=routed` 路由；真实两库冒烟；非学习路由 |
-| 计算后端 | 完成（首版） | `compute.py` + `compute_worker.py` + `sandbox_policy.py`；audit-only 沙箱，SymPy/SciPy/pint/control |
-| 打包 | 完成 | `Dockerfile` / `docker-compose.yml` / `.dockerignore`；跨平台路径见 `PORTABILITY.md` |
+| 公开语料 | 完成（首版） | schema v2 + Wikisource/CTS + BGE + OOV 闸门；130 人工题 R@5 0.977 / R@1 0.862 |
+| 词法通道 | 完成（含融合） | `/v1/grep`、`/v1/lemma`；已作为 v2 检索的 RRF 列表 |
+| 统一检索 | 完成（首版） | `scope=all` 合并、`scope=routed` 路由 |
+| 打包 | 完成 | `Dockerfile` / `docker-compose.yml`；跨平台路径见 [PORTABILITY.md](PORTABILITY.md) |
 
 ## 2. 关键数字（运行时侧）
 
@@ -40,6 +43,7 @@
 |---|---|
 | RAG 库 | chunks **167,192**（tutor 148,261 / answer_key 18,931） |
 | 向量 | 148,261 × 1024 fp16，与 ids 对齐 |
+| 书目标注 | `book_meta.json` **800 条**；其中 **61 本**有 chunk（14 本 unknown 属正常） |
 | 检索质量 | 单语 **0.80–0.82**（< 0.85）、跨语言 **0.667**（< 0.70） |
 | 引用泄漏 | L4 0 / 266 |
 | 性能 | 检索毫秒级；页图 ~0.2 s/页（150 dpi） |
@@ -52,18 +56,25 @@
 2. **人工验证为 0**：任何"人类评分"表述都不成立；
 3. **数据质量不由本仓库保证**：引用是否准确取决于使用者自建的库；
 4. **`answer_key` 过滤器不等同于防泄漏审计**：它只保证学生视图不返回答案键；
-5. **公开语料评估仍是小集**：130 人工题/7 书/331 chunks 的 R@5 0.977，不等于 P1 的 100 问/167k chunks 口径；53 条中文语义题由一人撰写。
-6. **LLM 只在 OOV 时启用**（默认 `auto`）：已知词表/中国史问题不调；无 key 自动退化为纯词表。
-7. **lemma 只支持 v2 干净文本**；已融合进 v2 检索，但 v1 仍只有独立 grep。
-8. **希腊专项未稳定提升**：lemma/注释页索引均默认关闭；v1 希腊 0.417–0.583。
-9. **DSH 沙箱与本地跑测试**：`tempfile.mkdtemp()` 建的目录带 owner-only DACL，`workspace-write` 下写入/删除都被拒。已改为 `sidecar/tests/_tmp.py`（`os.makedirs` 实现）：本地 **264/264 通过**，classics-index **18/18**，socratic-mcp **6/6**；plugin 加 `--test-isolation=none` 后 **8/8 通过**（默认写法会 `spawn EPERM`，沙箱禁止子进程管道）。权限档矩阵见 `PORTABILITY.md` §3b。
-10. **项目整体不是生产级**：v1 recall 0.80–0.82 未过门槛、计算后端有 SymPy/SciPy/pint/control（Wolfram/Lean 未装）、人工评分为 0；详见 `eval/public/RESULTS-project.md`。
+5. **公开语料评估仍是小集**：130 人工题 / 7 书 / 331 chunks 的 R@5 0.977，不等于 P1 的 100 问口径；
+6. **LLM 只在 OOV 时启用**（默认 `auto`）：已知词表/中国史问题不调；无 key 自动退化为纯词表；
+7. **lemma 只支持 v2 干净文本**；v1 仍只有独立 grep；
+8. **希腊专项未稳定提升**：lemma/注释页索引均默认关闭；v1 希腊 0.417–0.583；
+9. **`book_meta` 只覆盖 `library` 语料**：Steadman/Teubner 的 `book` 是 slug 不是书库路径，查不到就整体不输出 `doc_kind`/`subject`；800 条里 739 本没有 chunk 是正常现象，不是缺漏；
+10. **人格包是 profile 级**：`dsh-socratic-persona` 的章程、每步摘要、流改写对**该 profile 的所有会话**生效，**不能按会话切换**。开发用只装工具包的 profile，教学用另装人格包的 profile；
+11. **npm 发布走 OIDC**：`publish-npm.yml` 需要与 npm 上 Trusted Publisher 配置的文件名逐字一致；手工 `npm publish` 在启用 "disallow tokens" 后不再可用；
+12. **DSH 0.2.2 会深冻结 `llm/stream` 的 options**，`agent/pre-step` 的 decision 也已改为**返回新对象**而不是原地 `unshift`；
+13. **DSH 沙箱与本地跑测试**：`tempfile.mkdtemp()` 建的目录带 owner-only DACL，`workspace-write` 下不可写 → 用 `sidecar/tests/_tmp.py`；`node --test` 需 `--test-isolation=none`（默认 spawn 子进程会 `EPERM`）；`git push` 走 SSH 时 git 会 spawn `sh` 建管道，沙箱内失败，需放宽一次权限；
+14. **项目整体不是生产级**：v1 recall 0.80–0.82 未过门槛、计算后端为 SymPy/SciPy/pint/control（Wolfram/Lean 未装）、人工评分为 0。
 
 ## 4. 与旧快照的差异
 
-| 旧（2026-11-03） | 新（2026-11-06） |
+| 旧（2026-11-06） | 新（2026-11-16） |
 |---|---|
-| 测试 106/106 | 264（sidecar） |
-| 含 P1-3c OCR / P1-3d 解析器 / P3-2…P3-5 索引构建 | 迁出，见 `rag-build/HANDOFF.md` |
-| 仓库自带 `data/`（1.2 GB） | 数据在 `D:\Guo-Code\rag-build\data` |
-| 页面渲染是硬依赖 | `SOCRATIC_RENDER` 三档，可纯文本运行 |
+| npm `dsh-socratic` 0.4.0（单包，含人格） | 0.5.1 工具包 + `dsh-socratic-persona` 0.1.1，**拆包**；OIDC 发布带 provenance |
+| 引用策略 M0–M4 | M0–**M5 消费端**（`book_meta` → `doc_kind`/`subject`） |
+| 测试 264 / 8 | sidecar **341** / plugin **6 + 13** |
+| 计算在 `sidecar/app/compute.py` | 迁到 **calcbox 0.3.1**，此处只剩适配层 |
+| 未验证 DSH 升级 | 实测 **0.2.2-rc.2**，`engines` 放宽为并集 |
+| 无 npm 发布流水线 | `publish-npm.yml`：打 tag 即发布，无长期 token |
+| 测试用 `tempfile.mkdtemp()` | `_tmp.py`；插件测试 `--test-isolation=none` |
