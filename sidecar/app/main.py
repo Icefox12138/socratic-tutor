@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from . import (catalog, citation_policy, citations, classifier, config, critic,
-               evaluations, evaluator,
+               evaluations, evaluator, llm,
                learner, lexical, pages, policy, review, search, state_machine,
                state_store, toc)
 from .compute import (BackendUnavailable, ComputeError, backend_status,
@@ -102,8 +102,10 @@ def health():
             "detail": str(e)[:200],
             "hint": "按 docs/RAG-DB-SCHEMA.md 建库，或用 SOCRATIC_DB 指向已有的库",
             "cache": search.cache_stats(),
+            "llm": llm.provenance(),
         }
     return {"ok": True, "available": True, "version": config.VERSION, **info,
+            "llm": llm.provenance(),
             "cache": search.cache_stats()}
 
 

@@ -22,8 +22,13 @@ def init(path=None):
         "question TEXT, answer TEXT,"
         "result TEXT NOT NULL, confidence REAL,"
         "misconceptions TEXT, reason TEXT, source TEXT,"
+        "judge TEXT,"
         "created_at REAL NOT NULL)"
     )
+    # 0.2.1 DBs predate the judge column: add it in place, never rewrite rows.
+    cols = {row[1] for row in con.execute("PRAGMA table_info(evaluations)")}
+    if "judge" not in cols:
+        con.execute("ALTER TABLE evaluations ADD COLUMN judge TEXT")
     con.execute("CREATE INDEX IF NOT EXISTS idx_eval_session ON evaluations(session_id, id)")
     con.commit()
     con.close()
@@ -36,10 +41,13 @@ def save(session_id, question, answer, ev, path=None):
     try:
         cur = con.execute(
             "INSERT INTO evaluations(session_id, question, answer, result, confidence,"
-            " misconceptions, reason, source, created_at) VALUES(?,?,?,?,?,?,?,?,?)",
+            " misconceptions, reason, source, judge, created_at)"
+            " VALUES(?,?,?,?,?,?,?,?,?,?)",
             (session_id, question, answer, ev["result"], ev["confidence"],
              json.dumps(ev.get("misconceptions", []), ensure_ascii=False),
-             ev.get("reason", ""), ev.get("source", ""), time.time()))
+             ev.get("reason", ""), ev.get("source", ""),
+             json.dumps(ev["judge"], ensure_ascii=False) if ev.get("judge") else None,
+             time.time()))
         con.commit()
         return cur.lastrowid
     finally:

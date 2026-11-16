@@ -51,6 +51,7 @@
 | [P3-6-chapter-retrieval.md](P3-6-chapter-retrieval.md) | 检索接入章回：`book`+`chapter`、扫描本回页图 |
 | [OPEN-SOURCE.md](OPEN-SOURCE.md) | 开源价值评估：哪些代码可发布、哪些不能 |
 | [LEXICON-PLAN.md](LEXICON-PLAN.md) | **语法书/词典能力方案**：查词 vs 查语法、词形还原、里程碑 |
+| [LLM-BACKEND.md](LLM-BACKEND.md) | **模型底座**：两处调用点、换底座的步骤、换完要重测什么 |
 | [USER-GUIDE.md](USER-GUIDE.md) | **安装与使用说明**：装包、起服务、接 Agent、排查 |
 | [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md) | **数据库契约 v1**：私有 PDF 库的形状 |
 | [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md) | **数据库契约 v2**：公开语料（Wikisource/CTS）、locator/stream/license、向量 |

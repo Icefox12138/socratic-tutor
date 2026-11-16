@@ -13,10 +13,8 @@ import json
 import os
 import re
 import threading
-import urllib.error
-import urllib.request
 
-from . import config
+from . import config, llm
 
 DEFAULT_TARGETS = ("zh-classical", "greek", "latin", "en")
 ALL_TARGETS = set(DEFAULT_TARGETS)
@@ -217,12 +215,6 @@ def _parse_variants(text, targets):
     return out
 
 
-def _http_json(url, data, headers, timeout):
-    req = urllib.request.Request(url, data=data, headers=headers)
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
-
-
 def llm_expand(query, targets, opener=None, style=None):
     key = _key()
     if not key:
@@ -252,21 +244,12 @@ def llm_expand(query, targets, opener=None, style=None):
             "For proper names give the standard Greek/Latin spelling, not a similar "
             "but different name. Do not answer the question. Question: " + query
         )
-    payload = json.dumps({
-        "model": config.LLM_MODEL,
-        "temperature": 0,
-        "max_tokens": 300,
-        "messages": [{"role": "user", "content": prompt}],
-    }).encode("utf-8")
-    url = config.LLM_BASE.rstrip("/") + "/chat/completions"
-    headers = {"Authorization": "Bearer " + key,
-               "Content-Type": "application/json"}
     try:
-        body = (opener or _http_json)(url, payload, headers,
-                                      config.TRANSLATE_TIMEOUT)
-        content = body["choices"][0]["message"]["content"]
-    except (urllib.error.URLError, KeyError, ValueError, IndexError,
-            TypeError, TimeoutError, OSError):
+        reply = llm.chat([{"role": "user", "content": prompt}],
+                         temperature=0, max_tokens=300,
+                         timeout=config.TRANSLATE_TIMEOUT, loader=opener)
+        content = reply["content"]
+    except (llm.LlmError, llm.LlmUnavailable):
         return []
     alias = {"la": "latin", "grc": "greek", "gr": "greek", "english": "en"}
     out = []
