@@ -139,7 +139,21 @@ GET /v1/lemma?q=&view=&limit=&source=&lang=&book=&document_id=&section=
 ```
 
 `grep` 的 `match` 是 `{start,end,snippet,count}`；`lemma` 的 `match` 是
-`{coverage,lemmas,exact}`。两者都只返回 `visibility='tutor'` 的行。
+`{coverage,lemmas,exact}`。两者都只返回 `visibility='tutor'` 的行；
+v2 的 student 视图按**文档 `kind`** 决定可见 stream（见 RAG-DB-SCHEMA-V2 §4）。
+
+## 4d. 词目查表（v2.1）
+
+```
+GET /v1/lexicon?q=&lang=&area=dict|grammar&view=&limit=
+```
+
+- `area=dict`：`q` 是词形 → 先归并到词元，再按 `lexicon_headwords` 精确查表；
+- `area=grammar`：`q` 是 `§212` / `212`（`smythp=NNNN` 是另一套编号，按精确键处理）；
+- 返回：`{query, area, lang, available, streams, entries:[{headword, lemma, pos,
+  homonym, entry_id, definition, locator, citation}], reason}`；
+- 降级：没有 `lexicon.db` → `reason:"no_lexicon"`；查不到 → `"not_found"`；
+- **不做向量检索**：词条本身就是答案；`citation.tier` 为 A，`role` 为 `cite`。
 
 ## 5. 计算
 

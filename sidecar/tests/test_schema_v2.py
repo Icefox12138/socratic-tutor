@@ -62,6 +62,47 @@ class TestV2Schema(unittest.TestCase):
         self.assertEqual(schema.counts(self.db),
                          {"chunks": 0, "documents": 1, "sources": 1})
 
+    def test_documents_has_kind_column(self):
+        schema.ensure_v2(self.db)
+        con = sqlite3.connect(self.db)
+        try:
+            cols = {r[1] for r in con.execute("PRAGMA table_info(documents)")}
+        finally:
+            con.close()
+        self.assertIn("kind", cols)
+
+    def test_migrate_v1_adds_stream(self):
+        db = os.path.join(self.tmp, "v1.db")
+        con = sqlite3.connect(db)
+        con.execute("CREATE TABLE chunks (id INTEGER PRIMARY KEY, source TEXT, book TEXT,"
+                    " lang TEXT, page INTEGER, text TEXT, visibility TEXT)")
+        con.execute("INSERT INTO chunks(source, book, lang, page, text, visibility)"
+                    " VALUES('library','b','zh',1,'t','tutor')")
+        con.commit()
+        con.close()
+        self.assertTrue(schema.migrate_v1_stream(db))
+        self.assertTrue(schema.migrate_v1_stream(db))       # idempotent
+        con = sqlite3.connect(db)
+        try:
+            val = con.execute("SELECT stream FROM chunks").fetchone()[0]
+        finally:
+            con.close()
+        self.assertEqual(val, "text")
+
+    def test_dict_and_grammar_locators(self):
+        from app import locators
+        d = {"scheme": "dict", "headword": "λύω", "sense": "1", "page": 345}
+        locators.validate(d)
+        self.assertEqual(locators.default_label(d), "λύω · s.1 · p.345")
+        g = {"scheme": "grammar", "section": "212", "smythp": 212, "page": 88}
+        locators.validate(g)
+        self.assertIn("smythp=212", locators.url(g))
+        self.assertEqual(locators.default_label(g), "§212 · p.88")
+        with self.assertRaises(locators.LocatorError):
+            locators.validate({"scheme": "dict"})
+        with self.assertRaises(locators.LocatorError):
+            locators.validate({"scheme": "grammar"})
+
 
 class TestLocators(unittest.TestCase):
     def test_mediawiki_url_pins_revision(self):

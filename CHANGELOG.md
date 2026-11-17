@@ -21,6 +21,25 @@ per package; dates are release dates, not commit dates.
 
 ## sidecar
 
+### 0.3.0 — 2026-11-17
+- **Schema v2.1**: `documents.kind` (textbook/edition/dictionary/grammar…), the
+  `chunks.stream` vocabulary grows to ten values, and a new `lexicon_headwords`
+  table holds the exact-match index for dictionaries and grammars. All additive:
+  `ensure_v2()` adds the column in place, and `migrate_v1_stream()` gives a v1
+  database the inert `stream` column. `scripts/migrate_schema.py` wraps both with
+  a timestamped backup and is idempotent.
+- **Stream visibility is per document kind** (`citation_policy.streams_for`):
+  a dictionary student sees `definition`/`example`, a textbook `formula`/`table`/
+  `code`, an edition `commentary`/`apparatus`; `SOCRATIC_STUDENT_STREAMS` still
+  overrides the whole table. `search`, `catalog` and the lexical channels all read
+  through it, so no reader keeps its own list.
+- **`/v1/lexicon`**: form → lemma → entry (dictionary) or `§N` (grammar), from
+  `lexicon_headwords`; a missing database answers `no_lexicon` instead of failing.
+- The builtin policy gains `dict-lsj` / `grammar-smyth` / `grammar-ag`
+  (tier A, `catalogue: lexicon`) and two `doc_kind` rules ahead of the catch-all;
+  the default rule and `rrf` merge are unchanged.
+- 371 tests (was 355).
+
 ### 0.2.1 — 2026-11-06
 - Removed the Windows AppContainer path; compute worker now always uses the
   audit policy sandbox (network/subprocess denied, temp-only writes).

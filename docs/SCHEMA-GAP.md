@@ -87,24 +87,62 @@
 3. 关掉新流白名单时，20 条固定查询快照与今天逐条一致；
 4. 开 `stream=definition` 后，`/v1/search` 能命中且 `citation.locator` 可渲染出可点 URL。
 
+### 5.1 已落地（2026-11-17）
+
+| 步 | 状态 | 落点 |
+|---:|---|---|
+| 1 | ✅ `documents.kind` | `schema.py` DDL + `_ensure_column` 就地 ALTER（旧 v2 库自动补列） |
+| 2 | ✅ `dict` / `grammar` scheme | `locators.SCHEMES` / `REQUIRED` |
+| 3 | ✅ url / label 渲染 | `locators.url` / `default_label`（grammar 支持 `smythp` → Perseus URL） |
+| 4 | ✅ 按文档类型定可见流 | `citation_policy.STREAMS` + `education.streams`；`streams_for(kind)`；`search`/`catalog`/`lexical` 三处读取都改为按 `documents.kind` 取流；`SOCRATIC_STUDENT_STREAMS` 仍是显式覆盖 |
+| 5 | ✅ 策略侧词典/语法源与规则 | 内置源 `dict-lsj` / `grammar-smyth` / `grammar-ag`（tier A、`catalogue: lexicon`）；规则 `{doc_kind: dictionary|grammar}` 先于兜底规则；通道类型 `lexicon-sqlite`（能力 `lexicon`+`search`） |
+| 6 | ✅ `lexicon_headwords` + `/v1/lexicon` | DDL 加表与两个索引；`app/lexicon.py`（词形→词元→词条 / `§N` 小节）；端点 `GET /v1/lexicon?q=&lang=&area=&view=&limit=`；缺库或未命中均显式降级 |
+
+另：v1 库新增 `chunks.stream TEXT NOT NULL DEFAULT 'text'`（T1 扫描件全填 `text`，读取方不依赖）；
+迁移脚本 `scripts/migrate_schema.py --db <库>`（自动备份、幂等、支持 v1/v2）。
+
+## 5.2 效果评估（2026-11-17，实测）
+
+| 项 | 结果 | 证据 |
+|---|---|---|
+| 测试 | sidecar **371**（+16） | `unittest discover` 全绿 |
+| 契约缺口 | v2.1 测试库 **gaps 0**；词典库 **0**；真实 v1 库 **0** | `scripts/schema_check.py`（契约从代码读取，不再硬编码） |
+| 可见流 | `None→text`；`dictionary→text+definition+example`；`grammar→text+paradigm+example`；`textbook→+formula+table+code`；`edition→+commentary+apparatus` | `streams_for()` |
+| 学生/导师分流 | 同一词典文档：student **3**（text/definition/example）、tutor **4**（多 translation） | 真实 v2 检索 |
+| 环境覆盖 | 设 `SOCRATIC_STUDENT_STREAMS=text` 后 student 回到 **1** | 同上 |
+| 规则选择 | `doc_kind=dictionary → cite=[dict-lsj]`（anchor `lexicon`）；`grammar → [grammar-smyth, grammar-ag]`；无 `doc_kind` 时与改前**逐字相同** | `resolve()` / `merge_plan()` |
+| 词条查询 | `λύω` → 1 条，含释义、`tier A`、`label=λύω · s.1 · p.345`、文档 canonical URL | `/v1/lexicon` 函数级调用 |
+| 降级 | 无 `lexicon.db` → `reason=no_lexicon`；无该词 → `not_found`；`smythp=NNNN` 不会被猜成 `§N` | 同上 |
+| 时延 | 词条 0.44 ms；v2 学生检索 1.69 ms；单 chunk 读取 0.33 ms（50 次均值，本地 FTS） | 同一脚本 |
+| 真实库 | v1 `search.db` 已有 `stream` 列，167,192 行全 `text`；`gaps 0` | `schema_check.py` |
+
+> 未做**端到端 GUI 冒烟**（插件侧没有词典卡片），也**没有真实词典数据**：上面的词典库是 2 条手工样本，
+> 只证明契约与端点可用，不证明 E7 的建库质量。
+
 ## 6. 怎么复跑这套评估
 
 ```powershell
-# 现有真库（v1）
-python scripts/schema_check.py --db D:/Guo-Code/rag-build/data/indexes/search.db --proposed
+# 现有真库（v1）：应报 gaps 0
+python scripts/schema_check.py --db D:/Guo-Code/rag-build/data/indexes/search.db
 
-# 目标词表的 v2 库（例如词典 M0 的试建库）
-python scripts/schema_check.py --db <lexicon.db> --proposed --json
+# 目标词表的 v2 库（例如词典 M0 的试建库）：--explain 会打印当前契约
+python scripts/schema_check.py --db <lexicon.db> --explain --json
 ```
+
+`--proposed` 是 `--explain` 的旧名，语义已改：不再与一份硬编码的"计划清单"比对，
+而是**把实现侧的契约打印出来**（streams / schemes / 必需键 / 表 / education 档），
+因为契约现在直接从代码读（`citation_policy.STREAMS`、`locators.SCHEMES`、
+`schema.DDL`），不会随文档漂移。
 
 判读规则：
 
 | 输出 | 含义 |
 |---|---|
-| `invalid` 非空 | **硬拒绝**，数据进不了库；先补 `locators` |
-| `streams` 里有值但 `read allow` 不含它 | **静默不可见**，先补 `STUDENT_STREAMS` 或按 view 分流 |
-| `documents.kind: ABSENT` | 语义缺口，先加列 |
-| `gaps` 里 "proposed but not implemented" | 只是**计划项**，不影响现有数据 |
+| `invalid` 非空 | **硬拒绝**：`locators.validate` 会抛，数据进不了库 |
+| `chunks.stream` 有值但不在 `--explain` 的 streams 里 | **静默不可见**：写入成功、学生视图查不到 |
+| `documents.kind: ABSENT` | 语义缺口：按类型定流与按类型选规则都失效 |
+| `missing`（仅 v2 显示） | `schema.DDL` 期望但库里没有的表 |
+| `gaps: 0` | 该库与当前契约一致 |
 
 ## 7. 与其它契约文档的关系
 

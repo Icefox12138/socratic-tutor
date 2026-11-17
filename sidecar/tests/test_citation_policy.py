@@ -724,5 +724,52 @@ class TestM1Serving(unittest.TestCase):
                          os.path.abspath(pages.ROOTS["library"]))
 
 
+class TestStreamsAndLexiconPolicy(PolicyTestBase):
+    """Steps 4–5 of the v2.1 plan: per-kind streams and the lexicon sources."""
+
+    def setUp(self):
+        super().setUp()
+        self._pref = (config.STUDENT_STREAMS, config.STUDENT_STREAMS_SET)
+        config.STUDENT_STREAMS, config.STUDENT_STREAMS_SET = ("text",), False
+        cp.reload()
+        self.addCleanup(self._restore_streams)
+
+    def _restore_streams(self):
+        config.STUDENT_STREAMS, config.STUDENT_STREAMS_SET = self._pref
+        cp.reload()
+
+    def test_default_is_still_text_only(self):
+        self.assertEqual(cp.streams_for(None), ("text",))
+
+    def test_document_kind_widens_the_student_view(self):
+        self.assertIn("definition", cp.streams_for("dictionary"))
+        self.assertIn("paradigm", cp.streams_for("grammar"))
+        self.assertIn("formula", cp.streams_for("textbook"))
+        self.assertEqual(cp.streams_for("edition"),
+                         ("text", "commentary", "apparatus"))
+
+    def test_env_override_wins_over_the_table(self):
+        config.STUDENT_STREAMS, config.STUDENT_STREAMS_SET = ("commentary",), True
+        self.assertEqual(cp.streams_for("dictionary"), ("commentary",))
+
+    def test_dictionary_and_grammar_rules_pick_the_lexicon_sources(self):
+        self.assertEqual(cp.resolve(doc_kind="dictionary")["cite"], ["dict-lsj"])
+        self.assertEqual(cp.resolve(doc_kind="grammar")["cite"],
+                         ["grammar-smyth", "grammar-ag"])
+
+    def test_no_doc_kind_still_resolves_to_the_catch_all(self):
+        self.assertEqual(cp.resolve()["cite"],
+                         ["library-pdf", "steadman", "teubner-conte",
+                          "wikisource", "cts"])
+
+    def test_builtin_policy_validates(self):
+        self.assertEqual(cp.validate(cp.current()), [])
+
+    def test_education_streams_are_validated(self):
+        bad = _policy(education={"streams": {"default": ["nonsense"]}})
+        errs = cp.validate(bad)
+        self.assertTrue(any("education.streams" in e for e in errs), errs)
+
+
 if __name__ == "__main__":
     unittest.main()

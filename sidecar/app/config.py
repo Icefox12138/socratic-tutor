@@ -49,7 +49,7 @@ CORS_ORIGIN_REGEX = os.environ.get(
     r"(http://(127\.0\.0\.1|localhost)(:\d+)?|dsh-app://[^/]+)")
 CACHE_TTL = float(os.environ.get("SOCRATIC_CACHE_TTL", "300"))
 CACHE_SIZE = int(os.environ.get("SOCRATIC_CACHE_SIZE", "256"))
-VERSION = "0.2.1"
+VERSION = "0.3.0"
 
 BGE = os.environ.get("SOCRATIC_BGE", "1") == "1"
 BGE_MODEL = os.environ.get("SOCRATIC_BGE_MODEL", os.path.join(ROOT, "models", "bge-m3"))
@@ -72,6 +72,11 @@ BGE_V2_MODEL = os.environ.get("SOCRATIC_V2_BGE_MODEL", BGE_MODEL)
 # separate SQLite files with different vector files.
 V1_DB = os.environ.get("SOCRATIC_V1_DB", DB)
 PUBLIC_DB = os.environ.get("SOCRATIC_PUBLIC_DB", os.path.join(DATA, "public.db"))
+# Dictionary / grammar entries: a small v2-shaped file (see docs/SCHEMA-GAP.md).
+# Separate from public.db because its contract differs (exact headword lookup,
+# no vectors) and because it may carry a different licence.
+LEXICON_DB = os.environ.get("SOCRATIC_LEXICON_DB",
+                            os.path.join(DATA, "indexes", "lexicon.db"))
 V1_BGE_VECTORS = os.environ.get("SOCRATIC_V1_BGE_VECTORS", BGE_VECTORS)
 V1_BGE_IDS = os.environ.get("SOCRATIC_V1_BGE_IDS", BGE_IDS)
 BGE_V2_MODEL_NAME = os.environ.get("SOCRATIC_V2_MODEL_NAME", "bge-m3")
@@ -193,6 +198,10 @@ SCHEMA = os.environ.get("SOCRATIC_SCHEMA", "auto").lower()
 
 # Streams a student may see. v2 stores translation/commentary/apparatus rows
 # next to the text so a tutor can reveal them; the default withholds them.
+# When the environment names this variable it is an explicit override and the
+# policy's per-document `education.streams` table is ignored (see
+# citation_policy.streams_for).
+STUDENT_STREAMS_SET = "SOCRATIC_STUDENT_STREAMS" in os.environ
 STUDENT_STREAMS = tuple(
     s.strip() for s in os.environ.get("SOCRATIC_STUDENT_STREAMS", "text").split(",")
     if s.strip()

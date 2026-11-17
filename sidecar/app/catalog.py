@@ -72,7 +72,7 @@ CHUNK_COLUMNS = (
     "SELECT c.id, c.document_id, c.ordinal, c.section, c.text, c.lang,"
     " c.stream, c.locator_json, c.citation_label, c.quality,"
     " c.char_start, c.char_end, d.title, d.author, d.license,"
-    " d.canonical_url, d.source_id FROM chunks c"
+    " d.canonical_url, d.source_id, d.kind FROM chunks c"
     " JOIN documents d ON d.document_id = c.document_id ")
 
 
@@ -80,7 +80,7 @@ def chunk(chunk_id, view="student"):
     row = _one(CHUNK_COLUMNS + "WHERE c.id = ?", (chunk_id,))
     if not row:
         return None
-    if view == "student" and row["stream"] not in (config.STUDENT_STREAMS or ("text",)):
+    if view == "student" and row["stream"] not in citation_policy.streams_for(row["kind"]):
         return None
     return result_for_row(row, 1.0)
 

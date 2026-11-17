@@ -7,7 +7,7 @@ union in one module means search, verify and the adapters agree on the keys.
 import json
 from urllib.parse import quote
 
-SCHEMES = ("pdf_page", "mediawiki", "cts", "lean", "dataset", "ia")
+SCHEMES = ("pdf_page", "mediawiki", "cts", "lean", "dataset", "ia", "dict", "grammar")
 
 REQUIRED = {
     "pdf_page": ("page",),
@@ -16,6 +16,8 @@ REQUIRED = {
     "lean": ("module", "decl"),
     "dataset": ("dataset", "id"),
     "ia": ("item", "page"),
+    "dict": ("headword",),
+    "grammar": ("section",),
 }
 
 
@@ -78,6 +80,17 @@ def url(locator, doc=None):
     if sch == "ia":
         page = loc.get("page")
         return "https://archive.org/details/%s/page/%s" % (quote(str(loc.get("item"))), page)
+    if sch == "dict":
+        if loc.get("url"):
+            return loc["url"]
+        return (doc.get("canonical_url") if isinstance(doc, dict) else None)
+    if sch == "grammar":
+        if loc.get("smythp"):
+            return ("https://www.perseus.tufts.edu/hopper/text"
+                    "?doc=Perseus:text:1999.04.0007:smythp=%s" % quote(str(loc["smythp"])))
+        if loc.get("url"):
+            return loc["url"]
+        return (doc.get("canonical_url") if isinstance(doc, dict) else None)
     if doc:
         return (doc.get("canonical_url") if isinstance(doc, dict) else None)
     return None
@@ -123,6 +136,25 @@ def default_label(locator, doc=None) -> str:
         return "%s.%s" % (loc.get("module"), loc.get("decl"))
     if sch == "ia":
         return "%s p.%s" % (loc.get("item"), loc.get("page"))
+    if sch == "dict":
+        head = str(loc.get("headword") or "?")
+        if loc.get("homonym"):
+            head += " (%s)" % loc["homonym"]
+        parts = [head]
+        if loc.get("sense"):
+            parts.append("s.%s" % loc["sense"])
+        if loc.get("page"):
+            parts.append("p.%s" % loc["page"])
+        return " · ".join(parts)
+    if sch == "grammar":
+        label = "§%s" % loc.get("section")
+        if title:
+            label += " " + str(title)
+        elif loc.get("title"):
+            label += " " + str(loc["title"])
+        if loc.get("page"):
+            label += " · p.%s" % loc["page"]
+        return label
     return str(loc)
 
 

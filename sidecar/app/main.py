@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from . import (catalog, citation_policy, citations, classifier, config, critic,
-               evaluations, evaluator, llm,
+               evaluations, evaluator, lexicon, llm,
                learner, lexical, pages, policy, review, search, state_machine,
                state_store, toc)
 from .compute import (BackendUnavailable, ComputeError, backend_status,
@@ -216,6 +216,27 @@ def v1_grep(
     except Exception as e:
         raise HTTPException(status_code=503,
                             detail={"code": "no_index", "detail": str(e)[:200]})
+
+
+@app.get("/v1/lexicon", dependencies=[Depends(require_token)])
+def v1_lexicon(
+    q: str = Query(..., min_length=1, max_length=120),
+    lang: Optional[str] = None,
+    area: str = Query("dict"),
+    view: str = Query("student"),
+    limit: int = Query(10, ge=1, le=50),
+):
+    """Exact lookup: a dictionary headword, or a grammar section (§N).
+
+    Never a vector search: the entry is the answer, so the source is the entry
+    itself. A deployment without `lexicon.db` answers `reason: "no_lexicon"`
+    instead of failing, the same way a missing public catalogue degrades.
+    """
+    if view not in ("student", "tutor"):
+        raise HTTPException(status_code=400, detail="view must be student or tutor")
+    if area not in ("dict", "grammar"):
+        raise HTTPException(status_code=400, detail="area must be dict or grammar")
+    return policy.redact(lexicon.lookup(q, lang=lang, area=area, view=view, limit=limit))
 
 
 @app.get("/v1/lemma", dependencies=[Depends(require_token)])

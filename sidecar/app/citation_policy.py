@@ -35,6 +35,12 @@ ROLES = ("cite", "template", "verify")
 #: tiered   — the anchor catalogue fills the list first, others only top it up
 MERGE_MODES = ("rrf", "weighted", "tiered")
 
+#: chunks.stream vocabulary (v2). The DDL carries no CHECK constraint, so the
+#: readers are the gate: an unlisted stream is written happily and then filtered
+#: out of every student view. Keep this list and `education.streams` in step.
+STREAMS = ("text", "translation", "commentary", "apparatus",
+           "definition", "paradigm", "example", "formula", "table", "code")
+
 #: locator scheme -> the locator fields that scheme can carry
 SCHEMES = {
     "page": set(),                 # book + page number is the identity
@@ -43,12 +49,17 @@ SCHEMES = {
     "edition-page": {"edition"},
     "measure": {"measure"},
     "doi": {"doi"},
+    # Dictionary: the identity is the headword (+ homonym disambiguator).
+    "dict": {"headword", "homonym", "sense", "pos", "column"},
+    # Grammar: the identity is the section anchor (§N).
+    "grammar": {"section", "title", "smythp"},
 }
 
 #: channel kind -> capabilities it provides
 CAPABILITIES = {
     "local-file": {"page_render", "verify"},
     "rag-sqlite": {"search", "verify"},
+    "lexicon-sqlite": {"lexicon", "search"},
     "public-api": {"search", "verify"},
     "dataset-dir": {"search"},
     "cloud-object": {"page_render", "verify"},
@@ -87,6 +98,16 @@ def _builtin():
                            "display": "Wikisource 校对本"},
             "cts": {"tier": "A", "role": "cite", "catalogue": "v2",
                     "locator_scheme": "cts-urn", "display": "Perseus CTS"},
+            # Lexicon catalogue: exact headword lookup, no vectors. Tier A because
+            # a dictionary entry is the definition itself, not a recollection.
+            "dict-lsj": {"tier": "A", "role": "cite", "catalogue": "lexicon",
+                         "locator_scheme": "dict", "display": "LSJ / L&S 词典"},
+            "grammar-smyth": {"tier": "A", "role": "cite", "catalogue": "lexicon",
+                              "locator_scheme": "grammar",
+                              "display": "Smyth 希腊语法"},
+            "grammar-ag": {"tier": "A", "role": "cite", "catalogue": "lexicon",
+                           "locator_scheme": "grammar",
+                           "display": "A&G 拉丁语法"},
         },
         # Routing hints are data now: the old keyword tables lived in federated.py.
         "markers": {
@@ -121,9 +142,33 @@ def _builtin():
              "address": "sqlite:///" + config.PUBLIC_DB.replace("\\", "/") + "#wikisource"},
             {"source": "cts", "kind": "rag-sqlite",
              "address": "sqlite:///" + config.PUBLIC_DB.replace("\\", "/") + "#cts"},
+            {"source": "dict-lsj", "kind": "lexicon-sqlite",
+             "address": "sqlite:///" + config.LEXICON_DB.replace("\\", "/") + "#dict"},
+            {"source": "grammar-smyth", "kind": "lexicon-sqlite",
+             "address": "sqlite:///" + config.LEXICON_DB.replace("\\", "/") + "#grammar"},
+            {"source": "grammar-ag", "kind": "lexicon-sqlite",
+             "address": "sqlite:///" + config.LEXICON_DB.replace("\\", "/") + "#grammar"},
         ],
         "weight_profiles": {"equal": {}},
+        # Which streams a *student* may see, per document kind. The env var
+        # SOCRATIC_STUDENT_STREAMS overrides the whole table when it is set.
+        "education": {
+            "streams": {
+                "default": ["text"],
+                "dictionary": ["text", "definition", "example"],
+                "grammar": ["text", "paradigm", "example"],
+                "textbook": ["text", "formula", "table", "code"],
+                "edition": ["text", "commentary", "apparatus"],
+            },
+        },
         "rules": [
+            # Lexicon rules: a dictionary question is answered from the entry, a
+            # grammar question from the §-anchored section, never from a search hit.
+            {"when": {"doc_kind": "dictionary"}, "cite": ["dict-lsj"],
+             "merge": {"mode": "rrf"}, "weight_profile": "equal"},
+            {"when": {"doc_kind": "grammar"},
+             "cite": ["grammar-smyth", "grammar-ag"],
+             "merge": {"mode": "rrf"}, "weight_profile": "equal"},
             {"when": {}, "cite": ["library-pdf", "steadman", "teubner-conte",
                                   "wikisource", "cts"],
              "merge": {"mode": "rrf"},
@@ -215,8 +260,8 @@ def validate(policy):
         if est is not None and not isinstance(est, bool):
             errs.append("sources.%s.tier_estimated: must be true or false" % sid)
         cat = src.get("catalogue")
-        if cat is not None and cat not in ("v1", "v2"):
-            errs.append("sources.%s.catalogue: must be v1 or v2" % sid)
+        if cat is not None and cat not in ("v1", "v2", "lexicon"):
+            errs.append("sources.%s.catalogue: must be v1, v2 or lexicon" % sid)
 
     profiles = policy.get("weight_profiles") or {}
     if not isinstance(profiles, dict):
@@ -318,6 +363,23 @@ def validate(policy):
     for name, values in markers.items():
         if not isinstance(values, list) or not all(isinstance(v, str) for v in values):
             errs.append("markers.%s: must be a list of strings" % name)
+
+    edu = policy.get("education") or {}
+    if not isinstance(edu, dict):
+        errs.append("education: must be a mapping")
+        edu = {}
+    streams = edu.get("streams") or {}
+    if not isinstance(streams, dict):
+        errs.append("education.streams: must be a mapping")
+        streams = {}
+    for kind, allowed in streams.items():
+        if not isinstance(allowed, list) or not allowed:
+            errs.append("education.streams.%s: must be a non-empty list" % kind)
+            continue
+        bad = [s for s in allowed if s not in STREAMS]
+        if bad:
+            errs.append("education.streams.%s: unknown stream(s) %s (known: %s)"
+                        % (kind, ", ".join(str(s) for s in bad), ", ".join(STREAMS)))
 
     routing = policy.get("routing") or {}
     if not isinstance(routing, dict):
@@ -438,11 +500,28 @@ def resolve(subject=None, doc_kind=None):
     return None
 
 
+def streams_for(doc_kind=None):
+    """Student-visible streams for a document kind (M6-era step 4).
+
+    Precedence: an explicit ``SOCRATIC_STUDENT_STREAMS`` (or a non-default
+    ``config.STUDENT_STREAMS``, which tests patch) wins; otherwise the policy's
+    ``education.streams[doc_kind]``, then its ``"default"``, then ``("text",)``.
+
+    Defaults are therefore inert: with no env override and no document kind, this
+    returns ``("text",)`` exactly like the pre-policy reader did.
+    """
+    if getattr(config, "STUDENT_STREAMS_SET", False) or config.STUDENT_STREAMS != ("text",):
+        return tuple(config.STUDENT_STREAMS or ("text",))
+    table = (current().get("education") or {}).get("streams") or {}
+    chosen = table.get(doc_kind) or table.get("default") or ["text"]
+    return tuple(chosen)
+
+
 def _availability(ch):
     kind, addr = ch.get("kind"), str(ch.get("address") or "")
     if kind in ("local-file", "dataset-dir"):
         return "ready" if addr and os.path.exists(addr) else "missing"
-    if kind == "rag-sqlite":
+    if kind in ("rag-sqlite", "lexicon-sqlite"):
         path = sqlite_path(addr)
         return "ready" if path and os.path.exists(path) else "missing"
     return "unprobed"          # network channels are not probed
@@ -721,5 +800,8 @@ def effective():
         "weight_profiles": pol.get("weight_profiles") or {},
         "routing": {"rules": (pol.get("routing") or {}).get("rules") or [],
                     "default_prefer": (pol.get("routing") or {}).get("default_prefer") or []},
+        "education": {"streams": (pol.get("education") or {}).get("streams") or {},
+                      "stream_vocabulary": list(STREAMS),
+                      "env_override": bool(getattr(config, "STUDENT_STREAMS_SET", False))},
         "rules": pol.get("rules") or [],
     }

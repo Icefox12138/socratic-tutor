@@ -12,7 +12,7 @@ import os
 import re
 import sqlite3
 
-from . import config
+from . import citation_policy, config
 import threading
 import time
 from functools import lru_cache
@@ -49,10 +49,8 @@ def _connect():
 def _filters(ver, view, source, lang, book, document_id, section, alias=""):
     sql, params = [], []
     pre = alias + "." if alias else ""
-    if ver == "v2" and view == "student":
-        streams = config.STUDENT_STREAMS or ("text",)
-        sql.append("%sstream IN (%s)" % (pre, ",".join("?" * len(streams))))
-        params.extend(streams)
+    # Stream visibility is per document kind now, so it is not a SQL predicate:
+    # _rows() filters fetched rows with citation_policy.streams_for(kind).
     if source:
         if ver == "v2":
             sql.append("d.source_id = ?")
@@ -93,7 +91,8 @@ def _rows(view="student", source=None, lang=None, book=None, document_id=None,
             sql = ("SELECT c.id, c.document_id, c.ordinal, c.section, c.text,"
                    " c.lang, c.stream, c.locator_json, c.citation_label,"
                    " c.quality, c.char_start, c.char_end, d.title, d.author,"
-                   " d.license, d.canonical_url, d.source_id FROM chunks c"
+                   " d.license, d.canonical_url, d.source_id, d.kind"
+                   " FROM chunks c"
                    " JOIN documents d ON d.document_id = c.document_id"
                    " WHERE c.visibility = 'tutor'")
         else:
@@ -109,7 +108,11 @@ def _rows(view="student", source=None, lang=None, book=None, document_id=None,
                     % (text, text))
             params.extend([contains, contains])
         sql += " ORDER BY id"
-        return con.execute(sql, params).fetchall(), ver
+        rows = con.execute(sql, params).fetchall()
+        if ver == "v2" and view == "student":
+            rows = [r for r in rows
+                    if r["stream"] in citation_policy.streams_for(r["kind"])]
+        return rows, ver
     finally:
         con.close()
 

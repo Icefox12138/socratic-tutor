@@ -61,6 +61,7 @@ CREATE TABLE documents (
   title         TEXT NOT NULL,
   author        TEXT,
   edition       TEXT,
+  kind          TEXT,                    -- textbook | edition | dictionary | grammar | dataset
   lang          TEXT,                    -- zh-classical | latin | greek | en
   script        TEXT,
   license       TEXT,
@@ -76,7 +77,8 @@ CREATE TABLE chunks (
   section        TEXT,                   -- 章节标题（可空）
   text           TEXT NOT NULL,
   lang           TEXT,
-  stream         TEXT NOT NULL DEFAULT 'text',   -- text|translation|commentary|apparatus
+  stream         TEXT NOT NULL DEFAULT 'text',   -- text|translation|commentary|apparatus|
+                                                 -- definition|paradigm|example|formula|table|code
   visibility     TEXT NOT NULL DEFAULT 'tutor',  -- tutor|answer_key
   locator_json   TEXT NOT NULL,
   citation_label TEXT,                   -- 人读标签；空则按 locator 生成
@@ -92,6 +94,20 @@ CREATE TABLE assets (asset_id TEXT PRIMARY KEY, document_id TEXT, chunk_id INTEG
                      type TEXT, uri TEXT, rights TEXT, metadata_json TEXT);
 CREATE TABLE embeddings (chunk_id INTEGER, model TEXT, dim INTEGER, version TEXT,
                          PRIMARY KEY (chunk_id, model));
+
+-- v2.1：词典/语法词目精确索引（不建向量）。词条正文仍放 chunks
+-- (stream=definition/paradigm)，entry_id 指向 chunks.id。
+CREATE TABLE lexicon_headwords (
+  lang      TEXT NOT NULL,
+  headword  TEXT NOT NULL,
+  lemma     TEXT,
+  pos       TEXT NOT NULL DEFAULT '',
+  homonym   INTEGER NOT NULL DEFAULT 0,
+  entry_id  INTEGER,
+  source_id TEXT,
+  PRIMARY KEY (lang, headword, pos, homonym)
+);
+CREATE INDEX idx_lex_lemma ON lexicon_headwords(lang, lemma);
 ```
 
 `chunks_fts.rowid` 必须等于 `chunks.id`；写入的文本**先分词**（见 §9）。
@@ -121,6 +137,8 @@ CREATE TABLE embeddings (chunk_id INTEGER, model TEXT, dim INTEGER, version TEXT
 | `dataset` | `dataset`, `id` | 记录 ID 对应文本 |
 | `lean` | `module`, `decl` | 声明（工具，不进 chunks 也可） |
 | `ia` | `item`, `page` | item/file 页文本 |
+| `dict` | `headword` | 词条文本（`homonym`/`sense`/`page` 可选） |
+| `grammar` | `section` | 语法书 § 文本（`smythp` 可拼 Perseus URL） |
 
 `locator_json` 由 `sidecar/app/locators.py` 生成、校验、拼 URL；
 **缺必需键的 locator 会在入库时被拒绝**（`LocatorError`），不会静默写坏引用。
@@ -129,9 +147,13 @@ CREATE TABLE embeddings (chunk_id INTEGER, model TEXT, dim INTEGER, version TEXT
 
 | 请求 | 返回的 chunk |
 |---|---|
-| `view=student` | `visibility='tutor'` **且** `stream IN (SOCRATIC_STUDENT_STREAMS)`（默认 `text`） |
+| `view=student` | `visibility='tutor'` **且** `stream` 属于**该文档 `kind`** 的可见档（`citation_policy.education.streams`；无 `kind` 或未配置时回落到 `SOCRATIC_STUDENT_STREAMS`，默认 `text`） |
 | `view=tutor` | `visibility='tutor'`，所有 stream |
 | 任何 view | `visibility='answer_key'` **永不**返回；由 SQL 过滤，不靠提示词 |
+
+可见档默认值：`dictionary → text, definition, example`；`grammar → text, paradigm, example`；
+`textbook → text, formula, table, code`；`edition → text, commentary, apparatus`；其余 `text`。
+设 `SOCRATIC_STUDENT_STREAMS` 会**覆盖整张表**（运维开关，优先于 `kind`）。
 
 公开语料的译本/注释/校勘记应写成 `stream='translation'|'commentary'|'apparatus'`，
 默认只给导师看。`answer_key` 语义与 v1 相同。
@@ -196,6 +218,7 @@ GET /v1/verify?quote=...&book=...&page=...          # v1，保持不变
 | `/v1/documents?source=&lang=&limit=&offset=` | 文档列表，不含正文 |
 | `/v1/documents/{document_id}` | 元数据 + 章节列表 + chunk 数（id 里可有 `/`） |
 | `/v1/chunks/{id}` | 单片段；v2 含完整 citation |
+| `/v1/lexicon?q=&lang=&area=dict|grammar&view=&limit=` | **v2.1 词目精确查表**：词形→词元→词条（`area=dict`）或 `§N` 小节（`area=grammar`）；返回释义、locator、`citation`（tier A）。缺库 → `reason:"no_lexicon"` |
 | `/v1/verify` | §6 |
 | `/health` | v2 时 `schema:"v2"`, `documents`, `sources`, `bge:"disabled|lazy|loading|ready|missing: …|error: …"` |
 

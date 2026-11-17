@@ -38,7 +38,8 @@ CREATE TABLE chunks (
   lang       TEXT NOT NULL,   -- zh | latin | greek | en | …
   page       INTEGER NOT NULL,-- 1 起算的页码，必须能通过 /v1/pages 取到页图
   text       TEXT NOT NULL,   -- 该块的原文
-  visibility TEXT NOT NULL    -- tutor | answer_key
+  visibility TEXT NOT NULL,   -- tutor | answer_key
+  stream     TEXT NOT NULL DEFAULT 'text'  -- 2026-11-17 新增可选列；v1 读取方不依赖，缺列不影响
 );
 ```
 

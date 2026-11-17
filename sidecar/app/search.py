@@ -249,7 +249,7 @@ _V2_CHUNK_SQL = (
     "SELECT c.id, c.document_id, c.ordinal, c.section, c.text, c.lang,"
     " c.stream, c.locator_json, c.citation_label, c.quality,"
     " c.char_start, c.char_end, d.title, d.author, d.license,"
-    " d.canonical_url, d.source_id FROM chunks c"
+    " d.canonical_url, d.source_id, d.kind FROM chunks c"
     " JOIN documents d ON d.document_id = c.document_id"
     " WHERE c.visibility = 'tutor'")
 
@@ -329,8 +329,8 @@ def _v2_rerank(b, query, pairs, bs=16):
 def _v2_meta_ok(row, view, source=None, lang=None, book=None,
                 document_id=None, section=None):
     if view == "student":
-        streams = config.STUDENT_STREAMS or ("text",)
-        if row["stream"] not in streams:
+        kind = row["kind"] if "kind" in row.keys() else None
+        if row["stream"] not in citation_policy.streams_for(kind):
             return False
     if source and row["source_id"] != source:
         return False
@@ -622,16 +622,14 @@ def _v2_rows(query, view, limit, source=None, lang=None, book=None,
         "SELECT c.id, c.document_id, c.ordinal, c.section, c.text, c.lang,"
         " c.stream, c.locator_json, c.citation_label, c.quality,"
         " c.char_start, c.char_end, d.title, d.author, d.license,"
-        " d.canonical_url, d.source_id, bm25(chunks_fts) AS rank "
+        " d.canonical_url, d.source_id, d.kind, bm25(chunks_fts) AS rank "
         "FROM chunks_fts JOIN chunks c ON c.id = chunks_fts.rowid "
         "JOIN documents d ON d.document_id = c.document_id "
         "WHERE chunks_fts MATCH ? AND c.visibility = 'tutor'"
     )
     params = [" OR ".join(toks)]
-    if view == "student":
-        streams = config.STUDENT_STREAMS or ("text",)
-        sql += " AND c.stream IN (%s)" % ",".join("?" * len(streams))
-        params.extend(streams)
+    # Stream visibility depends on the document kind, so it cannot be a single
+    # SQL IN(...) any more; filter after the fetch (the LIMIT is small).
     if source:
         sql += " AND d.source_id = ?"
         params.append(source)
@@ -651,9 +649,13 @@ def _v2_rows(query, view, limit, source=None, lang=None, book=None,
     params.append(limit)
     con = _connect()
     try:
-        return con.execute(sql, params).fetchall()
+        rows = con.execute(sql, params).fetchall()
     finally:
         con.close()
+    if view == "student":
+        rows = [r for r in rows
+                if r["stream"] in citation_policy.streams_for(r["kind"])]
+    return rows
 
 
 def _v2_result(row, score):

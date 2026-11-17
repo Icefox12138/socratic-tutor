@@ -36,6 +36,7 @@ DDL = [
         title         TEXT NOT NULL,
         author        TEXT,
         edition       TEXT,
+        kind          TEXT,            -- textbook | edition | dictionary | grammar | dataset
         lang          TEXT,
         script        TEXT,
         license       TEXT,
@@ -83,6 +84,23 @@ DDL = [
         version  TEXT,
         PRIMARY KEY (chunk_id, model)
     )""",
+
+    # Dictionary / grammar headwords (schema v2.1). The entry body lives in
+    # `chunks` (stream=definition/paradigm) so it reuses FTS and the locator
+    # union; this table is the exact-match index the lookup path needs.
+    """CREATE TABLE IF NOT EXISTS lexicon_headwords (
+        lang       TEXT NOT NULL,
+        headword   TEXT NOT NULL,
+        lemma      TEXT,
+        pos        TEXT NOT NULL DEFAULT '',
+        homonym    INTEGER NOT NULL DEFAULT 0,
+        entry_id   INTEGER,
+        source_id  TEXT,
+        PRIMARY KEY (lang, headword, pos, homonym)
+    )""",
+
+    "CREATE INDEX IF NOT EXISTS idx_lex_headword ON lexicon_headwords(lang, headword)",
+    "CREATE INDEX IF NOT EXISTS idx_lex_lemma ON lexicon_headwords(lang, lemma)",
 ]
 
 
@@ -93,6 +111,13 @@ def connect(path=None):
     return con
 
 
+def _ensure_column(con, table, column, decl):
+    """Additive migration for databases created before a column existed."""
+    cols = {r[1] for r in con.execute("PRAGMA table_info(%s)" % table)}
+    if column not in cols:
+        con.execute("ALTER TABLE %s ADD COLUMN %s %s" % (table, column, decl))
+
+
 def ensure_v2(path=None):
     """Create the v2 tables and stamp the version. Safe to call repeatedly."""
     from . import config
@@ -101,12 +126,32 @@ def ensure_v2(path=None):
     try:
         for stmt in DDL:
             con.execute(stmt)
+        _ensure_column(con, "documents", "kind", "TEXT")
         con.execute("INSERT OR REPLACE INTO schema_meta(key, value) VALUES('rag_schema','v2')")
         con.execute("PRAGMA user_version = 2")
         con.commit()
     finally:
         con.close()
     return path
+
+
+def migrate_v1_stream(path=None):
+    """Additive v1 migration: ``chunks.stream`` defaults to 'text'.
+
+    v1 readers select explicit columns, so the extra column is inert until a
+    consumer asks for it. Idempotent.
+    """
+    from . import config
+    path = path or config.DB
+    con = sqlite3.connect(path)
+    try:
+        cols = _columns(con, "chunks")
+        if "stream" not in cols:
+            con.execute("ALTER TABLE chunks ADD COLUMN stream TEXT NOT NULL DEFAULT 'text'")
+        con.commit()
+        return "stream" in _columns(con, "chunks")
+    finally:
+        con.close()
 
 
 def _tables(con):
