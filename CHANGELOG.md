@@ -62,6 +62,17 @@ per package; dates are release dates, not commit dates.
 
 ## classics-index
 
+### 0.1.4 — 2026-11-20
+- `__version__` synced with `pyproject.toml` (was 0.1.0 while the manifest said
+  0.1.3) and a test now enforces the two agree.
+- Removed the duplicated `enrich()` in `core.py`: the first copy shadowed the
+  second, and only one of them was reachable.
+- README: license is MIT and the package is on PyPI (the old text said the
+  license was undecided and "do not publish"); the OCR scripts are in the
+  private rag-build project, not in this repo; added a boundary table (pure
+  logic in the package, OCR/storage/paths outside it).
+- No API change.
+
 ### 0.1.3 — 2026-11-04
 - README: states that this package is the build-time dependency of the separate
   private ingestion project, and that ingestion code does not live here.

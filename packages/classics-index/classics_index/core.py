@@ -109,10 +109,10 @@ def build_from_volumes(vols):
 def enrich(chapters, pages):
     """Append a 篇 name to a volume title when its first page carries one."""
     for ch in chapters:
-        for line in pages.get(ch["page_start"], []):
+        for line in pages.get(ch.get("page_start"), []):
             m = PIAN.search(str(line.get("text") or ""))
             if m:
-                ch["title"] = "卷%d %s第%s" % (ch["volume"], m.group(1), m.group(2))
+                ch["title"] = "卷%s %s第%s" % (ch.get("volume"), m.group(1), m.group(2))
                 break
     return chapters
 
@@ -159,17 +159,6 @@ def pian_sequence(cands, min_gap=3):
         kept.append((page, text))
         last_num, last_page = num, page
     return kept
-
-
-def enrich(chapters, pages):
-    """Append a 篇 name to a volume title when its first page carries one."""
-    for ch in chapters:
-        for line in pages.get(ch.get("page_start"), []):
-            m = PIAN.search(str(line.get("text") or ""))
-            if m:
-                ch["title"] = "卷%s %s第%s" % (ch.get("volume"), m.group(1), m.group(2))
-                break
-    return chapters
 
 
 def merge_pian(chapters, hits, total=None):
