@@ -46,26 +46,52 @@ def lemmas(form, lang=None):
     return [k for k in keys if k]
 
 
+def _row_get(row, key, default=None):
+    """sqlite3.Row is dict-like but raises on a missing key; databases in the
+    wild predate some of the v2.1 columns."""
+    try:
+        return row[key]
+    except (IndexError, KeyError):
+        return default
+
+
+def _entry_chunk_id(value):
+    """`entry_id` is an INTEGER in the v2.1 DDL and `"lsj:1"` in older lexicon
+    databases; both point at a `chunks.id`."""
+    if isinstance(value, int):
+        return value
+    text = str(value or "")
+    if ":" in text:
+        text = text.rsplit(":", 1)[1]
+    return int(text) if text.isdigit() else None
+
+
 def _row_entry(con, row, area):
     """Attach the entry body (a chunk) and the policy citation to one headword."""
+    raw_entry = _row_get(row, "entry_id")
+    source = (_row_get(row, "source_id")
+              or (str(raw_entry).split(":", 1)[0] if isinstance(raw_entry, str)
+                  and ":" in str(raw_entry) else None)
+              or AREA_SOURCE[area])
     entry = {
         "headword": row["headword"],
-        "lemma": row["lemma"],
-        "pos": row["pos"],
-        "homonym": row["homonym"],
-        "entry_id": row["entry_id"],
-        "source": row["source_id"] or AREA_SOURCE[area],
+        "lemma": _row_get(row, "lemma"),
+        "pos": _row_get(row, "pos", ""),
+        "homonym": _row_get(row, "homonym", 0) or 0,
+        "entry_id": raw_entry,
+        "source": source,
     }
-    loc = {"scheme": area, "headword": row["headword"], "pos": row["pos"]}
+    loc = {"scheme": area, "headword": row["headword"], "pos": entry["pos"]}
     if area == "grammar":
-        loc = {"scheme": "grammar", "section": row["headword"], "title": row["lemma"]}
+        loc = {"scheme": "grammar", "section": row["headword"], "title": entry["lemma"]}
     doc = {}
     text = None
-    if row["entry_id"] is not None and "chunks" in _tables(con):
+    chunk_id = _entry_chunk_id(raw_entry)
+    if chunk_id is not None and "chunks" in _tables(con):
         chunk = con.execute(
             "SELECT c.text, c.locator_json, c.section, d.title, d.canonical_url"
             " FROM chunks c LEFT JOIN documents d ON d.document_id = c.document_id"
-            " WHERE c.id = ?", (row["entry_id"],)).fetchone()
+            " WHERE c.id = ?", (chunk_id,)).fetchone()
         if chunk:
             text = chunk["text"]
             stored = locators.loads(chunk["locator_json"])
@@ -132,7 +158,7 @@ def lookup(form, lang=None, area="dict", view="student", limit=10, path=None):
         if lang:
             sql += " AND lang = ?"
             params.append(lang)
-        sql += " ORDER BY headword, homonym LIMIT ?"
+        sql += " ORDER BY headword LIMIT ?"
         params.append(max(1, min(int(limit), 50)))
         rows = con.execute(sql, params).fetchall()
         for row in rows:
