@@ -4,6 +4,21 @@ window.__ModuleLoader__.load({
     const React = require('react');
     const h = React.createElement;
 
+    // Fixed overlays must live outside the docked composer (its container is a
+    // containing block, so a position:fixed child can be clipped). ReactDOM is
+    // normally in the host module table; when it is not, fall back to inlining
+    // the overlay so the console still works instead of throwing at load time.
+    let createPortal = null;
+    try {
+      createPortal = (require('react-dom') || {}).createPortal || null;
+    } catch (e) {
+      createPortal = null;
+    }
+
+    function Overlay(props) {
+      return createPortal ? createPortal(props.children, document.body) : props.children;
+    }
+
     function useSocratic(sessionId, open) {
       const [state, setState] = React.useState(null);
       const [citations, setCitations] = React.useState([]);
@@ -156,13 +171,13 @@ window.__ModuleLoader__.load({
             }, '打开完整教学台 ↗'),
           ),
         ),
-        img && h('div', {
+        img && h(Overlay, null, h('div', {
           style: { position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,.62)',
             display: 'flex', alignItems: 'center', justifyContent: 'center' },
           onClick: () => setImg(''),
         },
           h('img', { src: base + img, style: { maxWidth: '92vw', maxHeight: '88vh', background: '#fff' } }),
-        ),
+        )),
       );
     }
 
@@ -262,11 +277,11 @@ window.__ModuleLoader__.load({
               }, '页图'),
           );
         }),
-        img && h('div', {
+        img && h(Overlay, null, h('div', {
           style: { position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,.62)',
             display: 'flex', alignItems: 'center', justifyContent: 'center' },
           onClick: () => setImg(''),
-        }, h('img', { src: base + img, style: { maxWidth: '92vw', maxHeight: '88vh', background: '#fff' } })),
+        }, h('img', { src: base + img, style: { maxWidth: '92vw', maxHeight: '88vh', background: '#fff' } }))),
       );
     }
 

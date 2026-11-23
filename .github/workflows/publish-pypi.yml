@@ -33,6 +33,7 @@ on:
     tags:
       - "classics-index-v*"
       - "socratic-mcp-v*"
+      - "sidecar-v*"
   workflow_dispatch:
     inputs:
       package:
@@ -42,6 +43,7 @@ on:
         options:
           - classics-index
           - socratic-mcp
+          - socratic-sidecar
       publish:
         description: "Upload to PyPI (leave off to only build and test)"
         type: boolean
@@ -191,6 +193,100 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: dist-socratic-mcp
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          attestations: true
+
+  # The sidecar lives in sidecar/, not packages/, and ships the `app` package
+  # with a `socratic-sidecar` console script (app/__main__.py). Same trusted
+  # publishing model: the tag is sidecar-v<version> and the build job refuses a
+  # tag that does not name pyproject.toml's version.
+  socratic-sidecar:
+    name: socratic-sidecar build
+    if: >-
+      github.event_name == 'push' && startsWith(github.ref_name, 'sidecar-v') ||
+      github.event_name == 'workflow_dispatch' && inputs.package == 'socratic-sidecar'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade build twine
+      - name: check that the tag matches the package version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tag="${GITHUB_REF_NAME#"sidecar-v"}"
+          version=$(python -c "import tomllib,pathlib; print(tomllib.loads(pathlib.Path('sidecar/pyproject.toml').read_text(encoding='utf-8'))['project']['version'])")
+          echo "tag=$tag version=$version"
+          test "$tag" = "$version" || { echo "::error::tag $tag does not match version $version"; exit 1; }
+      - name: install the in-repo dependency
+        # socratic-sidecar depends on classics-index>=0.1; install the checkout
+        # first so the resolver does not fetch an older PyPI copy.
+        run: python -m pip install -e packages/classics-index
+      - name: install the sidecar and its test extras
+        run: python -m pip install -e "sidecar[test]"
+      - name: tests
+        working-directory: sidecar
+        env:
+          SOCRATIC_BGE: "0"
+        run: python -m unittest discover -s tests -p "test_*.py"
+      - name: build
+        working-directory: sidecar
+        run: |
+          rm -rf dist
+          python -m build
+      - name: check the artefacts
+        working-directory: sidecar
+        run: twine check dist/*
+      - name: check the wheel contents and the console script
+        working-directory: sidecar
+        run: |
+          python - <<'PY'
+          import glob, pathlib, re, tomllib, zipfile
+          version = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+          whl_path = glob.glob("dist/*.whl")[0]
+          whl = zipfile.ZipFile(whl_path)
+          names = whl.namelist()
+          for required in ("app/__init__.py", "app/main.py", "app/__main__.py",
+                           "app/adapters/__init__.py", "app/glossary.json"):
+              assert required in names, "%s missing from wheel" % required
+          assert not any(n.startswith("tests/") for n in names), "tests/ must not ship"
+          eps = [n for n in names if n.endswith(".dist-info/entry_points.txt")]
+          assert eps, "entry_points.txt missing from wheel"
+          entry_points = whl.read(eps[0]).decode()
+          assert "socratic-sidecar = app.__main__:main" in entry_points, (
+              "console script missing: %r" % entry_points)
+          src = whl.read("app/config.py").decode()
+          got = re.search(r'VERSION\s*=\s*"([^"]+)"', src)
+          assert got, "no VERSION in app/config.py"
+          assert got.group(1) == version, (
+              "app/config.py VERSION %r != pyproject %r" % (got.group(1), version))
+          print("wheel contents/console script/VERSION all match pyproject:", version)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-socratic-sidecar
+          path: sidecar/dist/
+
+  socratic-sidecar-publish:
+    name: socratic-sidecar publish to PyPI
+    needs: socratic-sidecar
+    if: >-
+      github.event_name == 'push' || inputs.publish == true
+    runs-on: ubuntu-latest
+    # Trusted publisher for the socratic-sidecar project: same repository /
+    # workflow / environment as the other two packages.
+    environment:
+      name: pypi
+      url: https://pypi.org/p/socratic-sidecar
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-socratic-sidecar
           path: dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:

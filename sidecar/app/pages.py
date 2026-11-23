@@ -45,14 +45,25 @@ ROOTS = dict(_LEGACY_ROOTS)
 
 
 def refresh_roots():
-    """Re-derive ROOTS from the policy's local-file channels.
+    """Re-derive ROOTS from the policy, then from SOCRATIC_PAGE_ROOTS.
 
-    A channel wins over the legacy default; a source the policy does not
+    A policy channel wins over the legacy default; a source the policy does not
     describe keeps the legacy path, so an unconfigured install is unchanged.
+    ``SOCRATIC_PAGE_ROOTS="name=<dir>[;name2=<dir2>]"`` adds (or overrides)
+    sources for corpora the engine does not know — /v1/pages then serves them
+    flat (<dir>/<book>).
     """
     from_policy = citation_policy.local_roots()
+    roots = {}
     for name, path in _LEGACY_ROOTS.items():
-        ROOTS[name] = from_policy.get(name) or path
+        roots[name] = from_policy.get(name) or path
+    for pair in (config.PAGE_ROOTS or "").split(";"):
+        name, sep, path = pair.strip().partition("=")
+        name, path = name.strip(), path.strip()
+        if sep and name and path:
+            roots[name] = os.path.abspath(os.path.expanduser(path))
+    ROOTS.clear()
+    ROOTS.update(roots)
     return ROOTS
 
 
@@ -67,18 +78,20 @@ def _inside(path: str, root: str) -> bool:
 
 
 def resolve(source: str, book: str) -> str:
+    """Locate one book's PDF: legacy layouts for the built-in sources, flat
+    ``<root>/<book>[.pdf]`` for anything else (policy or SOCRATIC_PAGE_ROOTS)."""
+    root = ROOTS.get(source)
+    if not root:
+        raise FileNotFoundError(f"{source}/{book}")
+    candidates = []
     if source == "steadman":
-        for lang in ("greek", "latin"):
-            p = os.path.join(ROOTS["steadman"], lang, book + ".pdf")
-            if os.path.exists(p) and _inside(p, ROOTS["steadman"]):
-                return p
-    elif source == "library":
-        p = os.path.join(ROOTS["library"], book)
-        if os.path.exists(p) and _inside(p, ROOTS["library"]):
-            return p
+        candidates += [os.path.join(root, lang, book + ".pdf")
+                       for lang in ("greek", "latin")]
     elif source == "teubner_conte":
-        p = os.path.join(ROOTS["teubner_conte"], "conte_aeneis.pdf")
-        if os.path.exists(p) and _inside(p, ROOTS["teubner_conte"]):
+        candidates.append(os.path.join(root, "conte_aeneis.pdf"))
+    candidates += [os.path.join(root, book), os.path.join(root, book + ".pdf")]
+    for p in candidates:
+        if os.path.exists(p) and _inside(p, root):
             return p
     raise FileNotFoundError(f"{source}/{book}")
 

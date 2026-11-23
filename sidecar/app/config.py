@@ -81,6 +81,10 @@ LEXICON_DB = os.environ.get("SOCRATIC_LEXICON_DB",
 #: The engine only consumes packs; producing them is the host's job.
 CURRICULUM = os.environ.get("SOCRATIC_CURRICULUM",
                             os.path.join(ROOT, "curriculum"))
+#: extra page-image sources for /v1/pages: "name=<dir>;name2=<dir2>".
+#: A source registered here is served flat (<dir>/<book>), so any corpus can
+#: render pages without teaching the engine its layout.
+PAGE_ROOTS = os.environ.get("SOCRATIC_PAGE_ROOTS", "")
 V1_BGE_VECTORS = os.environ.get("SOCRATIC_V1_BGE_VECTORS", BGE_VECTORS)
 V1_BGE_IDS = os.environ.get("SOCRATIC_V1_BGE_IDS", BGE_IDS)
 BGE_V2_MODEL_NAME = os.environ.get("SOCRATIC_V2_MODEL_NAME", "bge-m3")

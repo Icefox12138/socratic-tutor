@@ -85,6 +85,25 @@ class TestPages(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             pages.render("library", "nope.pdf", 1)
 
+    def test_env_registered_page_source(self):
+        """SOCRATIC_PAGE_ROOTS registers a flat source the engine does not know."""
+        old = getattr(config, "PAGE_ROOTS", "")
+        self.addCleanup(setattr, config, "PAGE_ROOTS", old)
+        config.PAGE_ROOTS = "demo=%s" % self.pdf_dir
+        pages.refresh_roots()
+        self.assertIn("demo", pages.ROOTS)
+        self.assertEqual(pages.count("demo", "blank.pdf"), 2)
+        data = pages.render("demo", "blank.pdf", 1)
+        self.assertTrue(data.startswith(b"\x89PNG"))
+
+    def test_env_page_roots_do_not_leak_into_unknown_source(self):
+        old = getattr(config, "PAGE_ROOTS", "")
+        self.addCleanup(setattr, config, "PAGE_ROOTS", old)
+        config.PAGE_ROOTS = "demo=%s" % self.pdf_dir
+        pages.refresh_roots()
+        with self.assertRaises(ValueError):
+            pages.render("other", "blank.pdf", 1)
+
 
 if __name__ == "__main__":
     unittest.main()

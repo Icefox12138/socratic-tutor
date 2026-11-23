@@ -254,6 +254,10 @@ export function makePreStepHandler(config) {
         const summary = st && st.summary ? st.summary : DEFAULT_SUMMARY;
         activeHint = st && st.state && st.state.hint_level != null ? Number(st.state.hint_level) : 0;
         const injected = {
+          // MessageBase.id is required by the runtime; a per-injection id keeps
+          // duplicate snapshots from colliding in the transcript.
+          id: "socratic-" + Date.now().toString(36) + "-" +
+            Math.random().toString(36).slice(2, 8),
           role: "user",
           content: [{ type: "text", text: summary }],
           source: {

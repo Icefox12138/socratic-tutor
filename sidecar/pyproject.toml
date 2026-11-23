@@ -1,7 +1,12 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "socratic-sidecar"
-version = "0.2.1"
+version = "0.3.0"
 description = "Minimal Socratic tutor sidecar: search, pages, compute"
+readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 dependencies = [
@@ -18,6 +23,14 @@ dependencies = [
   "classics-index>=0.1",
 ]
 
+[project.urls]
+Homepage = "https://github.com/Icefox12138/socratic-tutor/tree/main/sidecar"
+Repository = "https://github.com/Icefox12138/socratic-tutor"
+Issues = "https://github.com/Icefox12138/socratic-tutor/issues"
+
+[project.scripts]
+socratic-sidecar = "app.__main__:main"
+
 [project.optional-dependencies]
 # starlette's TestClient imports httpx2 in the FastAPI versions we pin
 test = ["requests", "httpx2"]
@@ -26,3 +39,13 @@ compute = ["pint>=0.23", "control>=0.10"]
 # Better Greek/Latin lemmatisation for /v1/lemma; without it a small
 # suffix-stripping fallback is used.
 lemma = ["simplemma>=2.0"]
+
+[tool.setuptools]
+# app.adapters is a real subpackage imported by app/ingest.py, so it must ship
+# too; tests/ is deliberately not packaged.
+packages = ["app", "app.adapters"]
+
+[tool.setuptools.package-data]
+# The curated offline glossary is a data file inside the package and is read
+# with a path relative to app/__file__, so it has to travel in the wheel.
+app = ["*.json"]
