@@ -66,6 +66,24 @@ def _entry_chunk_id(value):
     return int(text) if text.isdigit() else None
 
 
+def _entry_rows(con, entry_id):
+    """All sense chunks of one entry, ordered, else the single chunk.
+
+    v2.1 lexicon databases set ``chunks.entry_id`` on every sense chunk so the
+    whole entry can be read back; older databases have one chunk per entry and
+    no such column, so fall back to the id lookup.
+    """
+    base = ("SELECT c.text, c.locator_json, c.section, d.title, d.canonical_url"
+            " FROM chunks c LEFT JOIN documents d ON d.document_id = c.document_id")
+    cols = {r[1] for r in con.execute("PRAGMA table_info(chunks)")}
+    if "entry_id" in cols:
+        rows = con.execute(base + " WHERE c.entry_id = ? ORDER BY c.ordinal",
+                           (entry_id,)).fetchall()
+        if rows:
+            return rows
+    return con.execute(base + " WHERE c.id = ?", (entry_id,)).fetchall()
+
+
 def _row_entry(con, row, area):
     """Attach the entry body (a chunk) and the policy citation to one headword."""
     raw_entry = _row_get(row, "entry_id")
@@ -88,18 +106,15 @@ def _row_entry(con, row, area):
     text = None
     chunk_id = _entry_chunk_id(raw_entry)
     if chunk_id is not None and "chunks" in _tables(con):
-        chunk = con.execute(
-            "SELECT c.text, c.locator_json, c.section, d.title, d.canonical_url"
-            " FROM chunks c LEFT JOIN documents d ON d.document_id = c.document_id"
-            " WHERE c.id = ?", (chunk_id,)).fetchone()
-        if chunk:
-            text = chunk["text"]
-            stored = locators.loads(chunk["locator_json"])
+        rows = _entry_rows(con, chunk_id)
+        if rows:
+            text = " ".join(r["text"] for r in rows if r["text"]) or None
+            stored = locators.loads(rows[0]["locator_json"])
             if stored:
                 loc = stored
-            if chunk["section"] and area == "grammar":
-                loc.setdefault("title", chunk["section"])
-            doc = {"title": chunk["title"], "canonical_url": chunk["canonical_url"]}
+            if rows[0]["section"] and area == "grammar":
+                loc.setdefault("title", rows[0]["section"])
+            doc = {"title": rows[0]["title"], "canonical_url": rows[0]["canonical_url"]}
     entry["definition"] = text
     entry["locator"] = loc
     entry["citation"] = _cite(entry, doc)

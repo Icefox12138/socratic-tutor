@@ -35,10 +35,14 @@ per package; dates are release dates, not commit dates.
   through it, so no reader keeps its own list.
 - **`/v1/lexicon`**: form → lemma → entry (dictionary) or `§N` (grammar), from
   `lexicon_headwords`; a missing database answers `no_lexicon` instead of failing.
+- **Lexicon entries are read back whole**: v2.1 lexicon databases set
+  `chunks.entry_id` on every sense chunk, so a multi-sense entry now returns all
+  its senses joined (was: one chunk). Databases without the column keep the old
+  single-chunk behaviour.
 - The builtin policy gains `dict-lsj` / `grammar-smyth` / `grammar-ag`
   (tier A, `catalogue: lexicon`) and two `doc_kind` rules ahead of the catch-all;
   the default rule and `rrf` merge are unchanged.
-- 371 tests (was 355).
+- 372 tests (was 355).
 
 ### 0.2.1 — 2026-11-06
 - Removed the Windows AppContainer path; compute worker now always uses the

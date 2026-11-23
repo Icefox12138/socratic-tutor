@@ -12,7 +12,7 @@
 | 插件形态 | **拆成两个 bundle**：工具包（13 工具 + 卡片）与人脑包（章程 / 每步摘要 / 流改写）。desktop 只装工具，`tutor` / `web` 两个都装 |
 | DSH 兼容 | 实测 **0.2.2-rc.2**；`engines.dsh` = `>=0.2.1-rc.2 <0.3.0-0 \|\| >=0.2.2-rc.2 <0.3.0-0`（严格 semver 也接受 0.2.2-rc.2） |
 | 引用策略 | **M0–M5 消费端全部落地** + **词典/语法规则**：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生；`tier`/`tier_estimated` 查表；`scope=all` 支持 `rrf`/`weighted`/`tiered`；`book_meta` → `doc_kind`/`subject`；`doc_kind=dictionary|grammar` 选 `dict-lsj` / `grammar-*`（tier A，`catalogue: lexicon`）。**默认路径与改前逐位相同** |
-| 词目查表 | **契约 + 端点就绪，数据未建**：`schema v2.1` 的 `lexicon_headwords`、`/v1/lexicon`（词形→词元→词条 / `§N`）；缺库显式降级 `no_lexicon` |
+| 词目查表 | **数据已建（M1，2026-11-23）**：`lexicon.db` 219,738 条目 / 381,392 义项（LSJ 1940 版 + L&S；释义已 beta→Unicode，v2.1 列齐全）；`/v1/lexicon` 按 `chunks.entry_id` 读回整条词目；A&G/Smyth 的 § 语法数据待 M3；缺库显式降级 `no_lexicon` |
 | 测试 | sidecar **371**、plugin **6 + 13**（工具 / 人格）、classics-index **20**、socratic-mcp **6** |
 | CI | 全绿：`ci.yml` 四组 job + `publish-npm.yml`（tag 触发，OIDC）+ `publish-pypi.yml`（tag 触发，OIDC） |
 | 人工评分 | **延后**（用户决定）；仍不能声称人类验证 |

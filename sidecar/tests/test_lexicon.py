@@ -115,6 +115,29 @@ class TestLexiconLookup(unittest.TestCase):
             out = lexicon.lookup("λύω", lang="greek", path=path)
         self.assertIn("definition", out["streams"])
 
+    def test_all_senses_of_an_entry_are_joined(self):
+        """v2.1 lexicon databases set chunks.entry_id on every sense chunk."""
+        with TemporaryDirectory() as d:
+            path = os.path.join(d, "lex.db")
+            _fixture(path)
+            con = sqlite3.connect(path)
+            con.execute("ALTER TABLE chunks ADD COLUMN entry_id INTEGER")
+            con.execute("UPDATE chunks SET entry_id = 1 WHERE id = 1")
+            con.execute(
+                "INSERT INTO chunks(id, document_id, ordinal, section, text, stream,"
+                " locator_json, entry_id) VALUES(3,'d-lsj',3,'λ',"
+                "'λύω: a second sense, to loosen.',"
+                "'definition',?,1)",
+                (json.dumps({"scheme": "dict", "headword": "λύω", "pos": "v",
+                             "sense": "2"}, ensure_ascii=False),))
+            con.commit()
+            con.close()
+            out = lexicon.lookup("λύω", lang="greek", path=path)
+        self.assertEqual(len(out["entries"]), 1)
+        body = out["entries"][0]["definition"]
+        self.assertIn("to loose", body)
+        self.assertIn("second sense", body)
+
 
 class TestLexiconEndpoint(unittest.TestCase):
     def setUp(self):
