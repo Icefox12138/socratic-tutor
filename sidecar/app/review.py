@@ -11,6 +11,7 @@ session snapshot; when the snapshot cannot settle a claim the verdict is
 """
 import hashlib
 import json
+import os
 import re
 import sqlite3
 import time
@@ -43,6 +44,14 @@ def _norm(text):
 MATHSY = re.compile(r"[0-9A-Za-z+\-*/^().=]")
 MATH_RUN = re.compile(r"[0-9A-Za-z+\-*/^().=]+")
 ASCII_SYMBOL = re.compile(r"[A-Za-z][A-Za-z0-9_]*$")
+# parse_expr with implicit_multiplication_application *evaluates* call syntax:
+# sympy 1.13 executes ``__import__('os').system(...)`` inside this process, so
+# a substring match is not a gate. The whole expression must consist of
+# harmless maths characters — quotes, colons and backslashes never reach sympy.
+MATHSY_FULL = re.compile(r"^[0-9A-Za-z_+\-*/^().=,\[\]{};\s]+$")
+# A pow() with a six-digit-or-longer exponent, or a chain of ``**``, would hang
+# the request thread; the review corpus never needs either.
+_BIG_POW = re.compile(r"\*\*\s*\d{6,}")
 
 
 def _sympy():
@@ -54,7 +63,8 @@ def _expr(text):
     """Parse '3x^2' / 'x**3/3' into a sympy expression, or raise ValueError."""
     from sympy.parsing.sympy_parser import (implicit_multiplication_application,
                                             parse_expr, standard_transformations)
-    if not MATHSY.search(text):
+    if (not MATHSY.search(text) or not MATHSY_FULL.match(text)
+            or _BIG_POW.search(text) or text.count("**") > 1):
         raise ValueError("not maths")
     expr = parse_expr(text, transformations=standard_transformations
                       + (implicit_multiplication_application,), evaluate=True)
@@ -251,6 +261,7 @@ def extract_claims(text):
 
 def _store(session_id, payload, path=None):
     p = path or config.STATE_DB
+    os.makedirs(os.path.dirname(os.path.abspath(p)), exist_ok=True)
     con = sqlite3.connect(p)
     try:
         con.execute(

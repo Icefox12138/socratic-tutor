@@ -51,6 +51,10 @@ def create_session(session_id, goal="", concept="", lang="zh", state=None, path=
 def append_event(session_id, event, payload, state, path=None):
     con = _conn(path)
     try:
+        # Two concurrent /v1/state/step calls for the same session would both
+        # read the same MAX(seq) and violate UNIQUE(session_id, seq); the
+        # immediate transaction serialises the read-modify-write.
+        con.execute("BEGIN IMMEDIATE")
         row = con.execute("SELECT COALESCE(MAX(seq),0) FROM state_events WHERE session_id=?",
                           (session_id,)).fetchone()
         seq = int(row[0]) + 1
@@ -63,6 +67,9 @@ def append_event(session_id, event, payload, state, path=None):
         con.execute("UPDATE sessions SET updated_at=? WHERE session_id=?", (now, session_id))
         con.commit()
         return seq
+    except Exception:
+        con.rollback()
+        raise
     finally:
         con.close()
 

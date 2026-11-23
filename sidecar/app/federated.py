@@ -10,7 +10,9 @@ import time
 
 from . import citation_policy, config, search
 
-_LOCK = threading.Lock()
+# RLock, not Lock: _run_one() holds this lock while it calls search.search(),
+# which re-acquires it on the same thread for the single-catalogue path.
+_LOCK = threading.RLock()
 
 
 def _probe(db, is_v1, query):

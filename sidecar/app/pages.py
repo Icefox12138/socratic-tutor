@@ -174,7 +174,12 @@ def render(source: str, book: str, page: int, dpi: int = 150, bbox=None) -> byte
                 crop = (x0 * w, (1 - y1) * h, (1 - x1) * w, y0 * h)
             # pypdfium2 rejects crop=None, so only pass it when a box was given
             bitmap = pg.render(scale=dpi / 72, **({"crop": crop} if crop else {}))
-            bitmap.to_pil().save(out, format="PNG", optimize=False)
+            # Write a sibling temp file and publish it atomically: a concurrent
+            # request that passes the exists() check above while the PNG is
+            # still being written must never read a half-written file.
+            tmp = out + ".%d.tmp" % os.getpid()
+            bitmap.to_pil().save(tmp, format="PNG", optimize=False)
+            os.replace(tmp, out)
         finally:
             doc.close()
     _evict()

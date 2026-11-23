@@ -299,8 +299,9 @@ def _commentary_index():
 def commentary_search(query, view="student", limit=20, source=None, lang=None,
                       book=None):
     """English-commentary retrieval over Greek/Latin books (v1)."""
-    if config.schema_version() != "v1":
-        return {"query": query, "mode": "commentary", "schema": "v1",
+    ver = config.schema_version()
+    if ver != "v1":
+        return {"query": query, "mode": "commentary", "schema": ver,
                 "results": [], "took_ms": 0.0}
     terms = [w.lower() for w in _ENGLISH_WORD.findall(query or "")]
     terms = list(dict.fromkeys(w for w in terms if w not in _ENGLISH_STOP))
@@ -398,7 +399,8 @@ def greek_lemma_search(query, view="student", limit=20, source=None,
     still find the inflected form on the page (φάσκε, Ἠελίοιο, ...).
     """
     if config.schema_version() != "v1":
-        return {"query": query, "mode": "greek-lemma", "schema": "v1",
+        ver = config.schema_version()
+        return {"query": query, "mode": "greek-lemma", "schema": ver,
                 "results": [], "took_ms": 0.0}
     groups = [g for g in _query_groups(query, "greek") if g["lang"] == "greek"]
     if not groups:

@@ -1010,6 +1010,24 @@ def search(query: str, view: str = "student", limit: int = 8,
             query, view=view, limit=limit, source=source, lang=lang, book=book,
             document_id=document_id, section=section, session_id=session_id,
             turn=turn, step=step, call_id=call_id)
+    from . import federated
+    # federated.py switches config.DB / config.BGE_VECTORS while it runs, under
+    # federated._LOCK. A plain single-catalogue search that read those globals
+    # at the same moment would query the wrong file, so the two paths share the
+    # lock (an RLock: federated._run_one's nested search.search() re-enters on
+    # its own thread) and can never interleave.
+    with federated._LOCK:
+        return _search_single(query, view=view, limit=limit, source=source,
+                              lang=lang, book=book, chapter=chapter,
+                              toc_source=toc_source, session_id=session_id,
+                              turn=turn, step=step, call_id=call_id,
+                              document_id=document_id, section=section)
+
+
+def _search_single(query, view, limit, source=None, lang=None, book=None,
+                   chapter=None, toc_source="library", session_id=None,
+                   turn=None, step=None, call_id=None, document_id=None,
+                   section=None):
     vis = "tutor"  # current corpus: student == tutor minus answer_key
     limit = max(1, min(int(limit), 20))
 
