@@ -1,14 +1,14 @@
 # 发布流程（如果要开源）
 
-> **2026-11-06 更新**：本次发版清单见 [RELEASE-2026-11-06.md](RELEASE-2026-11-06.md)。
-> sidecar 已有 Dockerfile/compose；版本 sidecar 0.2.1 / mcp 0.2.0 / plugin 0.3.1。
+> **2026-11-06 更新（历史快照）**：本次发版清单见 [RELEASE-2026-11-06.md](RELEASE-2026-11-06.md)。
+> 当时的版本：sidecar 0.2.1 / mcp 0.2.0 / plugin 0.3.1。**当前状态以 [STATUS.md](STATUS.md) 为准**（2026-11-23：PyPI 0.1.4/0.2.1、npm 0.5.1/0.1.1 均已发布，sidecar 0.3.0 已具备 PyPI 打包）。
 
 > 先看 [RELEASE-PLAN.md](RELEASE-PLAN.md)：发哪 4 个单元、分几批、为什么其余代码不能发。本文件只写“怎么发”。
 
 | 项 | 值 |
 |---|---|
-| 日期 | **2026-11-03** |
-| 现状 | 两个可发布物：`classics-index`（PyPI 包）、`dsh-socratic`（DSH 插件）；sidecar 是配套服务 |
+| 日期 | **2026-11-03**（状态区 2026-11-23 更新） |
+| 现状 | 已发布：PyPI `classics-index` 0.1.4 / `socratic-mcp` 0.2.1、npm `dsh-socratic` 0.5.1 / `dsh-socratic-persona` 0.1.1；sidecar 是配套服务，已具备 PyPI 打包（`socratic-sidecar` 0.3.0） |
 | 前置 | license、示例数据、CI——三件都没做之前不要发 |
 
 ---
@@ -79,8 +79,9 @@ dsh --profile packtest headless "调用 socratic_health"
 
 ### 我们现在的状态
 
-- Python 包：构建、twine check、从 sdist 安装并跑通示例，**只差上传**（无 token）；
-- 插件：`files` 白名单已加，**已用 DSH 自带 node+pnpm 打出 tarball 并验装**（8 个文件，与仓库字节一致）；只差 `pnpm publish`；
+- Python 包：`classics-index` 0.1.4 / `socratic-mcp` 0.2.1 已由 `publish-pypi.yml`（tag + OIDC）发布（2026-11-23）；
+- 插件：`dsh-socratic` 0.5.1 / `dsh-socratic-persona` 0.1.1 已由 `publish-npm.yml` 发布（OIDC + SLSA provenance）；
+- sidecar：0.3.0 已具备 PyPI 打包（`[project.scripts] socratic-sidecar` 入口 + `publish-pypi.yml` 的 `sidecar-v*` job），**PyPI 项目首发布后**即可 `pipx`/`uvx` 安装；
 - 源码开源：**已于 2026-11-04 公开**（`github.com/Icefox12138/socratic-tutor`），历史里曾经的运行时文件已在首个提交前清理，`.gitignore` 覆盖了派生目录。
 
 ---
@@ -129,8 +130,8 @@ twine upload dist/*                  # 再发正式
 | 项 | 状态 |
 |---|---|
 | package.json 补 `description/keywords/license/repository` | ❌ |
-| 契约测试（5 条）进 CI | ✅ 已有，未接 CI |
-| sidecar 发行方式（Docker/uvx） | ❌ |
+| 契约测试（6 条）进 CI | ✅ 已有，已接 `ci.yml` |
+| sidecar 发行方式（PyPI + uvx 主线，Docker 备选） | ✅ PyPI 打包已就绪（0.3.0，发布工作流就绪） |
 | 首次启动引导（sidecar 未运行时给出可操作提示） | ✅ 降级门已做 |
 | 截图 / 30 秒 demo | ❌ |
 
@@ -168,21 +169,21 @@ python -m build && twine upload --repository testpypi dist/*
 
 ## 4. 发布物 C：sidecar（配套服务）
 
-不建议做成 pip 包（依赖 PyMuPDF + BGE 模型 + 书库）。两种可行形态：
+**建议做 pip 包**：`pipx install socratic-sidecar` / `uvx --from socratic-sidecar socratic-sidecar --port 8765`（框架路线 30 天主线，见工作区 `review/DECISION-OSS-FRAMEWORK.md` §2 与 `publish-pypi.yml` 的 `sidecar-v*` job）。Docker 仅保留给 Linux 服务器/CI。两种形态：
 
 | 形态 | 命令 | 适用 |
 |---|---|---|
-| Docker | `docker run -p 8765:8765 -v /books:/books ghcr.io/…/socratic-sidecar` | 有 GPU 或愿意用 CPU 的人 |
-| uvx / 单文件 | `uvx socratic-sidecar --root /books` | 开发者 |
+| PyPI（主线） | `uvx --from socratic-sidecar socratic-sidecar --root /books` | 个人用户（Windows/macOS/Linux 一条命令） |
+| Docker | `docker run -p 8765:8765 -v /books:/books ghcr.io/…/socratic-sidecar` | 有 GPU 的 Linux 服务器 / CI |
 
-镜像里**不要**带书库（版权 + 体积），只带代码与模型；书库挂卷。首次启动读 `SOCRATIC_ROOT`，没有索引就给"先跑 ingest"的提示。
+镜像里**不要**带书库（版权 + 体积），只带代码与模型；书库挂卷。首次启动读 `SOCRATIC_ROOT`，没有索引就给"先跑 ingest"的提示。pypdfium2 是 BSD-3-Clause，整个仓库保持 MIT。
 
 ## 5. 检查清单（发之前逐条打勾）
 
 ```
 [ ] LICENSE 文件存在且与 package.json / pyproject.toml 一致
 [ ] 示例数据为公版或自制，不含版权书页
-[ ] 三套测试全绿：sidecar 119、classics-index 16、插件契约 5
+[ ] 全套测试全绿：sidecar 383、classics-index 20、socratic-mcp 6、插件 6 + persona 13、calcbox 37
 [ ] CI 跑测试 + ruff（Python）/ eslint 或 node --check（JS）
 [ ] 插件在"无 sidecar"下给出可操作报错（不是堆栈）
 [ ] README 写明"需要配套 sidecar + 自备书库"

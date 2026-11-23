@@ -1,7 +1,7 @@
 # dsh-socratic（教学插件骨架）
 
 把 sidecar 的检索/页图/计算能力接进 DSH 的 Host 插件骨架。
-**工具 + 章程 + `agent/pre-step` 摘要；状态机/判定/BKT/FSRS/critic 已接 sidecar；缺 DSH 内嵌 UI、对话 canary。**
+**工具 + 内嵌卡片；教学行为（章程 / 每步摘要 / 流改写）在 [`dsh-socratic-persona`](../plugin-socratic-persona/README.md) 独立包里。状态机/判定/BKT/FSRS/critic 已接 sidecar。**
 
 ## 前置
 
@@ -30,7 +30,7 @@ dsh --profile tutor --dump-config | Select-String socratic
 | `SOCRATIC_SIDECAR_URL` | `http://127.0.0.1:8765` |
 | `SOCRATIC_TOKEN` | 空（与 sidecar 一致） |
 
-## 人格开关（`persona`）
+## 人格层：装不装 persona 包
 
 **0.5.0 起，教学行为已拆到独立包 [dsh-socratic-persona](../plugin-socratic-persona/README.md)。**
 
@@ -55,7 +55,8 @@ dsh plugin --profile tutor add "link:/path/to/socratic-tutor/plugin-socratic-per
 | `kb_search` | 检索 chunks，返回 citation + page_image；希腊命中 `text` 为空、`image_only:true`；可带 `book`+`chapter` 限定章回（扫描本回页图） |
 | `chapter_lookup` | 按 `卷3`/`第7回`/标题片段查章回页码范围与页图；给 `page` 反查所在章回 |
 | `kb_read` | 按 chunk_id 读取；希腊命中同样只回 citation + 页图 |
-| `cite_verify` | 取页图，返回状态/字节数 |
+| `lexical_search` | grep 精确串 / lemma 词形归并；引文、人名、公式核验 |
+| `cite_verify` | 取页图，返回状态/字节数；带 `quote` 时走 `/v1/verify` 页内文本比对 |
 | `compute_math` | SymPy 白名单操作 |
 | `ptc_calc` | PTC 试点：Node `vm` 沙箱，代码调 `compute_symbolic/compute_numeric`；`run_code` 名字被 DSH 保留 |
 | `socratic_critic` | 多问/泄漏/无引用自检；多问时返回 rewrite |
@@ -74,7 +75,7 @@ dsh plugin --profile tutor add "link:/path/to/socratic-tutor/plugin-socratic-per
 - 传输层在 `lib/transport.js`（baseUrl / token / sessionId / 探测 / 降级），领域代码只 import 它；
 - 每个工具执行前探测 `/health`（缓存 5 s）：不可达时返回 `{"ok":false,"error":"sidecar_unreachable",...}`，不抛异常；
   `socratic_health` 例外，永远执行并报 `reachable:false`；
-- 与 sidecar 的完整边界见 `docs/SIDECAR-CONTRACT.md`（9 组端点，任何人可据此实现自己的 sidecar）；
+- 与 sidecar 的完整边界见 `docs/SIDECAR-CONTRACT.md`（完整端点表，含 policy/channels/curriculum，任何人可据此实现自己的 sidecar）；
 - 契约测试：`node --test test/plugin.test.mjs`（6 条，不需要真 sidecar）。
 
 ## 流式开关
@@ -119,14 +120,14 @@ dsh --profile tutor headless "先用 kb_search 搜『微分』，报告第一条
 - 安装到 **web** profile 后，刷新 GUI 生效：
 
 ```powershell
-dsh plugin --profile web add "link:D:/Guo-Code/socratic-tutor/plugin-socratic"
+dsh plugin --profile web add "link:/path/to/socratic-tutor/plugin-socratic"
 ```
 
 - 侧边栏“新会话”进入对话后，composer 下方出现“教学台”。
 
 ## 已知缺口
 
-- 已有状态机/判定/BKT/FSRS/critic；仍缺 DSH 内嵌 UI、对话 canary、100 段人工评分；
-- 没有 UI（引用卡、页图面板）；
-- `tier` 仍为 `unknown`；
-- 只接 FTS，未接 BGE/reranker。
+- `locale/*.json` 与 `icon` 导出未做（Plugin Manager 显示元数据）；
+- PTC 的 `vm` 超时不覆盖异步等待；
+- `client.js` 灯箱 portal 已修（工作树待提交）；
+- 引用层级/重排由 sidecar 负责，插件只透传。

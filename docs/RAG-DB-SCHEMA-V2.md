@@ -2,8 +2,8 @@
 
 | 项 | 值 |
 |---|---|
-| 版本 | **v2** |
-| 日期 | 2026-11-05 |
+| 版本 | **v2 / v2.1**（v2.1 为增量：`documents.kind`、stream 扩到十种、`lexicon_headwords`、`chunks.entry_id`） |
+| 日期 | 2026-11-05 初版 / 2026-11-17 v2.1 |
 | 适用 | 引用单位**不是页**的语料：Wikisource / Perseus CTS / 数据集 / Lean 等 |
 | 实现 | `sidecar/app/schema.py`（DDL/检测）、`catalog.py`（读取）、`ingest.py`（写入） |
 | 适配器 | `sidecar/app/adapters/wikisource.py`、`cts.py` |
@@ -82,6 +82,7 @@ CREATE TABLE chunks (
   visibility     TEXT NOT NULL DEFAULT 'tutor',  -- tutor|answer_key
   locator_json   TEXT NOT NULL,
   citation_label TEXT,                   -- 人读标签；空则按 locator 生成
+  entry_id       INTEGER,                -- v2.1：词典/语法 sense 所属词条（= 首条 sense 的 chunks.id）
   quality        TEXT,
   char_start     INTEGER,                -- 相对 section 的字符区间
   char_end       INTEGER,
@@ -111,6 +112,8 @@ CREATE INDEX idx_lex_lemma ON lexicon_headwords(lang, lemma);
 ```
 
 `chunks_fts.rowid` 必须等于 `chunks.id`；写入的文本**先分词**（见 §9）。
+`entry_id` 只在 lexicon.db 中写出（词典/语法库）；没有该列的普通 v2 库按单 chunk 回退，
+`/v1/lexicon` 仍可工作。
 
 ## 3. locator_json（联合类型）
 
@@ -394,7 +397,7 @@ python scripts/ingest_public.py ... --dry-run
 
 ```powershell
 # 结构/计数/许可/向量对齐
-$env:SOCRATIC_DB="D:\Guo-Code\socratic-tutor\data\public.db"
+$env:SOCRATIC_DB="<DATA>/public.db"
 python scripts/ragdb_check.py
 
 # 建/补向量

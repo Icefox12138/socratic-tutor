@@ -1,7 +1,8 @@
 # Changelog
 
-Three packages live in this repository and version independently. Sections are
-per package; dates are release dates, not commit dates.
+Five independently versioned packages live in this repository (sidecar, classics-index,
+socratic-mcp, dsh-socratic, dsh-socratic-persona); calcbox and ragpipe live in their own
+repositories. Sections are per package; dates are release dates, not commit dates.
 
 ## Repository
 
@@ -13,9 +14,9 @@ per package; dates are release dates, not commit dates.
   a database the process cannot write to.
 - /health no longer 500s when the schema probe cannot open the index.
 
-### Unreleased
+### 2026-11-06 → 2026-11-17 (shipped; kept for history)
 - `sidecar/` renders pages with **pypdfium2** instead of PyMuPDF. The whole
-  repository is MIT again: no AGPL dependency remains.
+  repository is MIT again: no AGPL dependency remains. (Shipped in sidecar 0.3.0.)
 - Release prep for 2026-11-06: sidecar 0.2.1, socratic-mcp 0.2.0,
   dsh-socratic 0.3.1; Dockerfile + compose for the sidecar.
 

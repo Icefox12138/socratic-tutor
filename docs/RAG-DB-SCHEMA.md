@@ -23,7 +23,7 @@ sidecar 只认**三样东西**：一个 SQLite 库、两个 `.npy` 向量文件�
 ├── indexes/search.db          ← chunks 表 + chunks_fts（必需）
 ├── vectors/bge-vectors.npy    ← N × 1024，fp16 或 fp32（启用 BGE 时必需）
 ├── vectors/bge-ids.npy        ← N，int64，与 chunks.id 一一对应
-└── state.db                   ← 运行时自建（会话/引用/复盘/章回），**不由使用者提供**
+└── state.db                   ← 运行时自建（会话/引用/复盘/章回），**不由使用者提供**；使用者可预置 `toc` 表（见 §4）
 ```
 
 路径通过环境变量指定：`SOCRATIC_DATA`（默认 `<repo>/data`）、`SOCRATIC_DB`、`SOCRATIC_BGE_VECTORS`、`SOCRATIC_BGE_IDS`、`SOCRATIC_STATE_DB`。

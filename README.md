@@ -24,7 +24,7 @@ So the constraint here is inverted: **every claim must carry a locator (`book p.
 |---|---|---|
 | `plugin-socratic` | DSH plugin, **13 tools**: cited retrieval, lexical search, chapter lookup, page images, math check, session review; embedded console with a policy card and per-citation tier/anchor badges | [npm `dsh-socratic@0.5.1`](https://www.npmjs.com/package/dsh-socratic) |
 | `plugin-socratic-persona` | Teaching layer, **separate bundle**: charter, per-step state summary, citation/leak/single-question rewriting. Install it for teaching; leave it out and the tools behave as an ordinary assistant | [npm `dsh-socratic-persona@0.1.1`](https://www.npmjs.com/package/dsh-socratic-persona) |
-| `sidecar/` | FastAPI service: SQLite FTS5 + BGE-M3 + rerank + pypdfium2; public-corpus v2, federated `scope=all/routed`, grep/lemma, calcbox compute backend, **citation policy** (`/v1/policy`) | **0.3.0**, Dockerfile + compose |
+| `sidecar/` | FastAPI service: SQLite FTS5 + BGE-M3 + rerank + pypdfium2; public-corpus v2, federated `scope=all/routed`, grep/lemma, calcbox compute backend, **citation policy** (`/v1/policy`) | **0.3.0** — PyPI packaging ready (`socratic-sidecar` console script + `publish-pypi.yml`; installable with `uvx` once the PyPI project's first release lands); Dockerfile + compose |
 | `packages/classics-index` | Volume/chapter (`卷 / 篇 / 回`) indexer for scanned Chinese books, built from OCR of running headers | [PyPI `classics-index@0.1.4`](https://pypi.org/project/classics-index/) |
 | `packages/socratic-mcp` | MCP server exposing search, lexical lookup, chapters, review and state | [PyPI `socratic-mcp@0.2.1`](https://pypi.org/project/socratic-mcp/) |
 
@@ -180,8 +180,8 @@ This is a single-machine, single-student research project, published so the piec
 | Page image renders | **100%** |
 | Answer-key leakage (266 probes) | **0** |
 | Deterministic session review accuracy | **86.7%** (23 held-out cases) |
-| Monolingual retrieval recall | **0.82** — target 0.85, **not met** |
-| Cross-lingual retrieval recall | **0.688** — target 0.70, **not met** |
+| Monolingual retrieval recall | **0.80–0.82** — target 0.85, **not met** |
+| Cross-lingual retrieval recall | **0.667** — target 0.70, **not met** (the 0.688 figure came from the earlier 32-question set) |
 | Human validation | **none yet** — every number above is machine-measured |
 
 Known sharp edges: Greek OCR on degraded scans is unusable (the service falls back to page-image-only results), the sidecar needs a GPU to be fast, and there is no async ingestion API yet — building a library means running a script.
@@ -189,7 +189,7 @@ Known sharp edges: Greek OCR on degraded scans is unusable (the service falls ba
 ## Tests
 
 ```bash
-cd sidecar                     && python -m unittest discover -s tests -p "test_*.py"   # 371
+cd sidecar                     && python -m unittest discover -s tests -p "test_*.py"   # 383
 cd packages/classics-index     && python -m unittest discover -s tests -p "test_*.py" -t .   # 20
 cd packages/socratic-mcp       && python -m unittest discover -s tests -p "test_*.py" -t .   # 6
 cd plugin-socratic             && node --test test/plugin.test.mjs                     # 6 (+ persona 13)
@@ -236,10 +236,10 @@ Third-party model weights (BGE-M3, bge-reranker) are **not** redistributed here;
 
 这是一个**引用优先**的苏格拉底式教学 Agent：回答必须给出 `书名 p.页码`，并能点开对应的页图核对；检索层会在服务端校验这个页码里确实包含所引文字，不满足就拒答而不是编造。
 
-- 三个已发布件：`classics-index`、`socratic-mcp`（PyPI）、`dsh-socratic`（npm）；
-- sidecar 是本地 FastAPI 服务，需要自备书库与 BGE 模型，尚未打包分发；
+- 五个已发布件：`classics-index`、`socratic-mcp`（PyPI 0.1.4 / 0.2.1）、`dsh-socratic`、`dsh-socratic-persona`（npm 0.5.1 / 0.1.1），外加独立仓库的 `calcbox` 0.4.0；
+- sidecar 是本地 FastAPI 服务，需要自备书库与 BGE 模型；engine 已提供 PyPI 打包（`socratic-sidecar` 0.3.0，发布工作流就绪；PyPI 项目首发布后即可 `uvx` 安装）；
 - 支持公式、横排中英、竖排繁体、拉丁、希腊五种版式；
-- 检索召回尚未达标（单语 0.82 / 跨语言 0.688），也没有人工验证——所有指标都是机器测量的；
+- 检索召回尚未达标（单语 0.80–0.82 / 跨语言 0.667），也没有人工验证——所有指标都是机器测量的；
 - 代码 MIT，**书库与 OCR 衍生物永不发布**。
 
 `docs/` 里大量文档是不同 AI 会话之间的交接记录，保留在仓库里，因为它们是这个项目决策过程唯一的长期记忆。

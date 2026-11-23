@@ -1,6 +1,6 @@
 # SIDECAR-CONTRACT（插件与 sidecar 的边界）
 
-这份文件是 `plugin-socratic` 与 `sidecar` 之间的**唯一契约**。任何实现只要满足下面 9 组端点，插件就能工作；插件本身不假设 sidecar 是 Python、FastAPI，还是别的什么。
+这份文件是 `plugin-socratic` 与 `sidecar` 之间的**唯一契约**。任何实现只要满足下面**全部端点组**，插件就能工作；插件本身不假设 sidecar 是 Python、FastAPI，还是别的什么。
 
 - 基础地址：`SOCRATIC_SIDECAR_URL`（默认 `http://127.0.0.1:8765`）或插件配置 `baseUrl`
 - 鉴权：若 `SOCRATIC_TOKEN` 非空，接受两种头——
@@ -155,6 +155,16 @@ GET /v1/lexicon?q=&lang=&area=dict|grammar&view=&limit=
 - 降级：没有 `lexicon.db` → `reason:"no_lexicon"`；查不到 → `"not_found"`；
 - **不做向量检索**：词条本身就是答案；`citation.tier` 为 A，`role` 为 `cite`。
 
+## 4e. 课程（框架化，schema v1）
+
+```
+GET /v1/curriculum -> {"lessons":[{"lesson_id","line","unit","lesson","title","passage","file"}]}
+GET /v1/curriculum/{lesson_id} -> 完整一课（vocab 解析结果，缺库时 entry:null；未知 id -> 404）
+```
+
+引擎**不发布课程**：`SOCRATIC_CURRICULUM` 指向一个装满 `*.json` 课程包的目录，
+`python scripts/curriculum_check.py --dir <目录>` 校验语法。详见 [CURRICULUM-SCHEMA.md](CURRICULUM-SCHEMA.md)。
+
 ## 5. 计算
 
 ```
@@ -167,10 +177,10 @@ POST /v1/compute {"expression": "...", "operation": "...", "variable": "x",
     "verification": {"method": "quad_error", "ok": true, "error": ...},
     "cross_check": {"backend": "sympy", "value": ..., "difference": ...},
     "disputed": false,
-    "sandbox": "audit",
+    "sandbox": "audit-only",
     "credentials": {"backend": "...", "input_sha256": "...",
                     "assumptions": {...}, "verification": {...},
-                    "sandbox": "audit", "generated_at": "..."}}
+                    "sandbox": "audit-only", "generated_at": "..."}}
 ```
 
 | backend | operations | 说明 |
@@ -186,17 +196,30 @@ POST /v1/compute {"expression": "...", "operation": "...", "variable": "x",
   不返回假结果。
 - `auto` 按 operation 推断后端；未知 operation/backend 返回 400。
 - SymPy/SciPy/pint 仍做表达式黑名单校验；Wolfram/Lean 是外部代码，默认关闭。
-- 本地后端在**可 kill 的子进程 worker** 中执行；worker 使用 audit 策略沙箱
-  （禁 socket/子进程、只写 per-run temp），不是 OS 隔离。
+- 本地后端在**可 kill 的子进程 worker** 中执行；worker 使用 **audit-only** 沙箱
+  （仅审计钩子，非 OS 隔离；禁 socket/子进程、只写 per-run temp）。
   `credentials` 带 `input_sha256/assumptions/verification/sandbox`；SciPy quad
   会用 SymPy 积分 cross-check，超差标 `disputed: true`。
 - `GET /v1/compute/backends` 返回每个后端的 `available/version/operations/install`
   以及 `sandbox` 状态。
 
+## 5b. 引用策略与通道（只读）
+
+```
+GET  /v1/policy        -> {"version","tiers","sources","channels","education","book_meta",...}
+GET  /v1/channels      -> {"channels":[...]}
+POST /v1/policy/reload -> 重新加载 YAML 策略
+```
+
+`version` 是生效策略的内容哈希（与 `citation.policy_version` 同值）；`book_meta`
+段报告书级元数据的路径、条数与读取错误。插件卡片直接依赖这三个端点（PolicyCard
+读 `/v1/policy` 与 `/v1/channels`），实现方必须提供。详见
+[CITATION-POLICY.md](CITATION-POLICY.md)。
+
 ## 6. 教学状态机
 
 ```
-POST /v1/state/init {"session_id","goal","concept","lang"}
+POST /v1/state/init {"session_id","goal","concept","lang","learn?","review?","lesson?"}
 POST /v1/state/step {"session_id","event","result?","text?","rubric?","expected?"}
 GET  /v1/state/{session_id}
 GET  /v1/state/{session_id}/events
@@ -204,6 +227,25 @@ POST /v1/state/{session_id}/replay
 ```
 
 `step` 返回 `{state, action: {kind, phase, hint, instruction}, summary, allowed_events}`；`summary` 会被插件注入到下一轮上下文。
+
+`/v1/state/init` 的三个可选字段（v0.3.0 起）：`learn: true` 在 DIAGNOSE 之后插入
+LEARN 阶段（讲解 + worked example + 回讲）；`review: true` 从 REVIEW 阶段开场
+（宿主先取 `/v1/cards/due`）；`lesson` 指定课程包 `lesson_id`。两者默认 `false`，
+不传时行为与旧版逐位相同。详见 [CURRICULUM-SCHEMA.md](CURRICULUM-SCHEMA.md)。
+
+## 6b. 学习者模型 / 章回辅助
+
+```
+GET  /v1/cards/due?limit=20      -> {"cards":[...]}
+POST /v1/cards                   {"term","definition","lang"}
+POST /v1/cards/{card_id}/review  {"rating"}
+GET  /v1/mastery[/{concept}]     -> {"mastery":[...]} / 单个概念
+GET  /v1/books                   -> {"books":[...]}（v2 库额外带 documents）
+GET  /v1/toc?source=&book=       -> {"source","book","pages","chapters"}
+```
+
+`/v1/cards/due` 是 REVIEW 阶段的入口；`/v1/books` 与 `/v1/toc` 同时是 §11 契约探针的
+检查项；`/v1/mastery` 供内嵌教学台显示掌握度。
 
 ## 7. 判定 / 自检
 
@@ -257,7 +299,7 @@ POST /v1/review {"session_id","state?","answers?","record?"}
 ## 10b. 计算后端
 
 `/v1/compute` 与 `/v1/compute/backends` 的实现来自独立包 **calcbox**（MIT）。请求与响应字段不变；
-`sandbox` 字段的值从 `audit` 改为 `audit-only`。契约权威版在 calcbox 仓库的 `docs/CONTRACT.md`
+`sandbox` 恒为 `audit-only`（仅审计钩子，非 OS 隔离）。契约权威版在 calcbox 仓库的 `docs/CONTRACT.md`
 （当前为 README 的 Contract 一节）。
 
 ## 11. 契约探针
@@ -268,12 +310,12 @@ python scripts/contract_check.py --base http://127.0.0.1:8765 [--token X] [--exp
 
 9 项检查：openapi、必需端点、health、search、result shape、page image、books、toc、chapter；`--expect-auth` 再加一条"无 token 必须 401"。
 v2 库会把 page image 换成 `citation scheme` / `citation url` / `sources` 三项检查。
-若服务暴露 `/v1/grep` / `/v1/lemma`，会额外探测（旧服务自动跳过）。
+若服务暴露 `/v1/grep` / `/v1/lemma`，会额外探测（旧服务自动跳过）；若暴露 `/v1/compute/backends`，另测六后端状态。
 退出码 0 表示"插件/MCP 可用"。
 
 ## 12. MCP 包装
 
-`packages/socratic-mcp` 把同一组能力暴露成 MCP tools（`kb_search` / `kb_read` / `chapter_lookup` / `review_session` / `socratic_state` / `socratic_health`），任何 MCP host 可直接接入，不必实现本契约的 HTTP 细节。
+`packages/socratic-mcp` 把同一组能力暴露成 MCP tools（`kb_search` / `kb_lexical` / `kb_read` / `chapter_lookup` / `review_session` / `socratic_state` / `socratic_health`，共 7 个），任何 MCP host 可直接接入，不必实现本契约的 HTTP 细节。
 `kb_search` 透传 `source` / `lang` / `book` / `chapter`，v2 另接受 `document_id` / `section`。
 
 ---
@@ -289,4 +331,4 @@ v2 库会把 page image 换成 `citation scheme` / `citation url` / `sources` �
 
 ## 参考实现
 
-`sidecar/` 是本契约的参考实现（FastAPI + SQLite + PyMuPDF）。实现自己的 sidecar 只需满足上表；不需要 Python。
+`sidecar/` 是本契约的参考实现（FastAPI + SQLite + pypdfium2；页图渲染用 BSD-3-Clause 的 pypdfium2，不用 AGPL 的 PyMuPDF）。实现自己的 sidecar 只需满足上表；不需要 Python。

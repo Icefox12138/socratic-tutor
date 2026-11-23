@@ -8,13 +8,13 @@
 | 范围 | **教学运行时**：sidecar + 两个 DSH 插件（工具 / 人格）+ MCP + 章回索引器 + 发布工作流 |
 | 不含 | OCR / 解析 / 切块 / 向量化 / RAG 库构建 → 私有工程 `rag-build`（见 [SPLIT-PLAN.md](SPLIT-PLAN.md)） |
 | 数据 | 外部：符合 [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md)（私有 PDF）或 [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md)（公开语料，**v2.1**：`documents.kind` / 扩 stream / `lexicon_headwords`）的库；`book_meta.json` 可选 |
-| 发布 | npm **`dsh-socratic` 0.5.1**、**`dsh-socratic-persona` 0.1.1**（OIDC trusted publishing，带 SLSA provenance）；PyPI **`classics-index` 0.1.4**、**`socratic-mcp` 0.2.1**（tag 驱动 `publish-pypi.yml`，OIDC trusted publishing，带 attestations）；`calcbox` 0.3.1（独立仓库）；sidecar **0.3.0**（仅源码，未发 PyPI） |
+| 发布 | npm **`dsh-socratic` 0.5.1**、**`dsh-socratic-persona` 0.1.1**（OIDC trusted publishing，带 SLSA provenance）；PyPI **`classics-index` 0.1.4**、**`socratic-mcp` 0.2.1**（tag 驱动 `publish-pypi.yml`，OIDC trusted publishing，带 attestations）；`calcbox` 0.4.0（独立仓库，2026-11-23 发布，mcp extra 收紧到 `mcp>=2`；sidecar 依赖 `calcbox>=0.3,<0.5`）；sidecar **0.3.0**（engine 已提供 PyPI 打包：`socratic-sidecar` + `[project.scripts]` 入口，`publish-pypi.yml`（tag `sidecar-v*`）就绪；PyPI 项目首发布后即可 `uvx` 安装） |
 | 插件形态 | **拆成两个 bundle**：工具包（13 工具 + 卡片）与人脑包（章程 / 每步摘要 / 流改写）。desktop 只装工具，`tutor` / `web` 两个都装 |
-| DSH 兼容 | 实测 **0.2.2-rc.2**；`engines.dsh` = `>=0.2.1-rc.2 <0.3.0-0 \|\| >=0.2.2-rc.2 <0.3.0-0`（严格 semver 也接受 0.2.2-rc.2） |
+| DSH 兼容 | 实测 **0.2.2-rc.2 / rc.5**（rc.5 由插件审计核对）；`engines.dsh` = `>=0.2.1-rc.2 <0.3.0-0 \|\| >=0.2.2-rc.2 <0.3.0-0`（严格 semver 也接受 0.2.2-rc.2） |
 | 引用策略 | **M0–M5 消费端全部落地** + **词典/语法规则**：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生；`tier`/`tier_estimated` 查表；`scope=all` 支持 `rrf`/`weighted`/`tiered`；`book_meta` → `doc_kind`/`subject`；`doc_kind=dictionary|grammar` 选 `dict-lsj` / `grammar-*`（tier A，`catalogue: lexicon`）。**默认路径与改前逐位相同** |
 | 词目查表 | **数据已建（M1，2026-11-23）**：`lexicon.db` 219,738 条目 / 381,392 义项（LSJ 1940 版 + L&S；释义已 beta→Unicode，v2.1 列齐全）；`/v1/lexicon` 按 `chunks.entry_id` 读回整条词目；A&G/Smyth 的 § 语法数据待 M3；缺库显式降级 `no_lexicon` |
 | 课程契约 | **框架化（schema v1，2026-11-23）**：`/v1/curriculum` 与 `/v1/curriculum/{lesson_id}` 消费 `SOCRATIC_CURRICULUM` 目录里的课程包；`LEARN`/`REVIEW` 阶段按需开启（`/v1/state/init` 的 `learn`/`review`）；引擎不发布课程，内容由第三方按契约提供（见 [CURRICULUM-SCHEMA.md](CURRICULUM-SCHEMA.md)） |
-| 测试 | sidecar **371**、plugin **6 + 13**（工具 / 人格）、classics-index **20**、socratic-mcp **6** |
+| 测试 | sidecar **383**、plugin **6 + 13**（工具 / 人格）、classics-index **20**、socratic-mcp **6** |
 | CI | 全绿：`ci.yml` 四组 job + `publish-npm.yml`（tag 触发，OIDC）+ `publish-pypi.yml`（tag 触发，OIDC） |
 | 人工评分 | **延后**（用户决定）；仍不能声称人类验证 |
 
@@ -32,12 +32,12 @@
 | 学习者模型 | 完成 | BKT + FSRS（`fsrs` 缺省时跳过） |
 | 复盘 | 完成 | 判定 100%、错误分类 **86.7%**（留出集）、undetermined 0% |
 | 内嵌 UI | 完成 | 引用卡（含 tier / 锚点角色）、引用策略卡、页图、提示级别 |
-| 计算后端 | 完成 | 实现已迁到独立包 **calcbox 0.3.1**（PyPI, MIT）；`sidecar/app/compute.py` 只是适配层 |
+| 计算后端 | 完成 | 实现已迁到独立包 **calcbox 0.4.0**（PyPI, MIT）；`sidecar/app/compute.py` 只是适配层 |
 | DSH 插件 | 完成（已拆包） | `dsh-socratic` 13 工具 + `client.js` 卡片；`dsh-socratic-persona` 章程 + `agent/pre-step` + `llm/stream` |
 | PTC | 条件通过 | 原生 `run_code` 可用；token −2.2%，**不默认** |
 | 公开语料 | 完成（首版） | schema v2 + Wikisource/CTS + BGE + OOV 闸门；130 人工题 R@5 0.977 / R@1 0.862 |
 | 词法通道 | 完成（含融合） | `/v1/grep`、`/v1/lemma`；已作为 v2 检索的 RRF 列表 |
-| 词目查表 | **契约与端点就绪，数据未建** | `/v1/lexicon`（词形→词元→词条；`§N` 小节）；`lexicon_headwords` 精确索引、不建向量；缺库 → `no_lexicon` |
+| 词目查表 | **完成（M1 数据 + 运行时）** | `/v1/lexicon`（词形→词元→词条；`§N` 小节）；`lexicon_headwords` 精确索引、不建向量；缺库 → `no_lexicon` |
 | 统一检索 | 完成（首版） | `scope=all` 合并、`scope=routed` 路由 |
 | 打包 | 完成 | `Dockerfile` / `docker-compose.yml`；跨平台路径见 [PORTABILITY.md](PORTABILITY.md) |
 
@@ -69,22 +69,22 @@
 11. **npm 发布走 OIDC**：`publish-npm.yml` 需要与 npm 上 Trusted Publisher 配置的文件名逐字一致；手工 `npm publish` 在启用 "disallow tokens" 后不再可用；
 12. **DSH 0.2.2 会深冻结 `llm/stream` 的 options**，`agent/pre-step` 的 decision 也已改为**返回新对象**而不是原地 `unshift`；
 13. **DSH 沙箱与本地跑测试**：`tempfile.mkdtemp()` 建的目录带 owner-only DACL，`workspace-write` 下不可写 → 用 `sidecar/tests/_tmp.py`；`node --test` 需 `--test-isolation=none`（默认 spawn 子进程会 `EPERM`）；`git push` 走 SSH 时 git 会 spawn `sh` 建管道，沙箱内失败，需放宽一次权限；
-14. **词典/语法只有契约与端点，没有数据**：`lexicon.db` 尚未建（E7/E8 未做），所以 `/v1/lexicon` 在真实部署上只回 `no_lexicon`；插件侧也还没有词典卡片；
+14. **词典数据已建、语法 § 数据未入库**：`lexicon.db`（M1，2026-11-23）可用，`/v1/lexicon` 按 `chunks.entry_id` 读回整条词目；A&G/Smyth 的 § 语法数据仍是 M3 待办，`area=grammar` 目前只回 `not_found`；插件侧词条卡未做。
 15. **`smythp` 与 `§N` 是两套编号**：语法 locator 的 `section`（§N）与 Perseus `smythp=NNNN` 不互相推导，查 `smythp=` 只按精确键匹配；
 16. **按类型定流会改变学生可见内容**：`documents.kind` 一旦填上 `dictionary/grammar/textbook/edition`，学生视图会比只给 `text` 时多出定义/表格/注释等；这是有意的，但部署方必须知道自己开了什么（`/v1/policy` 的 `education` 段可核对）；
 17. **项目整体不是生产级**：v1 recall 0.80–0.82 未过门槛、计算后端为 SymPy/SciPy/pint/control（Wolfram/Lean 未装）、人工评分为 0。
 
 ## 4. 与旧快照的差异
 
-| 旧（2026-11-06） | 新（2026-11-17） |
+| 旧（2026-11-06） | 新（2026-11-23） |
 |---|---|
 | npm `dsh-socratic` 0.4.0（单包，含人格） | 0.5.1 工具包 + `dsh-socratic-persona` 0.1.1，**拆包**；OIDC 发布带 provenance |
 | 引用策略 M0–M4 | M0–**M5 消费端** + **dict/grammar 规则**（`doc_kind` 选源，tier A，`catalogue: lexicon`） |
 | schema v2（`documents` 无 `kind`；stream 四种） | **schema v2.1**：`documents.kind`、stream 扩到十种、`lexicon_headwords` |
 | 学生视图只有 `stream='text'` | 按文档 `kind` 定档（字典含 definition/example；教材含 formula/table/code…），`SOCRATIC_STUDENT_STREAMS` 仍可整表覆盖 |
-| 测试 264 / 8 | sidecar **371** / plugin **6 + 13** |
-| 计算在 `sidecar/app/compute.py` | 迁到 **calcbox 0.3.1**，此处只剩适配层 |
-| 未验证 DSH 升级 | 实测 **0.2.2-rc.2**，`engines` 放宽为并集 |
+| 测试 264 / 8 | sidecar **383** / plugin **6 + 13** |
+| 计算在 `sidecar/app/compute.py` | 迁到 **calcbox 0.4.0**，此处只剩适配层 |
+| 未验证 DSH 升级 | 实测 **0.2.2-rc.2 / rc.5**，`engines` 放宽为并集 |
 | 无 npm 发布流水线 | `publish-npm.yml`：打 tag 即发布，无长期 token |
 | 测试用 `tempfile.mkdtemp()` | `_tmp.py`；插件测试 `--test-isolation=none` |
-| 无词目查表 | `/v1/lexicon`（契约 + 端点；数据待建） |
+| 无词目查表 | `/v1/lexicon`（M1 数据 + 契约 + 端点；语法 § 待 M3） |

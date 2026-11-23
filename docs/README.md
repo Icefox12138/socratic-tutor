@@ -1,6 +1,6 @@
 # docs 索引
 
-> **先读 [STATUS.md](STATUS.md)**：2026-11-17 当前状态快照；与旧报告冲突时以它和 [HANDOFF.md](HANDOFF.md) 为准。
+> **先读 [STATUS.md](STATUS.md)**：2026-11-23 当前状态快照（canonical）；与旧报告冲突时以 STATUS 为准，[HANDOFF.md](HANDOFF.md) 只作交接背景（其数字是 2026-11-16 快照）。
 
 ## 1. 入口（按顺序）
 
@@ -18,9 +18,11 @@
 | 10 | [HANDOFF-2026-11-05-rag-strategy.md](HANDOFF-2026-11-05-rag-strategy.md) | 本轮 RAG 路线/公开语料/schema/计算后端结论 |
 | 11 | [HANDOFF-2026-11-06-compute.md](HANDOFF-2026-11-06-compute.md) | 计算后端：SymPy/SciPy/pint/control/Wolfram/Lean |
 | 12 | [RELEASE-2026-11-06.md](RELEASE-2026-11-06.md) | **本次发版清单：版本、产物、SHA256、tag、待上传项** |
-| 14 | [PORTABILITY.md](PORTABILITY.md) | **Windows/Linux/macOS 兼容性检查与修复** |
-| 15 | [DESIGN.md](DESIGN.md) | lite 主设计（先读 §0/§1.3/§6/§16/§17） |
-| 16 | [DESIGN-full.md](DESIGN-full.md) | 完整版：DDL/代码/论证，按需查 |
+| 13 | [PORTABILITY.md](PORTABILITY.md) | **Windows/Linux/macOS 兼容性检查与修复** |
+| 14 | [DESIGN.md](DESIGN.md) | lite 主设计（先读 §0/§1.3/§6/§16/§17） |
+| 15 | [DESIGN-full.md](DESIGN-full.md) | 完整版：DDL/代码/论证，按需查 |
+
+> 路线决策：工作区（本仓库之外）的 `review/DECISION-OSS-FRAMEWORK.md`（2026-11-23 晚，**回归 OSS 框架**，取代内容产品转型）。docs 索引只列随仓库分发的文档。
 
 ## 2. 评审与计划
 
@@ -33,6 +35,7 @@
 
 | 文件 | 内容 |
 |---|---|
+| `../review/`（工作区，不在本仓库内） | P1 级评审报告与路线决策：`DECISION-OSS-FRAMEWORK.md`、`PM-EVALUATION.md`、`package-consistency.md` 等；`eval/` 下另有实验结果 |
 
 ## 4. P2 报告
 
@@ -54,7 +57,7 @@
 | [LLM-BACKEND.md](LLM-BACKEND.md) | **模型底座**：两处调用点、换底座的步骤、换完要重测什么 |
 | [USER-GUIDE.md](USER-GUIDE.md) | **安装与使用说明**：装包、起服务、接 Agent、排查 |
 | [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md) | **数据库契约 v1**：私有 PDF 库的形状 |
-| [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md) | **数据库契约 v2**：公开语料（Wikisource/CTS）、locator/stream/license、向量 |
+| [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md) | **数据库契约 v2.1**（v2 增量：`documents.kind`、十种 stream、`chunks.entry_id`）：公开语料（Wikisource/CTS）、locator/stream/license、向量 |
 | [SCHEMA-GAP.md](SCHEMA-GAP.md) | **契约差异账本**：数据工程的目标契约 vs 已实现契约，含迁移顺序与验收 |
 | [CITATION-POLICY.md](CITATION-POLICY.md) | **引用策略（设计稿）**：cite / template / verify 三角色、tier 阶梯、分科默认表、为什么暂不做设置界面 |
 | [CITATION-POLICY-PLAN.md](CITATION-POLICY-PLAN.md) | **引用策略实施（方案稿）**：逻辑源 × 通道（本地 PDF / RAG 库 / 公共 API / 数据集 / 云存储）分层、能力矩阵、多源合并与锚点、命名权重档、M0–M5 里程碑与等价性回归 |
@@ -70,7 +73,7 @@
 | [../eval/public/RESULTS.md](../eval/public/RESULTS.md) | 公开语料评测（43 问历史口径；130 题见 RESULTS-130） |
 | [../eval/public/RESULTS-lexical.md](../eval/public/RESULTS-lexical.md) | 词法通道评测（grep / lemma 变格） |
 | [SPLIT-PLAN.md](SPLIT-PLAN.md) | 拆分计划：运行时 / 数据工程、docs 归属 |
-| [SIDECAR-CONTRACT.md](SIDECAR-CONTRACT.md) | 插件 ↔ sidecar 的 9 组端点契约与降级规则 |
+| [SIDECAR-CONTRACT.md](SIDECAR-CONTRACT.md) | 插件 ↔ sidecar 的完整端点表（含 policy/channels/curriculum）与降级规则 |
 | [CURRICULUM-SCHEMA.md](CURRICULUM-SCHEMA.md) | 课程包契约 v1：引擎消费课程、不发布课程（`/v1/curriculum`） |
 | [RELEASE-PLAN.md](RELEASE-PLAN.md) | **发布计划（双重开源）**：源码轨 + 产物轨、三个批次、资产门 |
 | [ASSETS-POLICY.md](ASSETS-POLICY.md) | 截图/示例数据政策：为什么书页不能进仓库 |

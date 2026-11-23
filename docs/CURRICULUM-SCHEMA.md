@@ -29,19 +29,22 @@
 }
 ```
 
-### 字段规则（`app/curriculum.py:validate`）
+### 字段规则（`scripts/curriculum_check.py` 的 `curriculum.validate`）
+
+> `worked_example` / `grammar[]` 元素目前**仅按约定**写入、不做强校验（`validate` 只检查
+> `grammar` 是 list）；`lesson_id` 唯一性由发布方保证，工具逐个文件校验、不检查跨文件唯一。
 
 | 字段 | 必填 | 规则 |
 |---|---|---|
 | `schema` | 是 | 必须为 `1` |
-| `lesson_id` | 是 | `[a-z0-9][a-z0-9._-]{0,63}`，全局唯一 |
+| `lesson_id` | 是 | `[a-z0-9][a-z0-9._-]{0,63}`；全局唯一（约定，工具不检查） |
 | `line` / `title` | 是 | 非空字符串 |
 | `unit` / `lesson` | 是 | 整数 ≥ 1（用于排序与目录展示） |
 | `passage` | 是 | `source`、`book` 非空；`page_start` ≥ 1 且 ≤ `page_end` |
 | `background` | 是（可空串） | 字符串；预习阶段的讲解文案 |
-| `worked_example` | 否 | 字符串；预习阶段的一个示范 |
+| `worked_example` | 否 | 字符串（仅约定，不校验）；预习阶段的一个示范 |
 | `vocab[]` | 否 | 每项 `headword` 非空；`lang` 可选；带 lexicon.db 时解析出词条 |
-| `grammar[]` | 否 | `{scheme, section}`；数据入库后由 `/v1/lexicon?area=grammar` 解析 |
+| `grammar[]` | 否 | `{scheme, section}`（元素仅约定，不校验）；数据入库后由 `/v1/lexicon?area=grammar` 解析 |
 | `questions[]` | 是 | 至少 1 条，每条 `q` 非空；`answer_loc` 用于引用锚点 |
 | `review_cards[]` | 是 | 至少 1 条，每条 `term` 非空；SUMMARY 时写入 FSRS 卡片 |
 

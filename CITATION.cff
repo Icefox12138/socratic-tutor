@@ -4,6 +4,7 @@ message: "If this software contributes to published work, cite it as below."
 type: software
 authors:
   - family-names: "Icefox12138"
+    given-names: "Icefox12138"
     alias: "Icefox12138"
 repository-code: "https://github.com/Icefox12138/socratic-tutor"
 license: MIT
@@ -13,5 +14,6 @@ keywords:
   - scanned books
   - Chinese classics
   - OCR
-version: "0.3.1"
-date-released: "2026-11-06"
+# The primary published artefact is npm `dsh-socratic`; see docs/STATUS.md for the full matrix.
+version: "0.5.1"
+date-released: "2026-11-12"

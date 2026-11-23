@@ -18,11 +18,14 @@ import sys
 
 LINK = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
 STALE = [
-    (re.compile(r"sidecar\s*\*\*?264|264/264"), "sidecar tests are 371 now"),
+    (re.compile(r"sidecar\s*\*\*?264|264/264"), "sidecar tests are 383 now"),
     (re.compile(r"12 个工具|12 工具|12 tools"), "the plugin exposes 13 tools"),
     (re.compile(r"dsh-socratic`?\s*0\.[0-4]\."), "npm is 0.5.1 (tools) / 0.1.1 (persona)"),
-    (re.compile(r"socratic-mcp`?\s*0\.1\."), "socratic-mcp is 0.2.0"),
-    (re.compile(r"calcbox\s*0\.3\.0"), "calcbox is 0.3.1"),
+    (re.compile(r"dsh-socratic-persona`?\s*0\.0\."), "dsh-socratic-persona is 0.1.1"),
+    (re.compile(r"socratic-mcp`?\s*0\.[01]\.|socratic-mcp`?\s*0\.2\.0"),
+     "socratic-mcp is 0.2.1"),
+    (re.compile(r"calcbox\s*0\.[0-3]\."), "calcbox is 0.4.0"),
+    (re.compile(r"classics-index`?\s*0\.1\.[0-3]\b"), "classics-index is 0.1.4"),
 ]
 
 

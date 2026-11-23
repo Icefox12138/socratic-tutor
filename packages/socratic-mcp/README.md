@@ -6,11 +6,12 @@
 SOCRATIC_SIDECAR_URL=http://127.0.0.1:8765 python -m socratic_mcp.server
 ```
 
-## 工具
+## 工具（共 7 个）
 
 | 工具 | 作用 |
 |---|---|
 | `kb_search` | 检索；返回 citation 与页图 URL；可带 `book`+`chapter` 收窄到章回 |
+| `kb_lexical` | grep 精确串 / lemma 词形归并（引文与变格查询） |
 | `kb_read` | 按 chunk_id 读取 |
 | `chapter_lookup` | 「卷3」「第7回」或标题片段 → 页码范围与页图；给 `page` 则反查所在章回 |
 | `review_session` | 复盘一个教学会话 |
