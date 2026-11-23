@@ -94,6 +94,12 @@ per package; dates are release dates, not commit dates.
 
 ## socratic-mcp
 
+### 0.2.1 — 2026-11-23
+- `__init__.__version__` and `tools.VERSION` now agree with the package version;
+  the 0.2.0 wheel on PyPI still answered `initialize` with
+  `serverInfo.version = "0.1.0"`.
+- No API change.
+
 ### 0.2.0 — 2026-11-06
 - New `kb_lexical` tool (grep / lemma) for exact quotations and inflected forms.
 - `kb_search` accepts `scope=all|routed` for federated v1+v2 routing.
