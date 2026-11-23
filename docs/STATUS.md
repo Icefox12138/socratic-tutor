@@ -4,6 +4,7 @@
 
 | 项 | 值 |
 |---|---|
+| 仓库位置 | **`D:\Guo-Code\classics\socratic-tutor`**（2026-11-23 与 library/models/rag-build/calcbox 一并归入 `classics\`；历史文档里的旧路径为当时快照） |
 | 范围 | **教学运行时**：sidecar + 两个 DSH 插件（工具 / 人格）+ MCP + 章回索引器 + 发布工作流 |
 | 不含 | OCR / 解析 / 切块 / 向量化 / RAG 库构建 → 私有工程 `rag-build`（见 [SPLIT-PLAN.md](SPLIT-PLAN.md)） |
 | 数据 | 外部：符合 [RAG-DB-SCHEMA.md](RAG-DB-SCHEMA.md)（私有 PDF）或 [RAG-DB-SCHEMA-V2.md](RAG-DB-SCHEMA-V2.md)（公开语料，**v2.1**：`documents.kind` / 扩 stream / `lexicon_headwords`）的库；`book_meta.json` 可选 |
