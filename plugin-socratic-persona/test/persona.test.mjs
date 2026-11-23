@@ -24,19 +24,28 @@ beforeEach(() => { downFetch(); });
 // ── registration ─────────────────────────────────────────────────────────────
 
 test("apply registers the charter, the pre-step hook and the stream hook", () => {
-  const listeners = [];
-  const sections = [];
-  const ctx = {
-    on(event) { listeners.push(event); },
-    systemPrompt: { section(section) { sections.push(section); } },
-    tools: { register() { throw new Error("persona must not register tools"); } },
-  };
-  apply(ctx, { baseUrl: "http://127.0.0.1:8765" });
-  assert.deepEqual(listeners.sort(), ["agent/pre-step", "llm/stream"]);
-  assert.equal(sections.length, 1);
-  assert.equal(sections[0].name, "socratic:charter");
-  assert.equal(sections[0].order, 120);
-  assert.equal(sections[0].text, charterText());
+  // SOCRATIC_HARD_REWRITE=0 (a documented runtime configuration) intentionally
+  // drops the stream hook; isolate it so the registration contract holds.
+  const saved = process.env.SOCRATIC_HARD_REWRITE;
+  delete process.env.SOCRATIC_HARD_REWRITE;
+  try {
+    const listeners = [];
+    const sections = [];
+    const ctx = {
+      on(event) { listeners.push(event); },
+      systemPrompt: { section(section) { sections.push(section); } },
+      tools: { register() { throw new Error("persona must not register tools"); } },
+    };
+    apply(ctx, { baseUrl: "http://127.0.0.1:8765" });
+    assert.deepEqual(listeners.sort(), ["agent/pre-step", "llm/stream"]);
+    assert.equal(sections.length, 1);
+    assert.equal(sections[0].name, "socratic:charter");
+    assert.equal(sections[0].order, 120);
+    assert.equal(sections[0].text, charterText());
+  } finally {
+    if (saved === undefined) delete process.env.SOCRATIC_HARD_REWRITE;
+    else process.env.SOCRATIC_HARD_REWRITE = saved;
+  }
 });
 
 // ── charter ──────────────────────────────────────────────────────────────────

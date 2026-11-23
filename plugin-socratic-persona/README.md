@@ -52,6 +52,6 @@ The sidecar is optional: with it down the summary falls back to
 node --test --test-isolation=none test/persona.test.mjs
 ```
 
-12 tests, no sidecar and no live session needed: charter wording, the stream
+13 tests, no sidecar and no live session needed: charter wording, the stream
 switch, rewriting of uncited / cited / non-teaching streams, and the pre-step
 summary with the sidecar up, down, or with no `next()` call.

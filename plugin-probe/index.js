@@ -69,7 +69,7 @@ export function apply(ctx, config) {
   } catch (e) { report.hook_pre = 'ERR:' + e?.message }
 
   try {
-    ctx.on('tools/post-execute', async (exec, result) => {
+    ctx.on('tools/post-execute', async (exec, result, next) => {
       log('post_execute', {
         execName: exec?.name,
         resultType: typeof result,
@@ -78,10 +78,12 @@ export function apply(ctx, config) {
       try {
         if (result && Array.isArray(result.content)) {
           log('post_rewrite', { before: result.content.length })
-          return { content: [...result.content, { type: 'text', text: '[probe-marker]' }] }
+          // PostToolDecision requires a `kind`; append the marker by accepting
+          // with the enriched content instead of returning a bare object.
+          return { kind: 'accept', content: [...result.content, { type: 'text', text: '[probe-marker]' }] }
         }
       } catch { /* ignore */ }
-      return undefined
+      return next()
     })
     report.hook_post = 'ok'
   } catch (e) { report.hook_post = 'ERR:' + e?.message }

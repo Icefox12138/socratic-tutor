@@ -1,13 +1,17 @@
 import { appendFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { runCode } from "./ptc.js";
-import { call, callBinary, degraded, probe, settings } from "./lib/transport.js";
+import { call, callBinary, degraded, probe } from "./lib/transport.js";
 
-const DEFAULT_BASE = "http://127.0.0.1:8765";
-const LOG = "D:/Guo-Code/socratic-tutor/plugin-socratic/pre-step.log";
 const DEBUG = process.env.SOCRATIC_DEBUG === "1";
+// Resolve next to this package instead of a machine-specific absolute path.
+let LOG = null;
+try {
+  LOG = fileURLToPath(new URL("./pre-step.log", import.meta.url));
+} catch { /* unreadable install path: logging simply stays off */ }
 
 function log(event, data) {
-  if (!DEBUG) return;
+  if (!DEBUG || !LOG) return;
   try {
     appendFileSync(LOG, JSON.stringify({ t: new Date().toISOString(), event, ...data }) + "\n");
   } catch { /* ignore */ }

@@ -75,7 +75,7 @@ dsh plugin --profile tutor add "link:/path/to/socratic-tutor/plugin-socratic-per
 - 每个工具执行前探测 `/health`（缓存 5 s）：不可达时返回 `{"ok":false,"error":"sidecar_unreachable",...}`，不抛异常；
   `socratic_health` 例外，永远执行并报 `reachable:false`；
 - 与 sidecar 的完整边界见 `docs/SIDECAR-CONTRACT.md`（9 组端点，任何人可据此实现自己的 sidecar）；
-- 契约测试：`node --test test/plugin.test.mjs`（5 条，不需要真 sidecar）。
+- 契约测试：`node --test test/plugin.test.mjs`（6 条，不需要真 sidecar）。
 
 ## 流式开关
 
