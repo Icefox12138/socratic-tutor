@@ -46,7 +46,7 @@
 4. 装 `dist/*.tar.gz` 到干净 venv，跑一遍示例数据（**产物验证，不是源码验证**）；
 5. `twine upload --repository testpypi` → 从 TestPyPI 装一次；
 6. `twine upload`（不可逆）；失败只能 yank 后发 0.1.1；
-7. 可选：GitHub Actions + OIDC trusted publishing，免 token。
+7. **现已自动化**：`.github/workflows/publish-pypi.yml`（tag 驱动 + OIDC trusted publishing，免 token）。tag 名必须与 `pyproject.toml` 版本一致，工作流会先校验、再构建、再检查 wheel 内 `__version__`/`VERSION` 与 pyproject 一致，最后才上传；PyPI 侧每个项目需配置 trusted publisher（Owner `Icefox12138` / Repository `socratic-tutor` / Workflow `publish-pypi.yml` / Environment `pypi`）。手工路径（步骤 2–6）保留给首次建项目前的试发与应急；`workflow_dispatch` 选包 + `publish=true` 是恢复通道。
 
 ### DSH 插件（dsh-socratic）
 

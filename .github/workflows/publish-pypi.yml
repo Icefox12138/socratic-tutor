@@ -1,0 +1,197 @@
+# Publish the two PyPI packages with PyPI Trusted Publishing (OIDC).
+#
+# No PyPI API token: GitHub mints a short-lived OIDC token and PyPI exchanges it
+# for a publish credential. Requirements, checked against
+# https://docs.pypi.org/trusted-publishers/ on 2026-11-23:
+#   * a trusted publisher must be configured on PyPI for EACH project
+#     (Manage → Publishing → Add a new trusted publisher):
+#       Owner:           Icefox12138
+#       Repository:      socratic-tutor
+#       Workflow name:   publish-pypi.yml   <- must match this filename byte for byte
+#       Environment:     pypi               <- must match the environment below
+#   * permissions: id-token: write (only on the publishing job)
+#   * no reusable workflow and no third-party action besides
+#     pypa/gh-action-pypi-publish: PyPI trusts the workflow, not a token, so every
+#     other action in the job must stay a first-party actions/* one.
+#
+# Build and publish are separate jobs on purpose: only the publishing job holds
+# id-token: write, and it runs no repository code — it downloads the artefact the
+# build job produced. A compromised build step therefore cannot mint OIDC tokens.
+#
+# The tag must name the version in the package's pyproject.toml; the build job
+# checks that before anything is uploaded, so a mistyped tag fails loudly instead
+# of half-publishing. PyPI never overwrites a (name, version) pair — a bad upload
+# can only be yanked, not replaced.
+#
+# Release path: push a tag. Recovery path: workflow_dispatch, pick a package and
+# set publish=true; it builds whatever version its pyproject.toml holds.
+
+name: publish-pypi
+
+on:
+  push:
+    tags:
+      - "classics-index-v*"
+      - "socratic-mcp-v*"
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "Package to build (recovery; normal releases use a tag)"
+        required: true
+        type: choice
+        options:
+          - classics-index
+          - socratic-mcp
+      publish:
+        description: "Upload to PyPI (leave off to only build and test)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  classics-index:
+    name: classics-index build
+    if: >-
+      github.event_name == 'push' && startsWith(github.ref_name, 'classics-index-v') ||
+      github.event_name == 'workflow_dispatch' && inputs.package == 'classics-index'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade build twine
+      - name: check that the tag matches the package version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tag="${GITHUB_REF_NAME#"classics-index-v"}"
+          version=$(python -c "import tomllib,pathlib; print(tomllib.loads(pathlib.Path('packages/classics-index/pyproject.toml').read_text(encoding='utf-8'))['project']['version'])")
+          echo "tag=$tag version=$version"
+          test "$tag" = "$version" || { echo "::error::tag $tag does not match version $version"; exit 1; }
+      - name: tests
+        working-directory: packages/classics-index
+        run: python -m unittest discover -s tests -p "test_*.py" -t . -v
+      - name: build
+        working-directory: packages/classics-index
+        run: |
+          rm -rf dist
+          python -m build
+      - name: check the artefacts
+        working-directory: packages/classics-index
+        run: twine check dist/*
+      - name: check that __version__ inside the wheel matches pyproject
+        working-directory: packages/classics-index
+        run: |
+          python - <<'PY'
+          import glob, pathlib, re, tomllib, zipfile
+          version = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+          whl = glob.glob("dist/*.whl")[0]
+          src = zipfile.ZipFile(whl).read("classics_index/__init__.py").decode()
+          got = re.search(r'__version__\s*=\s*"([^"]+)"', src)
+          assert got, "no __version__ in the wheel"
+          assert got.group(1) == version, (
+              "wheel __version__ %r != pyproject %r" % (got.group(1), version))
+          print("wheel __version__ matches pyproject:", version)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-classics-index
+          path: packages/classics-index/dist/
+
+  classics-index-publish:
+    name: classics-index publish to PyPI
+    needs: classics-index
+    if: >-
+      github.event_name == 'push' || inputs.publish == true
+    runs-on: ubuntu-latest
+    # Trusted Publishing: PyPI verifies this repository/workflow/environment via
+    # OIDC. No API token exists anywhere.
+    environment:
+      name: pypi
+      url: https://pypi.org/p/classics-index
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-classics-index
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          attestations: true
+
+  socratic-mcp:
+    name: socratic-mcp build
+    if: >-
+      github.event_name == 'push' && startsWith(github.ref_name, 'socratic-mcp-v') ||
+      github.event_name == 'workflow_dispatch' && inputs.package == 'socratic-mcp'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade build twine
+      - name: check that the tag matches the package version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tag="${GITHUB_REF_NAME#"socratic-mcp-v"}"
+          version=$(python -c "import tomllib,pathlib; print(tomllib.loads(pathlib.Path('packages/socratic-mcp/pyproject.toml').read_text(encoding='utf-8'))['project']['version'])")
+          echo "tag=$tag version=$version"
+          test "$tag" = "$version" || { echo "::error::tag $tag does not match version $version"; exit 1; }
+      - name: tests
+        working-directory: packages/socratic-mcp
+        run: python -m unittest discover -s tests -p "test_*.py" -t . -v
+      - name: build
+        working-directory: packages/socratic-mcp
+        run: |
+          rm -rf dist
+          python -m build
+      - name: check the artefacts
+        working-directory: packages/socratic-mcp
+        run: twine check dist/*
+      - name: check that __version__ / VERSION inside the wheel match pyproject
+        working-directory: packages/socratic-mcp
+        run: |
+          python - <<'PY'
+          import glob, pathlib, re, tomllib, zipfile
+          version = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+          whl = zipfile.ZipFile(glob.glob("dist/*.whl")[0])
+          init = whl.read("socratic_mcp/__init__.py").decode()
+          tools = whl.read("socratic_mcp/tools.py").decode()
+          got_init = re.search(r'__version__\s*=\s*"([^"]+)"', init)
+          got_tools = re.search(r'VERSION\s*=\s*"([^"]+)"', tools)
+          assert got_init and got_tools, "missing __version__/VERSION in the wheel"
+          assert got_init.group(1) == version, (
+              "wheel __version__ %r != pyproject %r" % (got_init.group(1), version))
+          assert got_tools.group(1) == version, (
+              "wheel VERSION %r != pyproject %r" % (got_tools.group(1), version))
+          print("wheel __version__ / VERSION match pyproject:", version)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-socratic-mcp
+          path: packages/socratic-mcp/dist/
+
+  socratic-mcp-publish:
+    name: socratic-mcp publish to PyPI
+    needs: socratic-mcp
+    if: >-
+      github.event_name == 'push' || inputs.publish == true
+    runs-on: ubuntu-latest
+    # Same trusted-publisher setup as above, for the socratic-mcp project.
+    environment:
+      name: pypi
+      url: https://pypi.org/p/socratic-mcp
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-socratic-mcp
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          attestations: true
