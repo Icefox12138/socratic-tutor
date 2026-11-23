@@ -16,7 +16,7 @@ PATTERNS = {
     "posix-absolute": re.compile(r"(?<![\w:])/(?:home|Users|tmp|var|opt|srv)/"),
     "shell-true": re.compile(r"shell\s*=\s*True"),
 }
-SKIP_DIRS = {".git", ".venv-bge", ".venv-ocr", ".venv-paddle-gpu", "data",
+SKIP_DIRS = {".git", ".venv", ".venv-bge", ".venv-ocr", ".venv-paddle-gpu", "data",
              "models", "dist", "build", "node_modules", "__pycache__",
              ".tmp-testenv", ".tmp-test2", ".tmp-mpl", ".tmp-pip", "tests",
              "tmp", ".uv-cache", "cache", "calcbox-mpl"}

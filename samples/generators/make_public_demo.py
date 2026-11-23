@@ -25,9 +25,9 @@ Run from the repository root with the sidecar interpreter (it has Pillow):
 
   .venv-bge\Scripts\python.exe samples\generators\make_public_demo.py
 
-Fonts are looked up in C:\Windows\Fonts first, then a few DejaVu/Noto
-locations.  If no font covers a script, that page is skipped and the reason is
-printed (and belongs in review/demo-corpus.md); fonts are never downloaded.
+Fonts are looked up in the system font directory (WINDIR on Windows) first, then a
+few DejaVu/Noto locations.  If no font covers a script, that page is skipped and the
+reason is printed (and belongs in review/demo-corpus.md); fonts are never downloaded.
 """
 import json
 import os
@@ -228,8 +228,9 @@ _FONT_CACHE = {}
 
 def font_dirs():
     out = []
-    windir = os.environ.get("WINDIR") or r"C:\Windows"
-    out.append(os.path.join(windir, "Fonts"))
+    windir = os.environ.get("WINDIR")      # Windows only; absent elsewhere
+    if windir:
+        out.append(os.path.join(windir, "Fonts"))
     local = os.environ.get("LOCALAPPDATA")
     if local:
         out.append(os.path.join(local, "Microsoft", "Windows", "Fonts"))

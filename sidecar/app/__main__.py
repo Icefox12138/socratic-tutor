@@ -1,7 +1,7 @@
 """Command-line entry point for the socratic sidecar.
 
     python -m app --port 8765
-    socratic-sidecar --data /srv/socratic --port 8765
+    socratic-sidecar --data ~/socratic --port 8765
 
 `app.config` reads every setting from the environment *at import time*, so this
 module translates the flags into SOCRATIC_* variables before it imports app or
