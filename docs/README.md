@@ -71,6 +71,7 @@
 | [../eval/public/RESULTS-lexical.md](../eval/public/RESULTS-lexical.md) | 词法通道评测（grep / lemma 变格） |
 | [SPLIT-PLAN.md](SPLIT-PLAN.md) | 拆分计划：运行时 / 数据工程、docs 归属 |
 | [SIDECAR-CONTRACT.md](SIDECAR-CONTRACT.md) | 插件 ↔ sidecar 的 9 组端点契约与降级规则 |
+| [CURRICULUM-SCHEMA.md](CURRICULUM-SCHEMA.md) | 课程包契约 v1：引擎消费课程、不发布课程（`/v1/curriculum`） |
 | [RELEASE-PLAN.md](RELEASE-PLAN.md) | **发布计划（双重开源）**：源码轨 + 产物轨、三个批次、资产门 |
 | [ASSETS-POLICY.md](ASSETS-POLICY.md) | 截图/示例数据政策：为什么书页不能进仓库 |
 | [assets/SOURCES.md](assets/SOURCES.md) | 资产来源登记（✅ 可发布 / ⛔ 阻塞） |

@@ -3,7 +3,8 @@ import sys
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from app.state_machine import InvalidTransition, init, may_reveal, step, summary  # noqa: E402
+from app.state_machine import (InvalidTransition, allowed, init, may_reveal,
+                               step, summary)  # noqa: E402
 
 
 class TestStateMachine(unittest.TestCase):
@@ -86,6 +87,39 @@ class TestStateMachine(unittest.TestCase):
         t = summary(self.s)
         for k in ("阶段=WAIT", "概念=导数", "尝试=2", "L2", "已揭示=否"):
             self.assertIn(k, t)
+
+    # ── curriculum hooks: LEARN / REVIEW (opt-in, old flow unchanged) ─────────
+
+    def test_learn_pass_is_opt_in(self):
+        s = init("s2", goal="g", concept="c", learn=True)
+        step(s, "confirm_goal")
+        r = step(s, "diagnosed")
+        self.assertEqual(r["state"]["phase"], "LEARN")
+        self.assertEqual(r["action"]["kind"], "learn")
+        self.assertIn("worked example", r["action"]["instruction"])
+        r = step(s, "learn_done")
+        self.assertEqual(r["state"]["phase"], "PLAN")
+        self.assertEqual(step(s, "plan_ready")["state"]["phase"], "ASK")
+
+    def test_learn_phase_rejects_answer_and_review_done(self):
+        s = init("s4", goal="g", concept="c", learn=True)
+        step(s, "confirm_goal")
+        step(s, "diagnosed")
+        with self.assertRaises(InvalidTransition):
+            step(s, "answer", "correct")
+        with self.assertRaises(InvalidTransition):
+            step(s, "review_done")
+
+    def test_review_opens_the_session(self):
+        s = init("s3", goal="g", concept="c", review=True)
+        self.assertEqual(s.phase, "REVIEW")
+        self.assertIn("review_done", allowed(s))
+        r = step(s, "review_done")
+        self.assertEqual(r["state"]["phase"], "DIAGNOSE")
+
+    def test_summary_shows_the_lesson(self):
+        s = init("s5", goal="g", concept="c", lesson="demo-1")
+        self.assertIn("课=demo-1", summary(s))
 
 
 if __name__ == "__main__":

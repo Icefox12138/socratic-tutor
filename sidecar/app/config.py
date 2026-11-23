@@ -77,6 +77,10 @@ PUBLIC_DB = os.environ.get("SOCRATIC_PUBLIC_DB", os.path.join(DATA, "public.db")
 # no vectors) and because it may carry a different licence.
 LEXICON_DB = os.environ.get("SOCRATIC_LEXICON_DB",
                             os.path.join(DATA, "indexes", "lexicon.db"))
+#: Lesson packs (curriculum schema v1): a directory of JSON files, optional.
+#: The engine only consumes packs; producing them is the host's job.
+CURRICULUM = os.environ.get("SOCRATIC_CURRICULUM",
+                            os.path.join(ROOT, "curriculum"))
 V1_BGE_VECTORS = os.environ.get("SOCRATIC_V1_BGE_VECTORS", BGE_VECTORS)
 V1_BGE_IDS = os.environ.get("SOCRATIC_V1_BGE_IDS", BGE_IDS)
 BGE_V2_MODEL_NAME = os.environ.get("SOCRATIC_V2_MODEL_NAME", "bge-m3")

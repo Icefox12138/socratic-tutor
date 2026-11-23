@@ -12,8 +12,8 @@ class InvalidTransition(ValueError):
 HINTS = {0: "L0 重述问题", 1: "L1 指向概念/章节", 2: "L2 类比/例子",
          3: "L3 子步骤", 4: "L4 近乎完整推导", 5: "L5 答案+讲解"}
 
-PHASES = ["ALIGN", "DIAGNOSE", "PLAN", "ASK", "WAIT", "EVALUATE",
-          "HINT", "ADVANCE", "TRANSFER", "SUMMARY"]
+PHASES = ["ALIGN", "REVIEW", "DIAGNOSE", "LEARN", "PLAN", "ASK", "WAIT",
+          "EVALUATE", "HINT", "ADVANCE", "TRANSFER", "SUMMARY"]
 
 
 @dataclass
@@ -37,6 +37,11 @@ class State:
     transfer_done: bool = False
     mastery: float = 0.3
     history: list = field(default_factory=list)
+    #: curriculum hook: the lesson this session is working through ("" = none)
+    lesson: str = ""
+    #: opt-in preview phase: after DIAGNOSE, do a short LEARN pass before PLAN
+    learn: bool = False
+    learned: bool = False
 
     def to_dict(self):
         return asdict(self)
@@ -83,8 +88,24 @@ def step(s: State, event: str, result: str | None = None,
 
     if event == "diagnosed" and s.phase == "DIAGNOSE":
         s.diagnostics += 1
+        if s.learn and not s.learned:
+            # Preview pass for a learner who does not have the concept yet:
+            # (brief) instruction + one worked example, then PLAN.
+            s.phase = "LEARN"
+            return _emit(s, "learn",
+                         "先讲后练：给出一段简短讲解 + 一个 worked example（含书页引用），"
+                         "要求学习者用自己的话回讲关键一步；不要提问考核。")
         s.phase = "PLAN"
         return _emit(s, "plan", "选一个概念、定提示预算。")
+
+    if event == "learn_done" and s.phase == "LEARN":
+        s.learned = True
+        s.phase = "PLAN"
+        return _emit(s, "plan", "学习者已回讲：进入计划阶段，选一个概念、定提示预算。")
+
+    if event == "review_done" and s.phase == "REVIEW":
+        s.phase = "DIAGNOSE"
+        return _emit(s, "diagnose", "复习完成：用 2–3 个诊断问题确认起点，不要讲课。")
 
     if event == "plan_ready" and s.phase == "PLAN":
         s.phase = "ASK"
@@ -164,7 +185,9 @@ def _emit(s: State, kind: str, instruction: str):
 def allowed(s: State):
     table = {
         "ALIGN": ["confirm_goal", "stop"],
+        "REVIEW": ["review_done", "stop"],
         "DIAGNOSE": ["diagnosed", "stop"],
+        "LEARN": ["learn_done", "stop"],
         "PLAN": ["plan_ready", "stop"],
         "ASK": ["asked", "hint_request", "stop"],
         "WAIT": ["answer", "hint_request", "stop"],
@@ -177,7 +200,9 @@ def allowed(s: State):
 
 
 def summary(s: State) -> str:
-    return (f"【状态摘要】阶段={s.phase}；概念={s.concept or '未设定'}；"
+    lesson = ("课=%s；" % s.lesson) if s.lesson else ""
+    return (f"【状态摘要】阶段={s.phase}；{lesson}"
+            f"概念={s.concept or '未设定'}；"
             f"掌握={mastery_label(s.mastery)}；提示={HINTS.get(s.hint_level, '')}；"
             f"尝试={s.attempts}；连对={s.correct_streak}；"
             f"已揭示={'是' if s.revealed else '否'}。")
@@ -191,5 +216,15 @@ def mastery_label(p: float) -> str:
     return "已掌握"
 
 
-def init(session_id: str, goal: str = "", concept: str = "", lang: str = "zh") -> State:
-    return State(session_id=session_id, goal=goal, concept=concept, lang=lang)
+def init(session_id: str, goal: str = "", concept: str = "", lang: str = "zh",
+         review: bool = False, learn: bool = False, lesson: str = "") -> State:
+    """Start a session.
+
+    ``review=True`` opens with the REVIEW phase (the caller feeds due cards and
+    sends ``review_done``); ``learn=True`` inserts a LEARN preview pass between
+    DIAGNOSE and PLAN; ``lesson`` is the curriculum lesson the session follows.
+    Both switches default off, so existing hosts see the old flow.
+    """
+    return State(session_id=session_id, goal=goal, concept=concept, lang=lang,
+                 phase="REVIEW" if review else "ALIGN",
+                 learn=learn, lesson=lesson)

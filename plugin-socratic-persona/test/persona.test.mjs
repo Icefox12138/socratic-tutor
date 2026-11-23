@@ -52,12 +52,12 @@ test("apply registers the charter, the pre-step hook and the stream hook", () =>
 
 test("the charter keeps ten rules and the locator requirement", () => {
   const lines = charterText().split("\n");
-  assert.equal(lines.length, 12, "intro + 规则： + 10 rules");
+  assert.equal(lines.length, 14, "intro + 规则： + 10 rules");
   for (let i = 1; i <= 10; i += 1) {
     assert.ok(lines.some((l) => l.startsWith(i + ") ")), "missing rule " + i);
   }
   const all = charterText();
-  for (const needle of ["L4", "kb_search", "answer_key", "locator", "socratic_init"]) {
+  for (const needle of ["L4", "kb_search", "answer_key", "locator", "socratic_init", "LEARN", "REVIEW"]) {
     assert.ok(all.includes(needle), "charter lost " + needle);
   }
 });

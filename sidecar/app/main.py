@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from . import (catalog, citation_policy, citations, classifier, config, critic,
-               evaluations, evaluator, lexicon, llm,
+               curriculum, evaluations, evaluator, lexicon, llm,
                learner, lexical, pages, policy, review, search, state_machine,
                state_store, toc)
 from .compute import (BackendUnavailable, ComputeError, backend_status,
@@ -237,6 +237,25 @@ def v1_lexicon(
     if area not in ("dict", "grammar"):
         raise HTTPException(status_code=400, detail="area must be dict or grammar")
     return policy.redact(lexicon.lookup(q, lang=lang, area=area, view=view, limit=limit))
+
+
+@app.get("/v1/curriculum", dependencies=[Depends(require_token)])
+def v1_curriculum():
+    """Lesson packs found in the curriculum directory (empty when none installed).
+
+    The engine ships the contract, not the courses: hosts point
+    `SOCRATIC_CURRICULUM` at a directory of lesson JSON files.
+    """
+    return curriculum.catalog()
+
+
+@app.get("/v1/curriculum/{lesson_id}", dependencies=[Depends(require_token)])
+def v1_curriculum_lesson(lesson_id: str):
+    """One lesson pack; vocabulary resolves against lexicon.db when one exists."""
+    out = curriculum.lesson(lesson_id)
+    if out is None:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    return out
 
 
 @app.get("/v1/lemma", dependencies=[Depends(require_token)])
@@ -515,6 +534,10 @@ class StateInitIn(BaseModel):
     goal: str = ""
     concept: str = ""
     lang: str = "zh"
+    #: curriculum hooks: open with REVIEW, insert a LEARN pass, follow a lesson
+    review: bool = False
+    learn: bool = False
+    lesson: str = ""
 
 
 class StateStepIn(BaseModel):
@@ -650,7 +673,9 @@ def v1_classify(body: ClassifyIn):
 
 @app.post("/v1/state/init", dependencies=[Depends(require_token)])
 def state_init(body: StateInitIn):
-    s = state_machine.init(body.session_id, goal=body.goal, concept=body.concept, lang=body.lang)
+    s = state_machine.init(body.session_id, goal=body.goal, concept=body.concept,
+                           lang=body.lang, review=body.review, learn=body.learn,
+                           lesson=body.lesson)
     if body.concept:
         s.mastery = learner.get(body.concept)["p"]
     state_store.create_session(body.session_id, goal=body.goal, concept=body.concept,

@@ -214,6 +214,8 @@ export function charterText() {
     "8) 判定由 sidecar 做：answer 时把学生原话放 text，不要自己填 correct/partial/wrong。",
     "9) 输出前可用 socratic_critic 自检；如 flags 含 multi_question，必须用 rewrite.text（只保留第一个问题）替换最终回复。",
     "10) 事实断言必须带 locator（p.12 / CTS URN / Wikisource rev）；无 locator 的硬拦截会把该事实句替换为“尚未核验”声明。",
+    "阶段：LEARN 时先给一段简短讲解 + 一个 worked example（带书页引用），再请学习者用自己的话回讲；这一阶段不提问考核。",
+    "阶段：REVIEW 时先投 2–3 张到期复习卡，答完再进入诊断；不要跳过。",
   ].join("\n");
 }
 

@@ -39,10 +39,18 @@ per package; dates are release dates, not commit dates.
   `chunks.entry_id` on every sense chunk, so a multi-sense entry now returns all
   its senses joined (was: one chunk). Databases without the column keep the old
   single-chunk behaviour.
+- **Curriculum framework (schema v1)**: `/v1/curriculum` serves lesson packs from
+  `SOCRATIC_CURRICULUM` (a directory of JSON files), resolving vocab against
+  `lexicon.db` when present; `scripts/curriculum_check.py` validates a pack
+  directory. The engine ships the contract, not the courses (docs/CURRICULUM-SCHEMA.md).
+- **LEARN / REVIEW phases** (opt-in on `/v1/state/init`): a preview pass (brief
+  instruction + one worked example + self-explanation) between DIAGNOSE and PLAN,
+  and a spaced-review opening. Both default off, so existing hosts see the old flow.
+  The persona charter gains the two phase hints.
 - The builtin policy gains `dict-lsj` / `grammar-smyth` / `grammar-ag`
   (tier A, `catalogue: lexicon`) and two `doc_kind` rules ahead of the catch-all;
   the default rule and `rrf` merge are unchanged.
-- 372 tests (was 355).
+- 383 tests (was 355).
 
 ### 0.2.1 — 2026-11-06
 - Removed the Windows AppContainer path; compute worker now always uses the

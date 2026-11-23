@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "lesson_id": "demo-five-page-types",
+  "line": "demo",
+  "title": "五种版式的样张课（引擎演示，非真实课程）",
+  "unit": 1,
+  "lesson": 1,
+  "passage": {
+    "source": "demo",
+    "book": "synthetic-book.pdf",
+    "page_start": 1,
+    "page_end": 5,
+    "note": "合成样张：公式 / 横排中英 / 竖排繁体 / 拉丁 / 希腊；零版权，可随仓库分发"
+  },
+  "background": "这一课不教真实内容，它演示课程包（curriculum schema v1）的形状：一段选文（页范围）+ 词表 + 语法引用 + 讲解 + 例题 + 问题 + 复习卡。作者可以把自己的课程按同一格式写进 SOCRATIC_CURRICULUM 指向的目录。",
+  "worked_example": "示范「先讲后练」：先说明本课目标（认识五种版式），再给一个例子——拉丁页上的一行文字如何被检索、引用并点开页图核对；然后请学习者用自己的话复述「一条引用如何核实」。",
+  "vocab": [
+    {"headword": "arma", "lang": "latin", "gloss": "武器（拉丁）"},
+    {"headword": "λόγος", "lang": "greek", "gloss": "言语、道理（希腊）"},
+    {"headword": "极限", "lang": "zh", "gloss": "对合成中文页的示例词"}
+  ],
+  "grammar": [
+    {"scheme": "grammar", "section": "§419", "note": "独立夺格（A&G，需 lexicon.db 里有语法数据）"}
+  ],
+  "questions": [
+    {
+      "q": "翻到第 3 页，竖排繁体页的阅读顺序是？",
+      "rubric": "先说从右到左、再从上到下",
+      "answer_loc": {"source": "demo", "book": "synthetic-book.pdf", "page": 3}
+    },
+    {
+      "q": "希腊页上的重音符号属于哪种附加符号？",
+      "rubric": "能说出 breathings / 重音（acute）之一",
+      "answer_loc": {"source": "demo", "book": "synthetic-book.pdf", "page": 5}
+    }
+  ],
+  "review_cards": [
+    {"term": "五种版式", "definition": "公式 / 横排中英 / 竖排繁体 / 拉丁 / 希腊"},
+    {"term": "引用核实", "definition": "打开引用指向的页图，确认所引文字确实在该页"},
+    {"term": "LEARN 阶段", "definition": "先讲解 + 一个 worked example，再进入提问练习"}
+  ]
+}
