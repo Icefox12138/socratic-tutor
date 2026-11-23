@@ -22,9 +22,9 @@ So the constraint here is inverted: **every claim must carry a locator (`book p.
 
 | Component | What it is | Status |
 |---|---|---|
-| `plugin-socratic` | DSH plugin, **13 tools**: cited retrieval, lexical search, chapter lookup, page images, math check, session review; embedded console with a policy card and per-citation tier/anchor badges | [npm `dsh-socratic@0.5.0`](https://www.npmjs.com/package/dsh-socratic) |
-| `plugin-socratic-persona` | Teaching layer, **separate bundle**: charter, per-step state summary, citation/leak/single-question rewriting. Install it for teaching; leave it out and the tools behave as an ordinary assistant | [npm `dsh-socratic-persona@0.1.0`](https://www.npmjs.com/package/dsh-socratic-persona) |
-| `sidecar/` | FastAPI service: SQLite FTS5 + BGE-M3 + rerank + pypdfium2; public-corpus v2, federated `scope=all/routed`, grep/lemma, SymPy/SciPy/pint/control, **citation policy** (`/v1/policy`) | **0.2.1**, Dockerfile + compose |
+| `plugin-socratic` | DSH plugin, **13 tools**: cited retrieval, lexical search, chapter lookup, page images, math check, session review; embedded console with a policy card and per-citation tier/anchor badges | [npm `dsh-socratic@0.5.1`](https://www.npmjs.com/package/dsh-socratic) |
+| `plugin-socratic-persona` | Teaching layer, **separate bundle**: charter, per-step state summary, citation/leak/single-question rewriting. Install it for teaching; leave it out and the tools behave as an ordinary assistant | [npm `dsh-socratic-persona@0.1.1`](https://www.npmjs.com/package/dsh-socratic-persona) |
+| `sidecar/` | FastAPI service: SQLite FTS5 + BGE-M3 + rerank + pypdfium2; public-corpus v2, federated `scope=all/routed`, grep/lemma, calcbox compute backend, **citation policy** (`/v1/policy`) | **0.3.0**, Dockerfile + compose |
 | `packages/classics-index` | Volume/chapter (`卷 / 篇 / 回`) indexer for scanned Chinese books, built from OCR of running headers | [PyPI `classics-index@0.1.3`](https://pypi.org/project/classics-index/) |
 | `packages/socratic-mcp` | MCP server exposing search, lexical lookup, chapters, review and state | [PyPI `socratic-mcp@0.2.0`](https://pypi.org/project/socratic-mcp/) |
 
@@ -56,7 +56,7 @@ The tutor is built around the layouts that break naive PDF pipelines: display ma
 | ![latin](docs/assets/public/samples/latin.png) | ![greek](docs/assets/public/samples/greek.png) | |
 | Latin with line numbers | Greek with breathings | |
 
-These five images are **generated**, not scanned: see `eval/p3/make_sample_pages.py`. No copyrighted page appears anywhere in this repository.
+These five images are **generated**, not scanned: see `samples/generators/make_sample_pages.py`. No copyrighted page appears anywhere in this repository.
 
 ## Quickstart
 
@@ -149,7 +149,7 @@ Paste that into **Settings → Plugins → Market indexes**, then install from D
 
 ```
 DSH GUI / any MCP host
-        │  12 tools · HTTP (docs/SIDECAR-CONTRACT.md)
+        │  13 tools · HTTP (docs/SIDECAR-CONTRACT.md)
         ▼
    plugin-socratic  ──►  sidecar (FastAPI)
                           ├─ SQLite FTS5   (167k chunks, CJK bigrams)
@@ -165,7 +165,9 @@ The plugin and the sidecar talk over a documented contract, not over shared code
 
 ```bash
 python scripts/contract_check.py --base http://127.0.0.1:8765 --query 极限
-# 9 checks: openapi, endpoints, health, search, shape, page image, books, toc, chapter
+# checks openapi, required endpoints, health, search, result shape, page image
+# (v2: citation scheme/url/sources), books, toc, chapter — plus grep/lemma and
+# compute backends when the service exposes them
 ```
 
 ## Status and limitations
@@ -187,10 +189,10 @@ Known sharp edges: Greek OCR on degraded scans is unusable (the service falls ba
 ## Tests
 
 ```bash
-cd sidecar                     && python -m unittest discover -s tests -p "test_*.py"   # 264
-cd packages/classics-index     && python -m unittest discover -s tests -p "test_*.py" -t .   # 18
+cd sidecar                     && python -m unittest discover -s tests -p "test_*.py"   # 371
+cd packages/classics-index     && python -m unittest discover -s tests -p "test_*.py" -t .   # 20
 cd packages/socratic-mcp       && python -m unittest discover -s tests -p "test_*.py" -t .   # 6
-cd plugin-socratic             && node --test test/plugin.test.mjs                     # 8
+cd plugin-socratic             && node --test test/plugin.test.mjs                     # 6 (+ persona 13)
 ```
 
 See [CHANGELOG.md](CHANGELOG.md) for what changed in each release, and

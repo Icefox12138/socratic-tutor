@@ -12,7 +12,7 @@ import urllib.parse
 import urllib.request
 
 PROTOCOL = "2024-11-05"
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 TOOLS = [
     {

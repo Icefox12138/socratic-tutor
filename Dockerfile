@@ -1,4 +1,4 @@
-# sidecar 0.2.1: audit-only sandbox, cross-platform
+# sidecar 0.3.0: audit-only sandbox, cross-platform
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -27,6 +27,8 @@ RUN pip install --no-cache-dir \
       pint>=0.23 \
       control>=0.10 \
       simplemma>=2.0 \
+      PyYAML>=6.0 \
+      calcbox>=0.3,<0.4 \
       classics-index>=0.1
 
 EXPOSE 8765

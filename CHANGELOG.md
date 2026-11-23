@@ -136,25 +136,6 @@ per package; dates are release dates, not commit dates.
   unit tests instead of by reading a live session. 8 new tests (20 total); no
   behaviour change.
 
-## dsh-socratic-persona
-
-### 0.1.1 — 2026-11-12
-- The `agent/pre-step` handler no longer mutates the decision returned by
-  `next()`; it returns `{ ...decision, messages: [injected, ...messages] }`.
-  DSH 0.2.2 deep-freezes `llm/stream` options, so mutating a returned object is a
-  hazard worth avoiding before it bites.
-- Same `engines.dsh` widening as the tools bundle.
-- 13 contract tests (one new: a frozen decision is returned intact, and the
-  identity fallback `agent.id` is covered).
-
-### 0.1.0 — 2026-11-06
-- First release: the charter (`systemPrompt` section `socratic:charter`), the
-  `agent/pre-step` state summary, and the `llm/stream` rewrite that enforces
-  citations, withholds answer leaks and keeps one question per turn.
-- Standalone: one `GET /v1/state/<session>` is the only sidecar call, so this
-  package does not depend on the tools bundle.
-- 12 contract tests.
-
 ### 0.4.1 — 2026-11-06
 - New `persona` config option (**default on**). With `persona: false` the plugin
   registers its 13 tools and nothing else: no teaching charter in the system
@@ -211,3 +192,22 @@ per package; dates are release dates, not commit dates.
 - `SOCRATIC_STREAM=stream` opt-in passthrough for token-by-token output; buffered
   rewriting remains the default so interception still sees the whole reply.
 - `files` whitelist so screenshots, logs and tests never enter the tarball.
+
+## dsh-socratic-persona
+
+### 0.1.1 — 2026-11-12
+- The `agent/pre-step` handler no longer mutates the decision returned by
+  `next()`; it returns `{ ...decision, messages: [injected, ...messages] }`.
+  DSH 0.2.2 deep-freezes `llm/stream` options, so mutating a returned object is a
+  hazard worth avoiding before it bites.
+- Same `engines.dsh` widening as the tools bundle.
+- 13 contract tests (one new: a frozen decision is returned intact, and the
+  identity fallback `agent.id` is covered).
+
+### 0.1.0 — 2026-11-06
+- First release: the charter (`systemPrompt` section `socratic:charter`), the
+  `agent/pre-step` state summary, and the `llm/stream` rewrite that enforces
+  citations, withholds answer leaks and keeps one question per turn.
+- Standalone: one `GET /v1/state/<session>` is the only sidecar call, so this
+  package does not depend on the tools bundle.
+- 12 contract tests.

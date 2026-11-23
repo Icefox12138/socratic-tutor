@@ -59,7 +59,7 @@ OK
 
 ## 7. 扫描本页图进引用卡（B）
 
-§page_only§ 的检索现在会写一条**章回级引用**（§lang="page"§、§snippet§ 为空、locator 形如
+`page_only` 的检索现在会写一条**章回级引用**（`lang="page"`、`snippet` 为空、locator 形如
 "01001…史记.一 卷3 殷本紀第三 p.109–128"），turnTail 卡片据此渲染：
 
 | 元素 | 行为 |
@@ -67,11 +67,11 @@ OK
 | 标题行 | 章回 locator（含页码范围） |
 | 说明 | "扫描本：章回页图" |
 | 缩略图 | 首页页图，点击放大 |
-| 链接 | "打开章回 ↗" → §/browse?book=<书键>&page=<起始页>§，浏览页自动定位 |
+| 链接 | "打开章回 ↗" → `/browse?book=<书键>&page=<起始页>`，浏览页自动定位 |
 
-实测：§/v1/citations/p3-chapter§ 返回 1 条 §lang="page"§，locator 含 §p.109–128§，§/browse§ 深链 200。
+实测：`/v1/citations/p3-chapter` 返回 1 条 `lang="page"`，locator 含 `p.109–128`，`/browse` 深链 200。
 
-注意：§client.js§ 属 DSH 客户端插件，**要 GUI 重新加载插件 bundle 才生效**（重启 DSH，或在本 checkout 跑 §pnpm run dev:web§）；服务端行为已即时生效。
+注意：`client.js` 属 DSH 客户端插件，**要 GUI 重新加载插件 bundle 才生效**（重启 DSH，或在本 checkout 跑 `pnpm run dev:web`）；服务端行为已即时生效。
 
 ## 8. 限制
 

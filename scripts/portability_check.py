@@ -19,7 +19,7 @@ PATTERNS = {
 SKIP_DIRS = {".git", ".venv-bge", ".venv-ocr", ".venv-paddle-gpu", "data",
              "models", "dist", "build", "node_modules", "__pycache__",
              ".tmp-testenv", ".tmp-test2", ".tmp-mpl", ".tmp-pip", "tests",
-             "tmp", ".uv-cache", "cache"}
+             "tmp", ".uv-cache", "cache", "calcbox-mpl"}
 SKIP_FILES = {"scripts/publish_lint.py", "scripts/portability_check.py"}
 EXTS = {".py", ".js", ".mjs", ".toml", ".yml", ".yaml", ".json"}
 

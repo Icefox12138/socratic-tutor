@@ -43,7 +43,7 @@
 5. **可选加宽**：`SOCRATIC_BGE_TOPK` / `SOCRATIC_RERANK_TOPK`；
    100/100 只把 R@10 提到 0.770，延迟翻倍，不默认。
 
-## 3. 希腊专项（未稳定提升）
+## 4. 希腊专项（未稳定提升）
 
 实现了 v1 希腊 lemma 倒排索引（33,674 chunks，构建 2.1 s，查询 25 ms）：
 `lexical.greek_lemma_search`，开关 `SOCRATIC_V1_GREEK_LEMMA=1`。
@@ -59,7 +59,7 @@
   （`SOCRATIC_V1_EDITION_ALIGN=0`）。
 - 下一步需要 **行号/Stephanus 引用对齐**，而不是整页词袋。
 
-## 4. 配置
+## 5. 配置
 
 ```powershell
 $env:SOCRATIC_V1_DB="D:\Guo-Code\rag-build\data\indexes\search.db"
@@ -70,14 +70,14 @@ $env:SOCRATIC_TRANSLATE="llm"
 $env:SOCRATIC_V1_TRANSLATE_NONCJK_ONLY="1"
 ```
 
-## 5. 边界
+## 6. 边界
 
 - 100 题是 LLM 生成，可能有词面重叠；page 级金标，不是答案级。
 - 仍低于 **0.85** 目标；跨语言 **0.667 < 0.70**。
 - LLM 翻译只对 32 条非中文查询调用；无 key 时退化为纯 BGE 0.760。
 - 中文题 0.931 是当前强项；希腊 0.583 仍是最弱项。
 
-## 6. 复跑记录（2026-11-06，引用策略 M0–M4 之后）
+## 7. 复跑记录（2026-11-06，引用策略 M0–M4 之后）
 
 改动只涉及引用策略（通道表、tier、路由表、合并模式），但排序路径被碰过，
 所以按原口径复跑一次确认没有漂移：

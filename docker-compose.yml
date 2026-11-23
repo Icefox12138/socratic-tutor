@@ -1,4 +1,4 @@
-# sidecar 0.2.1
+# sidecar 0.3.0
 services:
   sidecar:
     build:

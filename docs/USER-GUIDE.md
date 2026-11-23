@@ -205,7 +205,7 @@ pip install socratic-mcp
 |---|---|---|
 | `{"ok": false, "reason": "no_index"}` | 库不存在或路径不对 | `python scripts/ragdb_check.py` 看它读的是哪个文件 |
 | `bge: "missing: ..."` | 向量文件不在 | 指对 `SOCRATIC_BGE_VECTORS`，或 `SOCRATIC_BGE=0` |
-| 检索 0 结果但库里明明有字 | 中文没做二元组分词 | 见 schema `2；`chunks_fts` 必须存分词后的文本 |
+| 检索 0 结果但库里明明有字 | 中文没做二元组分词 | 见 schema §2：`chunks_fts` 必须存分词后的文本 |
 | 页图 404 | `book` 键不是书库相对路径，或 `source` 不在 `pages.ROOTS` | 键形如 `物理\朗道…pdf` |
 | 401 | 服务端设了 `SOCRATIC_TOKEN` | 客户端带同样的 token |
 | 引用指到别处 | 向量与 `chunks.id` 行序错位 | `ragdb_check` 会报 `aligned=False` |

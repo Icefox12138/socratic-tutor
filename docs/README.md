@@ -1,6 +1,6 @@
 # docs 索引
 
-> **先读 [STATUS.md](STATUS.md)**：2026-11-16 当前状态快照；与旧报告冲突时以它和 [HANDOFF.md](HANDOFF.md) 为准。
+> **先读 [STATUS.md](STATUS.md)**：2026-11-17 当前状态快照；与旧报告冲突时以它和 [HANDOFF.md](HANDOFF.md) 为准。
 
 ## 1. 入口（按顺序）
 
@@ -17,7 +17,7 @@
 | 9 | [HANDOFF-2026-11-05-public-corpora.md](HANDOFF-2026-11-05-public-corpora.md) | 公开语料 v2 入库/adapter 交接 |
 | 10 | [HANDOFF-2026-11-05-rag-strategy.md](HANDOFF-2026-11-05-rag-strategy.md) | 本轮 RAG 路线/公开语料/schema/计算后端结论 |
 | 11 | [HANDOFF-2026-11-06-compute.md](HANDOFF-2026-11-06-compute.md) | 计算后端：SymPy/SciPy/pint/control/Wolfram/Lean |
-| 13 | [RELEASE-2026-11-06.md](RELEASE-2026-11-06.md) | **本次发版清单：版本、产物、SHA256、tag、待上传项** |
+| 12 | [RELEASE-2026-11-06.md](RELEASE-2026-11-06.md) | **本次发版清单：版本、产物、SHA256、tag、待上传项** |
 | 14 | [PORTABILITY.md](PORTABILITY.md) | **Windows/Linux/macOS 兼容性检查与修复** |
 | 15 | [DESIGN.md](DESIGN.md) | lite 主设计（先读 §0/§1.3/§6/§16/§17） |
 | 16 | [DESIGN-full.md](DESIGN-full.md) | 完整版：DDL/代码/论证，按需查 |
@@ -60,7 +60,6 @@
 | [CITATION-POLICY-PLAN.md](CITATION-POLICY-PLAN.md) | **引用策略实施（方案稿）**：逻辑源 × 通道（本地 PDF / RAG 库 / 公共 API / 数据集 / 云存储）分层、能力矩阵、多源合并与锚点、命名权重档、M0–M5 里程碑与等价性回归 |
 | [LEXICAL-SEARCH.md](LEXICAL-SEARCH.md) | grep/lemma 词法通道：端点、语义、simplemma、评估 |
 | [FEDERATED-SEARCH.md](FEDERATED-SEARCH.md) | `scope=all`/`routed`：合并、路由、边界 |
-| [LLM-BACKEND.md](LLM-BACKEND.md) | **模型底座**：两处调用点、换底座的步骤、换完要重测什么 |
 | [PLUGIN-MARKET.md](PLUGIN-MARKET.md) | 插件市场索引格式与校验规则；当前目录在 `market/index.json` |
 | [REPOSITORY-TOPOLOGY.md](REPOSITORY-TOPOLOGY.md) | 仓库拓扑：哪些目录属运行时、哪些属数据工程 |
 | [decisions/ADR-012-retrieval-selection.md](decisions/ADR-012-retrieval-selection.md) | ADR：检索选型（FTS + BGE + rerank，不用向量库） |
@@ -68,7 +67,7 @@
 | [../eval/v1/RESULTS.md](../eval/v1/RESULTS.md) | v1 P1 100 问：0.760→0.820 |
 | [../eval/public/RESULTS-project.md](../eval/public/RESULTS-project.md) | **项目综合评估**：v1 + v2 + 统一检索 |
 | [../eval/public/README.md](../eval/public/README.md) | 公开语料评测的产物、口径与复跑方法 |
-| [../eval/public/RESULTS.md](../eval/public/RESULTS.md) | 公开语料评测（130 题口径） |
+| [../eval/public/RESULTS.md](../eval/public/RESULTS.md) | 公开语料评测（43 问历史口径；130 题见 RESULTS-130） |
 | [../eval/public/RESULTS-lexical.md](../eval/public/RESULTS-lexical.md) | 词法通道评测（grep / lemma 变格） |
 | [SPLIT-PLAN.md](SPLIT-PLAN.md) | 拆分计划：运行时 / 数据工程、docs 归属 |
 | [SIDECAR-CONTRACT.md](SIDECAR-CONTRACT.md) | 插件 ↔ sidecar 的 9 组端点契约与降级规则 |

@@ -18,8 +18,8 @@ import sys
 
 LINK = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
 STALE = [
-    (re.compile(r"sidecar\s*\*\*?264|264/264"), "sidecar tests are 352 now"),
-    (re.compile(r"12 个工具|12 工具"), "the plugin exposes 13 tools"),
+    (re.compile(r"sidecar\s*\*\*?264|264/264"), "sidecar tests are 371 now"),
+    (re.compile(r"12 个工具|12 工具|12 tools"), "the plugin exposes 13 tools"),
     (re.compile(r"dsh-socratic`?\s*0\.[0-4]\."), "npm is 0.5.1 (tools) / 0.1.1 (persona)"),
     (re.compile(r"socratic-mcp`?\s*0\.1\."), "socratic-mcp is 0.2.0"),
     (re.compile(r"calcbox\s*0\.3\.0"), "calcbox is 0.3.1"),

@@ -19,6 +19,7 @@ __pycache__/
 node_modules/
 cache/
 sidecar/cache/
+sidecar/calcbox-mpl/
 sidecar/state.db
 plugin-socratic/pre-step.log
 
