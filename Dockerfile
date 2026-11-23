@@ -28,7 +28,7 @@ RUN pip install --no-cache-dir \
       control>=0.10 \
       simplemma>=2.0 \
       PyYAML>=6.0 \
-      calcbox>=0.3,<0.4 \
+      calcbox>=0.3,<0.5 \
       classics-index>=0.1
 
 EXPOSE 8765
