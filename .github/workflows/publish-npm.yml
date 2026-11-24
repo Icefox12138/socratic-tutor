@@ -1,4 +1,4 @@
-# Publish the two npm bundles with npm Trusted Publishing (OIDC).
+# Publish the npm bundles with npm Trusted Publishing (OIDC).
 #
 # No NPM_TOKEN: GitHub mints a short-lived OIDC token that npm exchanges for a
 # publish credential. Requirements, checked against
@@ -26,6 +26,7 @@ on:
     tags:
       - "dsh-socratic-v*"
       - "dsh-socratic-persona-v*"
+      - "dsh-socratic-curriculum-v*"
   workflow_dispatch:
     inputs:
       package:
