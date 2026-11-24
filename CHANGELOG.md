@@ -150,6 +150,16 @@ dates, not commit dates.
 
 ## dsh-socratic
 
+### 0.5.2 — 2026-11-24
+- **Word-card UI** in the embedded console (`conversation.composer.dock`, order
+  220): search a headword or a grammar section (`§419`) against `/v1/lexicon`,
+  render headword/POS/lemma/definition with the citation tier badge, page long
+  entries by character window (`更多 1200/24481`), and jump from any citation
+  row's 「词条 ↗」 straight to the matching entry (the locator decides dict vs
+  `§N`). Degrades honestly: `no_lexicon` and `not_found` are shown as such.
+- `client.js` gains a contract test (stub loader + stub React) covering slot
+  registration and the closed-state chips; CI runs it next to the tools tests.
+
 ### 0.5.1 — 2026-11-12
 - `engines.dsh` widened to `>=0.2.1-rc.2 <0.3.0-0 || >=0.2.2-rc.2 <0.3.0-0`.
   Strict semver excludes a prerelease unless a comparator carries the same

@@ -19,6 +19,21 @@ window.__ModuleLoader__.load({
       return createPortal ? createPortal(props.children, document.body) : props.children;
     }
 
+    // Jump to the lexicon card from any citation row. "§419 ABLATIVE ABSOLUTE"
+    // is a grammar section; "λόγος · s.I" is a headword. The card decides
+    // whether the section actually exists.
+    function openLexicon(locator) {
+      const text = String(locator || '').trim();
+      if (!text) return;
+      const grammar = /^§/.test(text);
+      const q = grammar ? text.split(/\s+/)[0] : text.split(' · ')[0];
+      try {
+        window.dispatchEvent(new CustomEvent('socratic-lexicon', {
+          detail: { q, area: grammar ? 'grammar' : 'dict' },
+        }));
+      } catch (e) { /* no window: nothing to jump to */ }
+    }
+
     function useSocratic(sessionId, open) {
       const [state, setState] = React.useState(null);
       const [citations, setCitations] = React.useState([]);
@@ -155,7 +170,8 @@ window.__ModuleLoader__.load({
             style: { borderTop: '1px dashed rgba(127,127,127,.25)', padding: '6px 0' },
           },
             h('div', { style: { fontWeight: 600, wordBreak: 'break-all' } },
-              c.locator || '', tierBadge(c), roleBadge(c)),
+              c.locator || '', tierBadge(c), roleBadge(c),
+              h('span', { style: link, onClick: () => openLexicon(c.locator) }, '词条 ↗')),
             c.url && h('a', {
               style: link, href: c.url, target: '_blank', rel: 'noreferrer',
             }, '原文 ↗'),
@@ -250,6 +266,10 @@ window.__ModuleLoader__.load({
               style: { color: 'inherit', textDecoration: 'underline' },
               href: c.url, target: '_blank', rel: 'noreferrer',
             }, '原文 ↗'),
+            h('span', {
+              style: { color: 'inherit', textDecoration: 'underline', cursor: 'pointer' },
+              onClick: () => openLexicon(c.locator),
+            }, '词条 ↗'),
             pageOnly
               ? h('span', { style: { opacity: 0.75 } }, '扫描本：章回页图')
               : (greek
@@ -392,6 +412,211 @@ window.__ModuleLoader__.load({
       );
     }
 
+    // LexiconCard: word / grammar-section cards over /v1/lexicon (M3 data).
+    // Long entries page in character windows ("更多"), and a citation row can
+    // jump here through the 'socratic-lexicon' event. M2 gave the endpoint that
+    // window; this is only the view.
+    function LexiconCard() {
+      const [open, setOpen] = React.useState(false);
+      const [query, setQuery] = React.useState('');
+      const [area, setArea] = React.useState('dict');
+      const [busy, setBusy] = React.useState(false);
+      const [error, setError] = React.useState('');
+      const [reason, setReason] = React.useState('');
+      const [entries, setEntries] = React.useState([]);
+      const [expanding, setExpanding] = React.useState('');
+      const base = (typeof localStorage !== 'undefined' && localStorage.getItem('socratic_sidecar'))
+        || 'http://127.0.0.1:8765';
+
+      const lookup = async (q, target, offset) => {
+        const qs = new URLSearchParams({
+          q: String(q), area: target, view: 'student', limit: '5', entry_limit: '1200',
+        });
+        if (offset != null) qs.set('entry_offset', String(offset));
+        const res = await fetch(base + '/v1/lexicon?' + qs.toString(), { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      };
+
+      const run = async (q, asked) => {
+        const text = String(q || '').trim();
+        if (!text) return;
+        // "§419" and bare numbers are grammar sections; everything else is a
+        // headword (grammar titles are not a lookup key).
+        const target = /^§/.test(text) || /^\d+$/.test(text) ? 'grammar'
+          : (asked === 'grammar' ? 'grammar' : 'dict');
+        setBusy(true);
+        setError('');
+        setReason('');
+        setEntries([]);
+        try {
+          const body = await lookup(text, target);
+          setArea(target);
+          if (body && body.available === false) {
+            setReason('no_lexicon');
+          } else if (body && !(body.entries || []).length) {
+            setReason(body.reason || 'not_found');
+          } else {
+            setEntries(body.entries || []);
+          }
+        } catch (e) {
+          setError(String((e && e.message) || e));
+        }
+        setBusy(false);
+      };
+
+      // Page one entry: fetch the next character window and append it.
+      const more = async (entry) => {
+        if (!entry || entry.next_offset == null) return;
+        setExpanding(String(entry.entry_id) + ':' + entry.next_offset);
+        try {
+          const body = await lookup(entry.headword, area, entry.next_offset);
+          const next = body && body.entries && body.entries[0];
+          if (next && next.definition) {
+            setEntries((list) => list.map((e) => (
+              String(e.entry_id) === String(entry.entry_id)
+                ? { ...e,
+                  definition: (e.definition || '') + next.definition,
+                  definition_offset: next.definition_offset,
+                  definition_total: next.definition_total,
+                  definition_truncated: next.definition_truncated,
+                  next_offset: next.next_offset }
+                : e)));
+          }
+        } catch (e) {
+          setError(String((e && e.message) || e));
+        }
+        setExpanding('');
+      };
+
+      React.useEffect(() => {
+        const jump = (ev) => {
+          const d = (ev && ev.detail) || {};
+          if (!d.q) return;
+          setOpen(true);
+          setQuery(String(d.q));
+          run(String(d.q), d.area);
+        };
+        window.addEventListener('socratic-lexicon', jump);
+        return () => window.removeEventListener('socratic-lexicon', jump);
+      }, [base]);
+
+      const chip = {
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        border: '1px solid rgba(127,127,127,.35)', borderRadius: 8,
+        padding: '4px 8px', fontSize: 12, cursor: 'pointer',
+        background: 'rgba(127,127,127,.06)', color: 'inherit',
+      };
+      const box = {
+        marginTop: 6, border: '1px solid rgba(127,127,127,.3)', borderRadius: 10,
+        padding: 10, fontSize: 12, background: 'rgba(127,127,127,.04)',
+        maxHeight: 360, overflow: 'auto',
+      };
+      const link = { color: 'inherit', textDecoration: 'underline', cursor: 'pointer' };
+      const ghost = {
+        background: 'transparent', border: '1px solid rgba(127,127,127,.3)',
+        borderRadius: 6, padding: '2px 6px', fontSize: 11, cursor: 'pointer',
+        color: 'inherit',
+      };
+      const tierColor = { A: '#12b76a', B: '#2e90fa', C: '#f79009', D: '#98a2b3' };
+      const citeBadge = (entry) => {
+        const c = (entry && entry.citation) || null;
+        if (!c || !c.tier) return null;
+        const color = tierColor[c.tier] || '#98a2b3';
+        return h('span', {
+          style: { fontSize: 10, lineHeight: '16px', padding: '0 5px', borderRadius: 6,
+            border: '1px solid ' + color, color: color },
+          title: c.tier_estimated ? '层级为粗判' : '层级来自引用策略',
+        }, c.tier);
+      };
+      const missing = (why) => {
+        if (why === 'no_lexicon') return '该 sidecar 没有 lexicon.db；词条卡需要 M1 词典数据。';
+        if (why === 'not_found') return '没有查到：检查拼写、词形还原，或改用 area=grammar 查 §N。';
+        if (why === 'empty_query') return '请输入词形或 §N。';
+        return why ? '未返回词条（' + why + '）' : '';
+      };
+
+      return h('div', { style: { margin: '4px 0' } },
+        h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' } },
+          h('button', { style: chip, title: '词典 / 语法词条卡',
+            onClick: () => setOpen(!open) }, '词条', open ? ' ▾' : ' ▸'),
+          h('span', { style: { fontSize: 11, opacity: 0.65 } },
+            '查词 / 查 § 语法节 / 长词条分页'),
+        ),
+        open && h('div', { style: box },
+          h('div', { style: { display: 'flex', gap: 6, alignItems: 'center' } },
+            h('input', {
+              value: query,
+              placeholder: '词形，如 arma / λόγος / §419',
+              style: { flex: 1, fontSize: 12, padding: '4px 6px', borderRadius: 6,
+                border: '1px solid rgba(127,127,127,.35)', background: 'transparent',
+                color: 'inherit' },
+              onChange: (e) => setQuery(e.target.value),
+              onKeyDown: (e) => { if (e.key === 'Enter') run(query, area); },
+            }),
+            h('button', {
+              style: ghost, onClick: () => run(query, area), disabled: busy,
+            }, busy ? '查询中…' : '查词'),
+            h('button', {
+              style: Object.assign({}, ghost, {
+                background: area === 'grammar' ? 'rgba(127,127,127,.14)' : 'transparent',
+              }),
+              onClick: () => { setArea('grammar'); run(query, 'grammar'); },
+            }, '§ 语法'),
+          ),
+          error && h('div', { style: { color: '#b42318', marginTop: 6 } }, 'sidecar: ' + error),
+          !error && !entries.length && reason && h('div', { style: { opacity: 0.75, marginTop: 6 } }, missing(reason)),
+          entries.map((entry, i) => {
+            const key = 'lex' + i + '-' + (entry.entry_id || entry.headword);
+            const total = entry.definition_total || 0;
+            const shown = (entry.definition || '').length;
+            return h('div', {
+              key,
+              style: { borderTop: '1px dashed rgba(127,127,127,.25)',
+                padding: '6px 0', marginTop: i ? 4 : 6 },
+            },
+              h('div', { style: { fontWeight: 700, fontSize: 14, wordBreak: 'break-all' } },
+                entry.headword,
+                entry.pos ? h('span', { style: { fontWeight: 400, opacity: 0.7,
+                  marginLeft: 6, fontSize: 11 } }, entry.pos) : null,
+                entry.homonym ? h('span', { style: { opacity: 0.6, marginLeft: 4,
+                  fontSize: 11 } }, '#' + entry.homonym) : null,
+              ),
+              entry.lemma && entry.lemma !== entry.headword
+                ? h('div', { style: { fontSize: 11, opacity: 0.75 } }, 'lemma: ' + entry.lemma)
+                : null,
+              h('div', { style: { whiteSpace: 'pre-wrap', lineHeight: 1.45, margin: '4px 0' } },
+                shown ? entry.definition : '（无释义文本）'),
+              h('div', { style: { display: 'flex', gap: 8, alignItems: 'center',
+                flexWrap: 'wrap', fontSize: 11 } },
+                citeBadge(entry),
+                entry.citation && entry.citation.label
+                  ? h('span', { style: { opacity: 0.8 } }, entry.citation.label) : null,
+                entry.citation && entry.citation.url
+                  ? h('a', { style: link, href: entry.citation.url, target: '_blank',
+                    rel: 'noreferrer' }, '原文 ↗') : null,
+                entry.definition_truncated
+                  ? h('button', {
+                    style: ghost,
+                    disabled: expanding === String(entry.entry_id) + ':' + entry.next_offset,
+                    onClick: () => more(entry),
+                  }, expanding === String(entry.entry_id) + ':' + entry.next_offset
+                    ? '加载中…'
+                    : '更多 ' + shown + '/' + total)
+                  : null,
+                total > shown
+                  ? h('span', { style: { opacity: 0.6 } }, '共 ' + total + ' 字符')
+                  : null,
+              ),
+            );
+          }),
+          !error && !busy && !entries.length && !reason && h('div', { style: { opacity: 0.7 } },
+            '输入词形或 §N 后按回车；查询只读 lexicon.db，不产生引用。'),
+        ),
+      );
+    }
+
+
     return {
       inject: ['slots'],
       apply(ctx) {
@@ -405,6 +630,11 @@ window.__ModuleLoader__.load({
           id: 'socratic-policy',
           order: 210,
         }, PolicyCard));
+        ctx.slots.inject('conversation.composer.dock', () => ctx.slots.register({
+          name: 'conversation.composer.dock',
+          id: 'socratic-lexicon',
+          order: 220,
+        }, LexiconCard));
         ctx.slots.inject('conversation.chat.turnTail', () => ctx.slots.register({
           name: 'conversation.chat.turnTail',
           id: 'socratic-turn-citations',

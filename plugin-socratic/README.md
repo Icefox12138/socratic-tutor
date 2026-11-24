@@ -116,6 +116,7 @@ dsh --profile tutor headless "先用 kb_search 搜『微分』，报告第一条
 
 - 包声明 `dsh.client`（`platform: web`）与 `exports["./client"]`；
 - `client.js` 在 `conversation.composer.dock` 注册折叠面板：阶段/提示/掌握度/最近引用/页图；
+- 同槽位还有**词条卡**（order 220）：输入词形或 `§N` 查 `/v1/lexicon`，显示 headword/POS/lemma/释义与层级徽章；长词条按字符窗口分页（`更多 1200/24481`）；引用行上的「词条 ↗」直接从 locator 跳到对应词条；
 - 在 `conversation.chat.turnTail` 注册**按回合引用卡**：`turn` 过滤 `/v1/citations`；
 - 安装到 **web** profile 后，刷新 GUI 生效：
 
@@ -129,5 +130,4 @@ dsh plugin --profile web add "link:/path/to/socratic-tutor/plugin-socratic"
 
 - `locale/*.json` 与 `icon` 导出未做（Plugin Manager 显示元数据）；
 - PTC 的 `vm` 超时不覆盖异步等待；
-- `client.js` 灯箱 portal 已修（工作树待提交）；
 - 引用层级/重排由 sidecar 负责，插件只透传。

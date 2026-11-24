@@ -82,6 +82,9 @@ jobs:
       - name: contract tests
         working-directory: plugin-socratic
         run: node --test test/plugin.test.mjs
+      - name: client contract tests
+        working-directory: plugin-socratic
+        run: node --test test/client.test.mjs
       - name: syntax check
         working-directory: plugin-socratic
         run: node --check index.js && node --check client.js && node --check lib/transport.js

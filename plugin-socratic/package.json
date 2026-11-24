@@ -1,6 +1,6 @@
 {
   "name": "dsh-socratic",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "private": false,
   "description": "Socratic tutor tools for DSH: cited retrieval, page images, chapter index, session review, embedded console. Teaching behaviour lives in dsh-socratic-persona.",
   "keywords": [
