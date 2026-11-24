@@ -246,3 +246,4 @@ repositories. Sections are per package; dates are release dates, not commit date
   `SOCRATIC_CURRICULUM` and are validated with `scripts/curriculum_check.py`.
   Without packs the tools answer `lessons: []` and the hook is inert.
 - 10 contract tests.
+- npm: https://www.npmjs.com/package/dsh-socratic-curriculum (0.1.0, OIDC + provenance).

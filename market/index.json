@@ -141,6 +141,29 @@
         }
       ],
       "icon": "persona-icon.png"
+    },
+    {
+      "name": "dsh-socratic-curriculum",
+      "title": "Socratic Tutor — curriculum",
+      "description": {
+        "en": "Course layer: list/read the sidecar's curriculum packs and bind a lesson to the teaching state machine (LEARN preview, REVIEW opening), with the active lesson injected at the first step of every turn. Separate bundle — install it only where you follow a course. Needs a sidecar with SOCRATIC_CURRICULUM packs (docs/CURRICULUM-SCHEMA.md).",
+        "zh": "课程层：列出/读取 sidecar 的课程包，并把一课绑定到教学状态机（LEARN 预习、REVIEW 复习开场），每轮第一步自动注入当前课。独立 bundle——只在跟随课程时安装。需含 SOCRATIC_CURRICULUM 课程包的 sidecar（见 docs/CURRICULUM-SCHEMA.md）。"
+      },
+      "homepage": "https://github.com/Icefox12138/socratic-tutor/tree/main/plugin-socratic-curriculum",
+      "author": "Icefox12138",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.2 <0.3.0-0 || >=0.2.2-rc.2 <0.3.0-0"
+          },
+          "publishTimestamp": 1795488052
+        }
+      ],
+      "icon": "curriculum-icon.png"
     }
   ]
 }
