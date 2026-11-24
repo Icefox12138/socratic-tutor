@@ -12,7 +12,7 @@
 | 插件形态 | **拆成两个 bundle**：工具包（13 工具 + 卡片）与人脑包（章程 / 每步摘要 / 流改写）。desktop 只装工具，`tutor` / `web` 两个都装 |
 | DSH 兼容 | 实测 **0.2.2-rc.2 / rc.5**（rc.5 由插件审计核对）；`engines.dsh` = `>=0.2.1-rc.2 <0.3.0-0 \|\| >=0.2.2-rc.2 <0.3.0-0`（严格 semver 也接受 0.2.2-rc.2） |
 | 引用策略 | **M0–M5 消费端全部落地** + **词典/语法规则**：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生；`tier`/`tier_estimated` 查表；`scope=all` 支持 `rrf`/`weighted`/`tiered`；`book_meta` → `doc_kind`/`subject`；`doc_kind=dictionary|grammar` 选 `dict-lsj` / `grammar-*`（tier A，`catalogue: lexicon`）。**默认路径与改前逐位相同** |
-| 词目查表 | **数据已建（M1，2026-11-23）**：`lexicon.db` 219,738 条目 / 381,392 义项（LSJ 1940 版 + L&S；释义已 beta→Unicode，v2.1 列齐全）；`/v1/lexicon` 按 `chunks.entry_id` 读回整条词目，长词条按字符窗口分页（`entry_offset`/`entry_limit`，λόγος 24 KB）；**A&G 语法 § 已入库（M3，2026-11-24：640/642 节，正文 §1–§640；§641–§642 为附录表 PARALLEL CONSTRUCTIONS，无正文）**；Smyth 决策见 [review/M2-M3.md](../review/M2-M3.md)；缺库显式降级 `no_lexicon` |
+| 词目查表 | **数据已建（M1，2026-11-23）**：`lexicon.db` 219,738 条目 / 381,392 义项（LSJ 1940 版 + L&S；释义已 beta→Unicode，v2.1 列齐全）；`/v1/lexicon` 按 `chunks.entry_id` 读回整条词目，长词条按字符窗口分页（`entry_offset`/`entry_limit`，λόγος 24 KB）；**语法两套已入库（M3，2026-11-24）**：A&G 640/642 节（§1–§640；§641–§642 为附录表）+ **Smyth §1–§3048 全量**（3048 节）；两书共用 § 编号，裸 `§N` 返回两者，`ag=N` / `smyth=N` / `smythp=N` 前缀指定一本；缺库显式降级 `no_lexicon` |
 | 课程契约 | **框架化（schema v1，2026-11-23）**：`/v1/curriculum` 与 `/v1/curriculum/{lesson_id}` 消费 `SOCRATIC_CURRICULUM` 目录里的课程包；`LEARN`/`REVIEW` 阶段按需开启（`/v1/state/init` 的 `learn`/`review`）；**绑定课即导入 `review_cards`（0.3.2：去重、响应带 `cards:{added,skipped}`）**；引擎不发布课程，内容由第三方按契约提供（见 [CURRICULUM-SCHEMA.md](CURRICULUM-SCHEMA.md)） |
 | 测试 | sidecar **383**、plugin **6 + 13**（工具 / 人格）、classics-index **20**、socratic-mcp **6** |
 | CI | 全绿：`ci.yml` 四组 job + `publish-npm.yml`（tag 触发，OIDC）+ `publish-pypi.yml`（tag 触发，OIDC） |
@@ -69,7 +69,7 @@
 11. **npm 发布走 OIDC**：`publish-npm.yml` 需要与 npm 上 Trusted Publisher 配置的文件名逐字一致；手工 `npm publish` 在启用 "disallow tokens" 后不再可用；
 12. **DSH 0.2.2 会深冻结 `llm/stream` 的 options**，`agent/pre-step` 的 decision 也已改为**返回新对象**而不是原地 `unshift`；
 13. **DSH 沙箱与本地跑测试**：`tempfile.mkdtemp()` 建的目录带 owner-only DACL，`workspace-write` 下不可写 → 用 `sidecar/tests/_tmp.py`；`node --test` 需 `--test-isolation=none`（默认 spawn 子进程会 `EPERM`）；`git push` 走 SSH 时 git 会 spawn `sh` 建管道，沙箱内失败，需放宽一次权限；
-14. **词典数据与语法 § 均可用**：`lexicon.db`（M1，2026-11-23）219,738 词条；`/v1/lexicon` 按 `chunks.entry_id` 读回整条词目，长词条按字符窗口分页（M2，2026-11-24：λόγος 24 KB，`entry_offset`/`entry_limit` + `next_offset`；索引命中后单次 ~0.3 ms）；**A&G 语法 § 已入库（M3，2026-11-24）**：640/642 节（§1–§640；HTML 版缺 §607–629、§639–642 已用 Perseus 同一 1903 版逐节补齐；§641–§642 为附录表 PARALLEL CONSTRUCTIONS），`area=grammar` 可查 `§419`；Smyth 全量导入待定（见 review/M2-M3.md）；插件侧词条卡 UI 已做（dsh-socratic 0.5.2）。
+14. **词典数据与两套语法均可用**：`lexicon.db`（M1，2026-11-23）219,738 词条；`/v1/lexicon` 按 `chunks.entry_id` 读回整条词目，长词条按字符窗口分页（M2，2026-11-24：λόγος 24 KB，`entry_offset`/`entry_limit` + `next_offset`；索引命中后单次 ~0.3 ms）；**语法（M3，2026-11-24）**：A&G 640/642 节（§1–§640；§607–629、§639–642 用 Perseus 同一 1903 版补齐，§641–§642 为附录表）+ **Smyth §1–§3048 全量**（Digital Smyth TEI，3048 节，`smythp=N` 锚别名）；两书共用 § 编号，裸 `§N` 返回两者，`ag=N`/`smyth=N`/`smythp=N` 前缀指定一本；插件侧词条卡 UI 已做（dsh-socratic 0.5.2）。
 15. **`smythp` 与 `§N` 是两套编号**：语法 locator 的 `section`（§N）与 Perseus `smythp=NNNN` 不互相推导，查 `smythp=` 只按精确键匹配；
 16. **按类型定流会改变学生可见内容**：`documents.kind` 一旦填上 `dictionary/grammar/textbook/edition`，学生视图会比只给 `text` 时多出定义/表格/注释等；这是有意的，但部署方必须知道自己开了什么（`/v1/policy` 的 `education` 段可核对）；
 17. **项目整体不是生产级**：v1 recall 0.80–0.82 未过门槛、计算后端为 SymPy/SciPy/pint/control（Wolfram/Lean 未装）、人工评分为 0。

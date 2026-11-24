@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "socratic-sidecar"
-version = "0.3.2"
+version = "0.3.3"
 description = "Minimal Socratic tutor sidecar: search, pages, compute"
 readme = "README.md"
 requires-python = ">=3.12"

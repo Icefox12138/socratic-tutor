@@ -91,9 +91,50 @@ class TestLexiconLookup(unittest.TestCase):
                 citation = out["entries"][0]["citation"]
                 self.assertEqual(citation["scheme"], "grammar")
                 self.assertIn("smythp=2297", citation["url"] or "")
-            # smythp is a separate numbering: it must not be guessed into §212.
+            # smythp numbers the same paragraph in the Smyth document, so it
+            # resolves there; a section the document does not have stays missing.
             out = lexicon.lookup("smythp=2297", area="grammar", path=path)
         self.assertEqual(out["reason"], "not_found")
+
+    def test_grammar_prefixes_disambiguate_shared_section_numbers(self):
+        """A&G and Smyth both number sections §1…; the prefix picks one."""
+        with TemporaryDirectory() as d:
+            path = os.path.join(d, "lex.db")
+            _fixture(path)
+            con = sqlite3.connect(path)
+            # realistic document ids: the prefix of "ag=212" is document 'ag'
+            con.execute("UPDATE documents SET document_id='smyth'"
+                        " WHERE document_id='d-smyth'")
+            con.execute("UPDATE chunks SET document_id='smyth'"
+                        " WHERE document_id='d-smyth'")
+            con.execute("INSERT INTO documents(document_id, source_id, title, kind)"
+                        " VALUES('ag','alpheios','A&G','grammar')")
+            con.execute(
+                "INSERT INTO chunks(id, document_id, ordinal, section, text, stream,"
+                " locator_json) VALUES(9,'ag',1,'§212','Ablative absolute.',"
+                "'text',?)",
+                (json.dumps({"scheme": "grammar", "section": "212",
+                             "title": "Ablative"}, ensure_ascii=False),))
+            con.execute(
+                "INSERT INTO lexicon_headwords(lang, headword, lemma, pos, homonym,"
+                " entry_id, source_id) VALUES('latin','§212','Ablative','',0,9,"
+                "'alpheios')")
+            # alias headword on the Smyth entry (Perseus anchor)
+            con.execute(
+                "INSERT INTO lexicon_headwords(lang, headword, lemma, pos, homonym,"
+                " entry_id, source_id) VALUES('greek','smythp=212',"
+                "'Absolute ablative','',0,2,'smyth')")
+            con.commit()
+            con.close()
+            plain = lexicon.lookup("§212", area="grammar", path=path)
+            self.assertEqual({e["document_id"] for e in plain["entries"]},
+                             {"smyth", "ag"})
+            ag = lexicon.lookup("ag=212", area="grammar", path=path)
+            self.assertEqual([e["document_id"] for e in ag["entries"]], ["ag"])
+            sm = lexicon.lookup("smyth=212", area="grammar", path=path)
+            self.assertEqual([e["document_id"] for e in sm["entries"]], ["smyth"])
+            alias = lexicon.lookup("smythp=212", area="grammar", path=path)
+            self.assertEqual(len(alias["entries"]), 1)   # alias, not a duplicate
 
     def test_missing_database_degrades(self):
         with TemporaryDirectory() as d:

@@ -23,6 +23,18 @@ dates, not commit dates.
 
 ## sidecar
 
+### 0.3.3 — 2026-11-24
+- **Two grammars, one §-namespace**: A&G (Latin) and Smyth (Greek) both number
+  their sections from §1, so a bare `§N` now returns each document's section as
+  its own entry (own citation/URL) and `ag=N` / `smyth=N` / `smythp=N` pin one
+  document. Alias headwords that point at the same entry chunk (`§212` and
+  `smythp=212`) are de-duplicated by `entry_id`; entries carry `document_id`.
+- Data (rag-build, not packaged): Smyth's *Greek Grammar for Colleges* §1–§3048
+  ingested from Digital Smyth's TEI (3048 chunks, `smythp=N` anchors as aliases);
+  see `eval/ingest_smyth.py`. Combined with A&G's 640/642 sections the grammar
+  catalogue is complete.
+- 391 tests (new: prefix disambiguation and alias de-duplication).
+
 ### 0.3.2 — 2026-11-24
 - **Lesson cards**: `/v1/state/init` with `lesson=...` imports the pack's
   `review_cards` into the FSRS queue (`learner.add_cards`, terms de-duplicated so a

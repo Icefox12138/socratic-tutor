@@ -140,7 +140,7 @@ def _entry_rows(con, db, entry_id):
     no such column, so fall back to the id lookup.
     """
     base = ("SELECT c.text, c.locator_json, c.section, d.title, d.canonical_url,"
-            " d.source_id"
+            " d.source_id, d.document_id"
             " FROM chunks c LEFT JOIN documents d ON d.document_id = c.document_id")
     if "entry_id" in _schema(con, db)["chunk_cols"]:
         rows = con.execute(base + " WHERE c.entry_id = ? ORDER BY c.ordinal",
@@ -219,6 +219,7 @@ def _row_entry(con, db, row, area, entry_offset=0, entry_limit=None):
                 loc.setdefault("title", rows[0]["section"])
             doc = {"title": rows[0]["title"], "canonical_url": rows[0]["canonical_url"]}
             source = source or _row_get(rows[0], "source_id")
+            entry["document_id"] = _row_get(rows[0], "document_id")
     entry["source"] = source or _logical_source(area) or AREA_KIND[area]
     entry.update(_page_definition(text, entry_offset, entry_limit))
     entry["locator"] = loc
@@ -276,7 +277,12 @@ def _headword_rows(con, db, keys, lang, limit):
 
     def add(new):
         for row in new:
-            key = (row["lang"], row["headword"], row["pos"], row["homonym"])
+            # alias headwords ("§212" and "smythp=212") point at the same
+            # entry chunk, so dedupe by entry_id when the row carries one.
+            entry_id = _row_get(row, "entry_id")
+            key = (("entry", entry_id) if entry_id is not None
+                   else ("row", row["lang"], row["headword"], row["pos"],
+                         row["homonym"]))
             if key not in seen and len(rows) < cap:
                 seen.add(key)
                 rows.append(row)
@@ -295,12 +301,38 @@ def _headword_rows(con, db, keys, lang, limit):
     return rows
 
 
+#: Grammar-source prefixes for section queries. A&G (Latin) and Smyth (Greek)
+#: both number their sections §1…; a bare §N therefore matches both and the
+#: prefix picks one ("ag=419", "smyth=2297", "smythp=2297").
+SECTION_PREFIX = (("ag=", "ag"), ("allen=", "ag"),
+                  ("smyth=", "smyth"), ("smythp=", "smyth"))
+
+
+def _section_query(form):
+    """(keys, document filter) for a grammar query."""
+    raw = str(form or "").strip()
+    low = raw.lower()
+    for prefix, doc in SECTION_PREFIX:
+        if low.startswith(prefix):
+            bare = raw.split("=", 1)[1].strip()
+            digits = "".join(ch for ch in bare if ch.isdigit())
+            keys = [raw]
+            if digits:
+                for candidate in ("§" + digits, "smythp=" + digits, digits):
+                    if candidate not in keys:
+                        keys.append(candidate)
+            return keys, doc
+    return _section_keys(raw), None
+
+
 def lookup(form, lang=None, area="dict", view="student", limit=10, path=None,
            entry_offset=0, entry_limit=None):
     """Headword rows for a surface form, with their entry body when present.
 
     `area` is "dict" or "grammar"; `form` is the headword for a dictionary and
-    the section label ("§212", "212", "smythp=2297") for a grammar.
+    the section label ("§212", "212", "smythp=2297", "ag=419") for a grammar.
+    A bare §N matches every grammar that has that number (A&G and Smyth share
+    the numbering), each with its own citation; the prefix pins one document.
 
     `entry_offset` / `entry_limit` page the *entry body* (characters): a long
     LSJ entry (λόγος is ~24 KB) comes back as a window plus `next_offset`, so
@@ -323,11 +355,20 @@ def lookup(form, lang=None, area="dict", view="student", limit=10, path=None,
         if "lexicon_headwords" not in _tables(con, db_path):
             out["reason"] = "no_table"
             return out
-        keys = lemmas(form, lang) if area == "dict" else _section_keys(form)
-        rows = _headword_rows(con, db_path, keys, lang, limit)
+        if area == "dict":
+            keys, doc_filter = lemmas(form, lang), None
+        else:
+            keys, doc_filter = _section_query(form)
+        cap = max(1, min(int(limit), 50))
+        fetch_limit = 50 if doc_filter else cap
+        rows = _headword_rows(con, db_path, keys, lang, fetch_limit)
         for row in rows:
-            out["entries"].append(
-                _row_entry(con, db_path, row, area, entry_offset, entry_limit))
+            entry = _row_entry(con, db_path, row, area, entry_offset, entry_limit)
+            if doc_filter and entry.get("document_id") != doc_filter:
+                continue
+            out["entries"].append(entry)
+            if len(out["entries"]) >= cap:
+                break
     finally:
         # the connection stays cached (see `reset`); nothing to close per call
         pass
