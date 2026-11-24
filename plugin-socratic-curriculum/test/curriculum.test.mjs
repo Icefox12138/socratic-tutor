@@ -104,13 +104,15 @@ test("curriculum_start binds the lesson with learn=true", async () => {
   const calls = stub({
     "/v1/curriculum/demo-public-01": LESSON,
     "/v1/state/init": { state: { phase: "ALIGN", lesson: "demo-public-01" },
-      summary: "【状态摘要】阶段=ALIGN；课=demo-public-01；" },
+      summary: "【状态摘要】阶段=ALIGN；课=demo-public-01；",
+      cards: { added: [{ id: 1, term: "arma" }], skipped: 0 } },
   });
   apply(ctx, { baseUrl: BASE });
   const start = tools.find((t) => t.name === "curriculum_start");
   const out = JSON.parse(await start.execute({ lesson_id: "demo-public-01" }, {}));
   assert.equal(out.ok, true);
   assert.equal(out.state.phase, "ALIGN");
+  assert.deepEqual(out.cards, { added: [{ id: 1, term: "arma" }], skipped: 0 });
   const initCall = calls.find((c) => c.path.startsWith("/v1/state/init"));
   const body = JSON.parse(initCall.opts.body);
   assert.equal(body.lesson, "demo-public-01");

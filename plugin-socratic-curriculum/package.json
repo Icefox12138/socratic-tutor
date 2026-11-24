@@ -1,6 +1,6 @@
 {
   "name": "dsh-socratic-curriculum",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "description": "Course layer for dsh-socratic: list/read curriculum lesson packs and bind a lesson to the teaching state machine (learn/review phases)",
   "keywords": [

@@ -282,6 +282,12 @@ dates, not commit dates.
 
 ## dsh-socratic-curriculum
 
+### 0.1.1 — 2026-11-24
+- `curriculum_start` passes the engine's card-import report through:
+  `cards: {added, skipped}` (sidecar 0.3.2 imports the pack's `review_cards`
+  when the lesson binds). The tool description notes the import; the stub-based
+  contract test asserts the field survives the tool boundary.
+
 ### 0.1.0 — 2026-11-24
 - First release: the course layer. Three tools (`curriculum_list`,
   `curriculum_lesson`, `curriculum_start`) over the sidecar's `/v1/curriculum`

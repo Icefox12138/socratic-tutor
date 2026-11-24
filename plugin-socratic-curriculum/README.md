@@ -11,7 +11,7 @@ This bundle is the thin host adapter that lets an agent see and follow them.
 |---|---|
 | `curriculum_list` tool | The lesson catalogue (`line / unit / lesson` order). |
 | `curriculum_lesson` tool | One lesson: passage page range, vocabulary (resolved against `lexicon.db`), grammar refs, background, worked example, questions, review-card seeds. |
-| `curriculum_start` tool | Binds a lesson to this session: `POST /v1/state/init` with `lesson=<id>, learn=true` (preview phase) or `review=true` (review-first opening). |
+| `curriculum_start` tool | Binds a lesson to this session: `POST /v1/state/init` with `lesson=<id>, learn=true` (preview phase) or `review=true` (review-first opening). The engine imports the pack's `review_cards` into the FSRS queue and the tool passes its report through as `cards: {added, skipped}` (sidecar ≥ 0.3.2). |
 | `agent/pre-step` hook | At the **first step of each turn**, injects the active lesson block — so the model teaches the lesson instead of the whole library. |
 
 "Active lesson" means the bundle config `lesson`, or whatever the sidecar state

@@ -192,7 +192,8 @@ export function apply(ctx, config) {
 
   ctx.tools.register(tool(
     "curriculum_start",
-    "把一课绑定到本会话：初始化状态机时带上 lesson 与 learn=true（预习阶段）；复习日传 review=true（REVIEW 开场）。",
+    "把一课绑定到本会话：初始化状态机时带上 lesson 与 learn=true（预习阶段）；复习日传 review=true（REVIEW 开场）。"
+      + "引擎会同步把该课 review_cards 导入 FSRS 复习队列（按 term 去重），结果见返回的 cards。",
     {
       type: "object",
       properties: {
@@ -231,6 +232,8 @@ export function apply(ctx, config) {
         lesson_id: id,
         state: init.body.state || null,
         summary: init.body.summary || "",
+        // the engine imports the pack's review_cards; pass its report through
+        cards: init.body.cards || null,
         lesson,
       });
     },

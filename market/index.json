@@ -2,8 +2,8 @@
   "format": 1,
   "title": "Socratic Tutor",
   "description": {
-    "en": "Citation-first tutoring over your own scanned books: every answer carries a locator that opens the page image.",
-    "zh": "对自己收藏的扫描本书库做引用优先的苏格拉底式教学：每个回答都带可回页的定位。"
+    "en": "Citation-first tutoring over your own scanned books: every answer carries a locator that opens the page image. The engine is domain-neutral; the classics profile is the reference deployment (math/CS runs on calcbox and its own profile).",
+    "zh": "对自己收藏的扫描本书库做引用优先的苏格拉底式教学：每个回答都带可回页的定位。 引擎本身学科中立；文科（古典）是参考部署，数学/计算机走 calcbox + 自建 profile。"
   },
   "plugins": [
     {

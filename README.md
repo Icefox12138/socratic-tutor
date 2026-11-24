@@ -2,6 +2,8 @@
 
 **A citation-first Socratic tutor for scanned books.** Ask a question, get an answer that points at a page you can actually open — on a personal library of 27 GB of PDFs, including Chinese classical texts read vertically, Latin, and Greek.
 
+The engine is **domain-neutral**: search, page images, citation policy and the teaching state machine make no classical assumptions. The shipped reference profile is classics (a personal library plus the public LSJ/A&G demo data); a math or CS deployment runs on [`calcbox`](https://pypi.org/project/calcbox/) and its own profile.
+
 [![PyPI](https://img.shields.io/pypi/v/socratic-mcp?label=socratic-mcp)](https://pypi.org/project/socratic-mcp/)
 [![PyPI](https://img.shields.io/pypi/v/classics-index?label=classics-index)](https://pypi.org/project/classics-index/)
 [![npm](https://img.shields.io/npm/v/dsh-socratic)](https://www.npmjs.com/package/dsh-socratic)
