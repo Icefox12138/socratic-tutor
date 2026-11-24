@@ -109,6 +109,27 @@ class TestLexiconLookup(unittest.TestCase):
             out = lexicon.lookup("ἄγνωστος", lang="greek", path=path)
         self.assertEqual(out["reason"], "not_found")
 
+    def test_unknown_source_falls_back_through_the_policy(self):
+        """No source name is hardcoded: the policy rule decides the tier."""
+        with TemporaryDirectory() as d:
+            path = os.path.join(d, "lex.db")
+            _fixture(path)
+            con = sqlite3.connect(path)
+            con.execute("UPDATE lexicon_headwords SET source_id = NULL")
+            con.commit()
+            con.close()
+            old = citation_policy.resolve
+            citation_policy.resolve = lambda subject=None, doc_kind=None: {
+                "cite": ["wikisource"]}
+            try:
+                out = lexicon.lookup("λύω", lang="greek", path=path)
+            finally:
+                citation_policy.resolve = old
+                lexicon.reset()
+        entry = out["entries"][0]
+        self.assertEqual(entry["citation"]["tier"], "A")
+        self.assertEqual(entry["source"], "lsj")     # the document's own name
+
     def test_student_streams_include_definitions_for_a_dictionary(self):
         with TemporaryDirectory() as d:
             path = os.path.join(d, "lex.db")

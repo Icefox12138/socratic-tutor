@@ -15,9 +15,26 @@ import threading
 
 from . import citation_policy, config, lexical, locators
 
-#: logical sources by lexicon area, so tier/role/label stay policy-driven
-AREA_SOURCE = {"dict": "dict-lsj", "grammar": "grammar-smyth"}
+#: document kind by lexicon area; the policy resolves kinds to logical sources
 AREA_KIND = {"dict": "dictionary", "grammar": "grammar"}
+
+
+def _logical_source(area):
+    """The policy's first `cite` source for this document kind, or None.
+
+    The database stores edition names ("lsj", "ls", "alpheios"); the policy
+    stores logical sources ("dict-lsj", "grammar-smyth", "grammar-ag"). Falling
+    back through the policy keeps lexicon.py free of any one catalogue's source
+    names — a deployment with its own lexicon.db and its own policy needs no
+    code change here.
+    """
+    try:
+        rule = citation_policy.resolve(doc_kind=AREA_KIND.get(area)) or {}
+    except Exception:                     # a broken user policy must not break lookup
+        return None
+    for sid in rule.get("cite") or []:
+        return str(sid)
+    return None
 
 #: Per-thread cache: one connection and one schema snapshot per database file.
 #: Opening a 250 MB lexicon on every lookup cost ~56 ms, almost all of it in
@@ -122,7 +139,8 @@ def _entry_rows(con, db, entry_id):
     whole entry can be read back; older databases have one chunk per entry and
     no such column, so fall back to the id lookup.
     """
-    base = ("SELECT c.text, c.locator_json, c.section, d.title, d.canonical_url"
+    base = ("SELECT c.text, c.locator_json, c.section, d.title, d.canonical_url,"
+            " d.source_id"
             " FROM chunks c LEFT JOIN documents d ON d.document_id = c.document_id")
     if "entry_id" in _schema(con, db)["chunk_cols"]:
         rows = con.execute(base + " WHERE c.entry_id = ? ORDER BY c.ordinal",
@@ -171,10 +189,9 @@ def _page_definition(full, entry_offset=0, entry_limit=None):
 def _row_entry(con, db, row, area, entry_offset=0, entry_limit=None):
     """Attach the entry body (a chunk) and the policy citation to one headword."""
     raw_entry = _row_get(row, "entry_id")
-    source = (_row_get(row, "source_id")
-              or (str(raw_entry).split(":", 1)[0] if isinstance(raw_entry, str)
-                  and ":" in str(raw_entry) else None)
-              or AREA_SOURCE[area])
+    source = _row_get(row, "source_id")
+    if not source and isinstance(raw_entry, str) and ":" in str(raw_entry):
+        source = str(raw_entry).split(":", 1)[0]
     entry = {
         "headword": row["headword"],
         "lemma": _row_get(row, "lemma"),
@@ -201,6 +218,8 @@ def _row_entry(con, db, row, area, entry_offset=0, entry_limit=None):
             if rows[0]["section"] and area == "grammar":
                 loc.setdefault("title", rows[0]["section"])
             doc = {"title": rows[0]["title"], "canonical_url": rows[0]["canonical_url"]}
+            source = source or _row_get(rows[0], "source_id")
+    entry["source"] = source or _logical_source(area) or AREA_KIND[area]
     entry.update(_page_definition(text, entry_offset, entry_limit))
     entry["locator"] = loc
     entry["citation"] = _cite(entry, doc)
@@ -210,11 +229,13 @@ def _row_entry(con, db, row, area, entry_offset=0, entry_limit=None):
 def _cite(entry, doc=None):
     tier, estimated = citation_policy.tier_for_source(entry["source"])
     if tier == "unknown":
-        # The database names the edition (lsj), the policy names the logical
-        # source (dict-lsj). Fall back so a real DB still gets its tier.
-        tier, estimated = citation_policy.tier_for_source(
-            AREA_SOURCE["grammar" if entry["locator"].get("scheme") == "grammar"
-                        else "dict"])
+        # The database names the edition ("lsj"); the policy names the logical
+        # source ("dict-lsj"). Resolve the fallback through the policy instead
+        # of hardcoding a catalogue name, so any deployment benefits.
+        area = "grammar" if entry["locator"].get("scheme") == "grammar" else "dict"
+        logical = _logical_source(area)
+        if logical:
+            tier, estimated = citation_policy.tier_for_source(logical)
     loc = entry["locator"]
     return {
         "scheme": loc.get("scheme"),

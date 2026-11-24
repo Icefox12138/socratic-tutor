@@ -23,6 +23,24 @@ dates, not commit dates.
 
 ## sidecar
 
+### 0.3.2 — 2026-11-24
+- **Lesson cards**: `/v1/state/init` with `lesson=...` imports the pack's
+  `review_cards` into the FSRS queue (`learner.add_cards`, terms de-duplicated so a
+  repeated init cannot flood the review queue). The response carries
+  `lesson` and `cards: {added, skipped}`. The engine still invents no cards: the
+  pack declares them (docs/CURRICULUM-SCHEMA.md) and the engine only imports.
+- **`cards` extra**: `pip install "socratic-sidecar[cards]"` pulls FSRS. Without it
+  card import degrades to `cards: {error: "fsrs not installed"}` and the /v1/cards
+  endpoints keep their 503 behaviour; lesson binding itself still works.
+- **Neutral lexicon sourcing**: `lexicon.py` no longer hardcodes `dict-lsj` /
+  `grammar-smyth`. An edition name ("lsj") resolves its tier through the policy's
+  `doc_kind → cite` rule, and the entry's `source` comes from
+  `lexicon_headwords.source_id` → `documents.source_id`; a deployment with its own
+  lexicon.db and policy needs no code change.
+- 390 tests (new: lesson-card import/dedupe at learner and state-init level, and the
+  policy fallback for lexicon tiers). CI installs `fsrs` so the card path is
+  exercised instead of skipped.
+
 ### 0.3.1 — 2026-11-24
 - **M2 — long entries page**: `/v1/lexicon` accepts `entry_offset` / `entry_limit`
   (characters) and returns `definition_offset`, `definition_total`,

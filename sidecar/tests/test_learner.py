@@ -75,6 +75,21 @@ class TestFSRS(unittest.TestCase):
             with self.assertRaises(ValueError):
                 learner.review_card(card["id"], "perfect", path=p)
 
+    def test_add_cards_skips_duplicates(self):
+        """A lesson's review_cards import once; re-binding cannot flood the queue."""
+        with TemporaryDirectory() as d:
+            p = os.path.join(d, "state.db")
+            first = learner.add_cards(
+                [{"term": "arma", "definition": "weapons"},
+                 {"term": "arma", "definition": "duplicate in the same pack"}],
+                path=p)
+            self.assertEqual([c["term"] for c in first["added"]], ["arma"])
+            self.assertEqual(first["skipped"], 1)
+            again = learner.add_cards([{"term": "arma", "definition": "weapons"}],
+                                      path=p)
+            self.assertEqual(again["added"], [])
+            self.assertEqual(again["skipped"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

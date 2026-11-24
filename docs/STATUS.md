@@ -13,7 +13,7 @@
 | DSH 兼容 | 实测 **0.2.2-rc.2 / rc.5**（rc.5 由插件审计核对）；`engines.dsh` = `>=0.2.1-rc.2 <0.3.0-0 \|\| >=0.2.2-rc.2 <0.3.0-0`（严格 semver 也接受 0.2.2-rc.2） |
 | 引用策略 | **M0–M5 消费端全部落地** + **词典/语法规则**：`/v1/policy`、`/v1/channels`、`/v1/policy/reload`；页图根由通道表派生；`tier`/`tier_estimated` 查表；`scope=all` 支持 `rrf`/`weighted`/`tiered`；`book_meta` → `doc_kind`/`subject`；`doc_kind=dictionary|grammar` 选 `dict-lsj` / `grammar-*`（tier A，`catalogue: lexicon`）。**默认路径与改前逐位相同** |
 | 词目查表 | **数据已建（M1，2026-11-23）**：`lexicon.db` 219,738 条目 / 381,392 义项（LSJ 1940 版 + L&S；释义已 beta→Unicode，v2.1 列齐全）；`/v1/lexicon` 按 `chunks.entry_id` 读回整条词目，长词条按字符窗口分页（`entry_offset`/`entry_limit`，λόγος 24 KB）；**A&G 语法 § 已入库（M3，2026-11-24：640/642 节，正文 §1–§640；§641–§642 为附录表 PARALLEL CONSTRUCTIONS，无正文）**；Smyth 决策见 [review/M2-M3.md](../review/M2-M3.md)；缺库显式降级 `no_lexicon` |
-| 课程契约 | **框架化（schema v1，2026-11-23）**：`/v1/curriculum` 与 `/v1/curriculum/{lesson_id}` 消费 `SOCRATIC_CURRICULUM` 目录里的课程包；`LEARN`/`REVIEW` 阶段按需开启（`/v1/state/init` 的 `learn`/`review`）；引擎不发布课程，内容由第三方按契约提供（见 [CURRICULUM-SCHEMA.md](CURRICULUM-SCHEMA.md)） |
+| 课程契约 | **框架化（schema v1，2026-11-23）**：`/v1/curriculum` 与 `/v1/curriculum/{lesson_id}` 消费 `SOCRATIC_CURRICULUM` 目录里的课程包；`LEARN`/`REVIEW` 阶段按需开启（`/v1/state/init` 的 `learn`/`review`）；**绑定课即导入 `review_cards`（0.3.2：去重、响应带 `cards:{added,skipped}`）**；引擎不发布课程，内容由第三方按契约提供（见 [CURRICULUM-SCHEMA.md](CURRICULUM-SCHEMA.md)） |
 | 测试 | sidecar **383**、plugin **6 + 13**（工具 / 人格）、classics-index **20**、socratic-mcp **6** |
 | CI | 全绿：`ci.yml` 四组 job + `publish-npm.yml`（tag 触发，OIDC）+ `publish-pypi.yml`（tag 触发，OIDC） |
 | 人工评分 | **延后**（用户决定）；仍不能声称人类验证 |

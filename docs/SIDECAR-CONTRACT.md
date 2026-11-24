@@ -237,6 +237,11 @@ LEARN 阶段（讲解 + worked example + 回讲）；`review: true` 从 REVIEW �
 （宿主先取 `/v1/cards/due`）；`lesson` 指定课程包 `lesson_id`。两者默认 `false`，
 不传时行为与旧版逐位相同。详见 [CURRICULUM-SCHEMA.md](CURRICULUM-SCHEMA.md)。
 
+传了 `lesson` 时（v0.3.2 起），响应额外带 `lesson` 与 `cards`：引擎把该课
+`review_cards` 导入 FSRS 队列（按 term 去重，重复 init 不会重复入队），
+`cards: {"added":[{id,term}],"skipped":n}`。课程包声明卡片、引擎只导入，不自行造卡；
+未装 `fsrs`（extra `cards`）时 `cards: {"error":"fsrs not installed"}`，init 本身不受影响。
+
 ## 6b. 学习者模型 / 章回辅助
 
 ```

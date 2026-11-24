@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "socratic-sidecar"
-version = "0.3.1"
+version = "0.3.2"
 description = "Minimal Socratic tutor sidecar: search, pages, compute"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -39,6 +39,9 @@ compute = ["pint>=0.23", "control>=0.10"]
 # Better Greek/Latin lemmatisation for /v1/lemma; without it a small
 # suffix-stripping fallback is used.
 lemma = ["simplemma>=2.0"]
+# FSRS scheduling for the REVIEW phase and curriculum review_cards. Pure
+# Python; without it /v1/cards answers 503 and lesson cards are not imported.
+cards = ["fsrs>=5"]
 
 [tool.setuptools]
 # app.adapters is a real subpackage imported by app/ingest.py, so it must ship

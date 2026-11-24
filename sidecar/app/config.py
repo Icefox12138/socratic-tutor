@@ -49,7 +49,7 @@ CORS_ORIGIN_REGEX = os.environ.get(
     r"(http://(127\.0\.0\.1|localhost)(:\d+)?|dsh-app://[^/]+)")
 CACHE_TTL = float(os.environ.get("SOCRATIC_CACHE_TTL", "300"))
 CACHE_SIZE = int(os.environ.get("SOCRATIC_CACHE_SIZE", "256"))
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 
 BGE = os.environ.get("SOCRATIC_BGE", "1") == "1"
 BGE_MODEL = os.environ.get("SOCRATIC_BGE_MODEL", os.path.join(ROOT, "models", "bge-m3"))

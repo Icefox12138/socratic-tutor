@@ -102,6 +102,28 @@ class TestCurriculum(unittest.TestCase):
             main.v1_curriculum_lesson("absent")
         self.assertEqual(ctx.exception.status_code, 404)
 
+    def test_state_init_imports_lesson_review_cards(self):
+        """Binding a lesson imports its review_cards exactly once."""
+        from app import learner, main
+        if not learner._SCHED:
+            self.skipTest("fsrs not installed")
+        d = self._dir_with({"a.json": _pack()})
+        config.CURRICULUM = d
+        state = TemporaryDirectory()
+        self.addCleanup(lambda: state.__exit__(None, None, None))
+        old_state = config.STATE_DB
+        config.STATE_DB = os.path.join(state.name, "state.db")
+        self.addCleanup(lambda: setattr(config, "STATE_DB", old_state))
+
+        body = main.StateInitIn(session_id="s-lex", lesson="demo-lesson")
+        first = main.state_init(body)
+        self.assertEqual(first["lesson"], "demo-lesson")
+        self.assertEqual([c["term"] for c in first["cards"]["added"]], ["arma"])
+        self.assertEqual(first["cards"]["skipped"], 0)
+        second = main.state_init(body)
+        self.assertEqual(second["cards"]["added"], [])
+        self.assertEqual(second["cards"]["skipped"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

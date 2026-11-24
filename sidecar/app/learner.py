@@ -150,6 +150,44 @@ def add_card(term: str, definition: str = "", lang: str = "zh", path=None) -> di
         con.close()
 
 
+def add_cards(cards, lang: str = "zh", path=None) -> dict:
+    """Insert a lesson pack's ``review_cards``, skipping terms already stored.
+
+    The engine never invents cards: a curriculum pack declares them
+    (``review_cards`` in docs/CURRICULUM-SCHEMA.md) and binding the lesson
+    imports them here. Re-importing the same lesson is a no-op, so a repeated
+    ``/v1/state/init`` cannot flood the review queue.
+    """
+    if not _SCHED:
+        raise RuntimeError("fsrs not installed")
+    now = datetime.now(timezone.utc)
+    con = _conn(path)
+    added = []
+    skipped = 0
+    try:
+        seen = {r[0] for r in con.execute("SELECT term FROM cards")}
+        for raw in cards or []:
+            term = str((raw or {}).get("term") or "").strip()
+            if not term:
+                continue
+            if term in seen:
+                skipped += 1
+                continue
+            definition = str((raw or {}).get("definition") or "")
+            card = Card(state=State.Learning, due=now)
+            cur = con.execute(
+                "INSERT INTO cards(term,definition,lang,state,step,stability,difficulty,"
+                "due,last_review,reps,lapses) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                (term, definition, lang, int(card.state), card.step or 0,
+                 card.stability, card.difficulty, card.due.isoformat(), None, 0, 0))
+            seen.add(term)
+            added.append({"id": cur.lastrowid, "term": term})
+        con.commit()
+    finally:
+        con.close()
+    return {"added": added, "skipped": skipped}
+
+
 def review_card(card_id: int, rating: str, path=None) -> dict:
     if not _SCHED:
         raise RuntimeError("fsrs not installed")

@@ -10,8 +10,11 @@ classics-index hui     --ocr hui.jsonl --names "1=西游记,2=水浒传" --out h
 classics-index find    --toc toc.json --q 卷3
 ```
 
-> **与数据管线的关系**：本包是私有工程 `rag-build`（OCR → 切块 → 向量 → RAG 数据库）的构建依赖。
-> 数据管线的代码不在 socratic-tutor 仓库里，本包可独立使用，也可被任何索引管线复用。
+> **与两个工程的关系**：本包是**卷/篇/回逻辑的唯一实现**，被两处使用——
+> ① 私有数据管线 `rag-build`（OCR → 切块 → 向量 → RAG 数据库）构建期建章回索引；
+> ② `sidecar` 运行时实时调用（`/v1/chapter` 与检索路径；`sidecar/pyproject.toml` 硬依赖
+> `classics-index>=0.1`）。数据管线代码不在 socratic-tutor 仓库里；本包可独立使用，
+> 也可被任何索引管线复用。
 
 ## 它解决什么问题
 

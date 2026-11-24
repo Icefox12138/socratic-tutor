@@ -689,8 +689,19 @@ def state_init(body: StateInitIn):
     state_store.create_session(body.session_id, goal=body.goal, concept=body.concept,
                                lang=body.lang, state=s)
     _SESSIONS[body.session_id] = s
+    # A bound lesson brings its review cards: the pack declares them, the engine
+    # only imports them (and never invents cards of its own).
+    lesson = curriculum.lesson(body.lesson) if body.lesson else None
+    cards = None
+    if lesson:
+        try:
+            cards = learner.add_cards(lesson.get("review_cards") or [],
+                                      lang=body.lang)
+        except RuntimeError as exc:            # fsrs extra not installed
+            cards = {"error": str(exc)}
     return {"state": s.to_dict(), "summary": state_machine.summary(s),
-            "allowed_events": state_machine.allowed(s)}
+            "allowed_events": state_machine.allowed(s),
+            "lesson": body.lesson or None, "cards": cards}
 
 
 @app.post("/v1/state/step", dependencies=[Depends(require_token)])
