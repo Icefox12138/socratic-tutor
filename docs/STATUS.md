@@ -69,7 +69,7 @@
 11. **npm 发布走 OIDC**：`publish-npm.yml` 需要与 npm 上 Trusted Publisher 配置的文件名逐字一致；手工 `npm publish` 在启用 "disallow tokens" 后不再可用；
 12. **DSH 0.2.2 会深冻结 `llm/stream` 的 options**，`agent/pre-step` 的 decision 也已改为**返回新对象**而不是原地 `unshift`；
 13. **DSH 沙箱与本地跑测试**：`tempfile.mkdtemp()` 建的目录带 owner-only DACL，`workspace-write` 下不可写 → 用 `sidecar/tests/_tmp.py`；`node --test` 需 `--test-isolation=none`（默认 spawn 子进程会 `EPERM`）；`git push` 走 SSH 时 git 会 spawn `sh` 建管道，沙箱内失败，需放宽一次权限；
-14. **词典数据与语法 § 均可用**：`lexicon.db`（M1，2026-11-23）219,738 词条；`/v1/lexicon` 按 `chunks.entry_id` 读回整条词目，长词条按字符窗口分页（M2，2026-11-24：λόγος 24 KB，`entry_offset`/`entry_limit` + `next_offset`；索引命中后单次 ~0.3 ms）；**A&G 语法 § 已入库（M3，2026-11-24）**：615/642 节（§1–§638，源版缺 §607–629、§639–642），`area=grammar` 可查 `§419`；Smyth 全量导入待定（见 review/M2-M3.md）；插件侧词条卡 UI 未做。
+14. **词典数据与语法 § 均可用**：`lexicon.db`（M1，2026-11-23）219,738 词条；`/v1/lexicon` 按 `chunks.entry_id` 读回整条词目，长词条按字符窗口分页（M2，2026-11-24：λόγος 24 KB，`entry_offset`/`entry_limit` + `next_offset`；索引命中后单次 ~0.3 ms）；**A&G 语法 § 已入库（M3，2026-11-24）**：640/642 节（§1–§640；HTML 版缺 §607–629、§639–642 已用 Perseus 同一 1903 版逐节补齐；§641–§642 为附录表 PARALLEL CONSTRUCTIONS），`area=grammar` 可查 `§419`；Smyth 全量导入待定（见 review/M2-M3.md）；插件侧词条卡 UI 已做（dsh-socratic 0.5.2）。
 15. **`smythp` 与 `§N` 是两套编号**：语法 locator 的 `section`（§N）与 Perseus `smythp=NNNN` 不互相推导，查 `smythp=` 只按精确键匹配；
 16. **按类型定流会改变学生可见内容**：`documents.kind` 一旦填上 `dictionary/grammar/textbook/edition`，学生视图会比只给 `text` 时多出定义/表格/注释等；这是有意的，但部署方必须知道自己开了什么（`/v1/policy` 的 `education` 段可核对）；
 17. **项目整体不是生产级**：v1 recall 0.80–0.82 未过门槛、计算后端为 SymPy/SciPy/pint/control（Wolfram/Lean 未装）、人工评分为 0。

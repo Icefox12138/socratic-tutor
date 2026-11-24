@@ -34,10 +34,12 @@ dates, not commit dates.
   Real lexicon (219,738 entries): hit 56 ms → **0.3 ms**, miss 57 ms → **0.14 ms**;
   `schema.ensure_v2` now also creates `idx_lex_lower_head` / `idx_lex_lower_lemma`
   for the case-insensitive fallback.
-- **M3 — grammar data**: A&G *New Latin Grammar* §1–§638 (615 sections) ingested as
-  grammar chunks, so `area=grammar&q=§419` answers with the section body and a
-  citation. The source edition (Alpheios/Perseus TEI) lacks §607–629 and §639–642;
-  ingestion lives in rag-build (`eval/ingest_ag.py`, `eval/lexicon_indexes.py`).
+- **M3 — grammar data**: A&G *New Latin Grammar* 640/642 sections ingested as
+  grammar chunks (§1–§640; §641–§642 are the *Parallel Constructions* appendix
+  tables), so `area=grammar&q=§419` answers with the section body and a citation.
+  The Alpheios/DCC HTML edition lacks §607–629 and §639–642; those are filled
+  section-by-section from the same 1903 text on Perseus. Ingestion lives in
+  rag-build (`eval/ingest_ag.py`, `eval/lexicon_indexes.py`) and is idempotent.
 - Grammar citation labels use the section title (`§419 ABLATIVE ABSOLUTE`) instead of
   the document title, and no longer double the `§`.
 
