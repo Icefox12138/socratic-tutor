@@ -55,6 +55,7 @@ class TestLexiconLookup(unittest.TestCase):
 
     def _restore(self):
         config.LEXICON_DB = self.old
+        lexicon.reset()
 
     def test_schema_creates_the_table(self):
         with TemporaryDirectory() as d:
@@ -138,6 +139,46 @@ class TestLexiconLookup(unittest.TestCase):
         self.assertIn("to loose", body)
         self.assertIn("second sense", body)
 
+    def test_a_long_entry_pages_by_character_window(self):
+        """λόγος is ~24 KB: the caller gets a slice plus next_offset."""
+        with TemporaryDirectory() as d:
+            path = os.path.join(d, "lex.db")
+            _fixture(path)
+            con = sqlite3.connect(path)
+            con.execute("ALTER TABLE chunks ADD COLUMN entry_id INTEGER")
+            con.execute("UPDATE chunks SET entry_id = 1 WHERE id = 1")
+            con.execute(
+                "INSERT INTO chunks(id, document_id, ordinal, section, text, stream,"
+                " locator_json, entry_id) VALUES(3,'d-lsj',3,'λ',?,"
+                "'definition',?,1)",
+                ("B" * 40, json.dumps({"scheme": "dict", "headword": "λύω",
+                                       "pos": "v", "sense": "2"})))
+            con.commit()
+            con.close()
+
+            full = lexicon.lookup("λύω", lang="greek", path=path)["entries"][0]
+            total = full["definition_total"]
+            self.assertGreater(total, 50)
+            self.assertFalse(full["definition_truncated"])
+            self.assertIsNone(full["next_offset"])
+
+            page = lexicon.lookup("λύω", lang="greek", path=path,
+                                 entry_offset=0, entry_limit=10)["entries"][0]
+            self.assertEqual(len(page["definition"]), 10)
+            self.assertTrue(page["definition_truncated"])
+            self.assertEqual(page["next_offset"], 10)
+            self.assertEqual(page["definition_total"], total)
+            # the second window continues exactly where the first stopped
+            tail = lexicon.lookup("λύω", lang="greek", path=path,
+                                 entry_offset=10, entry_limit=10)["entries"][0]
+            self.assertEqual(tail["definition_offset"], 10)
+            self.assertEqual(len(tail["definition"]), 10)
+            # a window that reaches the end is not truncated
+            end = lexicon.lookup("λύω", lang="greek", path=path,
+                                entry_offset=total - 5)["entries"][0]
+            self.assertFalse(end["definition_truncated"])
+            self.assertIsNone(end["next_offset"])
+
 
 class TestLexiconEndpoint(unittest.TestCase):
     def setUp(self):
@@ -146,6 +187,7 @@ class TestLexiconEndpoint(unittest.TestCase):
 
     def _restore(self):
         config.LEXICON_DB = self.old
+        lexicon.reset()
 
     def test_endpoint_returns_entries(self):
         from fastapi import HTTPException  # noqa: F401
@@ -156,6 +198,20 @@ class TestLexiconEndpoint(unittest.TestCase):
             out = main.v1_lexicon(q="λύω", lang="greek", area="dict",
                                   view="student", limit=10)
         self.assertEqual(len(out["entries"]), 1)
+
+    def test_endpoint_pages_a_long_entry(self):
+        from fastapi import HTTPException  # noqa: F401
+        from app import main
+        with TemporaryDirectory() as d:
+            config.LEXICON_DB = os.path.join(d, "lex.db")
+            _fixture(config.LEXICON_DB)
+            out = main.v1_lexicon(q="λύω", lang="greek", area="dict",
+                                  view="student", limit=10,
+                                  entry_offset=0, entry_limit=5)
+        entry = out["entries"][0]
+        self.assertEqual(len(entry["definition"]), 5)
+        self.assertTrue(entry["definition_truncated"])
+        self.assertEqual(entry["next_offset"], 5)
 
     def test_endpoint_rejects_a_bad_area(self):
         from fastapi import HTTPException

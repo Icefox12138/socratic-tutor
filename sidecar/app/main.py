@@ -225,18 +225,26 @@ def v1_lexicon(
     area: str = Query("dict"),
     view: str = Query("student"),
     limit: int = Query(10, ge=1, le=50),
+    entry_offset: int = Query(0, ge=0, le=4_000_000),
+    entry_limit: Optional[int] = Query(None, ge=1, le=20000),
 ):
     """Exact lookup: a dictionary headword, or a grammar section (§N).
 
     Never a vector search: the entry is the answer, so the source is the entry
     itself. A deployment without `lexicon.db` answers `reason: "no_lexicon"`
     instead of failing, the same way a missing public catalogue degrades.
+
+    `entry_offset` / `entry_limit` page a long entry body (λόγος is ~24 KB);
+    the entry then carries `definition_total`, `definition_truncated` and
+    `next_offset` so a client can fetch the tail without guessing.
     """
     if view not in ("student", "tutor"):
         raise HTTPException(status_code=400, detail="view must be student or tutor")
     if area not in ("dict", "grammar"):
         raise HTTPException(status_code=400, detail="area must be dict or grammar")
-    return policy.redact(lexicon.lookup(q, lang=lang, area=area, view=view, limit=limit))
+    return policy.redact(lexicon.lookup(q, lang=lang, area=area, view=view, limit=limit,
+                                        entry_offset=entry_offset,
+                                        entry_limit=entry_limit))
 
 
 @app.get("/v1/curriculum", dependencies=[Depends(require_token)])

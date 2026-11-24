@@ -145,13 +145,17 @@ v2 的 student 视图按**文档 `kind`** 决定可见 stream（见 RAG-DB-SCHEM
 ## 4d. 词目查表（v2.1）
 
 ```
-GET /v1/lexicon?q=&lang=&area=dict|grammar&view=&limit=
+GET /v1/lexicon?q=&lang=&area=dict|grammar&view=&limit=&entry_offset=&entry_limit=
 ```
 
 - `area=dict`：`q` 是词形 → 先归并到词元，再按 `lexicon_headwords` 精确查表；
 - `area=grammar`：`q` 是 `§212` / `212`（`smythp=NNNN` 是另一套编号，按精确键处理）；
+- `entry_offset` / `entry_limit`：按**字符**分页长词条正文（λόγος 约 24 KB）；条目额外返回
+  `definition_offset` / `definition_total` / `definition_truncated` / `next_offset`，
+  窗口到达结尾时 `truncated=false`；
 - 返回：`{query, area, lang, available, streams, entries:[{headword, lemma, pos,
-  homonym, entry_id, definition, locator, citation}], reason}`；
+  homonym, entry_id, definition, definition_offset, definition_total,
+  definition_truncated, next_offset, locator, citation}], reason}`；
 - 降级：没有 `lexicon.db` → `reason:"no_lexicon"`；查不到 → `"not_found"`；
 - **不做向量检索**：词条本身就是答案；`citation.tier` 为 A，`role` 为 `cite`。
 

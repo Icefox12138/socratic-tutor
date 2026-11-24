@@ -1,8 +1,9 @@
 # Changelog
 
 Five independently versioned packages live in this repository (sidecar, classics-index,
-socratic-mcp, dsh-socratic, dsh-socratic-persona); calcbox and ragpipe live in their own
-repositories. Sections are per package; dates are release dates, not commit dates.
+socratic-mcp, dsh-socratic, dsh-socratic-persona, dsh-socratic-curriculum); calcbox and
+ragpages live in their own repositories. Sections are per package; dates are release
+dates, not commit dates.
 
 ## Repository
 
@@ -21,6 +22,24 @@ repositories. Sections are per package; dates are release dates, not commit date
   dsh-socratic 0.3.1; Dockerfile + compose for the sidecar.
 
 ## sidecar
+
+### 0.3.1 — 2026-11-24
+- **M2 — long entries page**: `/v1/lexicon` accepts `entry_offset` / `entry_limit`
+  (characters) and returns `definition_offset`, `definition_total`,
+  `definition_truncated` and `next_offset`. λόγος is 24 KB / 64 senses; a client no
+  longer has to pull the whole entry into one result.
+- **M2 — lookup latency**: one cached connection plus a cached schema snapshot per
+  lexicon file, and per-column indexed equality lookups. The old
+  `lower(headword) OR lower(lemma)` predicate scanned ~220k rows on every call.
+  Real lexicon (219,738 entries): hit 56 ms → **0.3 ms**, miss 57 ms → **0.14 ms**;
+  `schema.ensure_v2` now also creates `idx_lex_lower_head` / `idx_lex_lower_lemma`
+  for the case-insensitive fallback.
+- **M3 — grammar data**: A&G *New Latin Grammar* §1–§638 (615 sections) ingested as
+  grammar chunks, so `area=grammar&q=§419` answers with the section body and a
+  citation. The source edition (Alpheios/Perseus TEI) lacks §607–629 and §639–642;
+  ingestion lives in rag-build (`eval/ingest_ag.py`, `eval/lexicon_indexes.py`).
+- Grammar citation labels use the section title (`§419 ABLATIVE ABSOLUTE`) instead of
+  the document title, and no longer double the `§`.
 
 ### 0.3.0 — 2026-11-17
 - **Schema v2.1**: `documents.kind` (textbook/edition/dictionary/grammar…), the

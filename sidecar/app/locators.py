@@ -147,11 +147,13 @@ def default_label(locator, doc=None) -> str:
             parts.append("p.%s" % loc["page"])
         return " · ".join(parts)
     if sch == "grammar":
-        label = "§%s" % loc.get("section")
-        if title:
-            label += " " + str(title)
-        elif loc.get("title"):
+        section = str(loc.get("section") or "").lstrip("§")
+        label = "§%s" % section
+        # the section's own title, not the document title the way mediawiki uses it
+        if loc.get("title"):
             label += " " + str(loc["title"])
+        elif title:
+            label += " " + str(title)
         if loc.get("page"):
             label += " · p.%s" % loc["page"]
         return label

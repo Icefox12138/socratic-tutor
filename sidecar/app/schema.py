@@ -101,6 +101,12 @@ DDL = [
 
     "CREATE INDEX IF NOT EXISTS idx_lex_headword ON lexicon_headwords(lang, headword)",
     "CREATE INDEX IF NOT EXISTS idx_lex_lemma ON lexicon_headwords(lang, lemma)",
+    # Case-insensitive lookups fall back to lower(): index them too so the
+    # fallback stays milliseconds on a 220k-row lexicon.
+    "CREATE INDEX IF NOT EXISTS idx_lex_lower_head "
+    "ON lexicon_headwords(lang, lower(headword))",
+    "CREATE INDEX IF NOT EXISTS idx_lex_lower_lemma "
+    "ON lexicon_headwords(lang, lower(lemma))",
 ]
 
 
