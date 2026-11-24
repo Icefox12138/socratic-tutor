@@ -149,11 +149,9 @@ def default_label(locator, doc=None) -> str:
     if sch == "grammar":
         section = str(loc.get("section") or "").lstrip("§")
         label = "§%s" % section
-        # the section's own title, not the document title the way mediawiki uses it
+        # the section's own title, never the document title
         if loc.get("title"):
             label += " " + str(loc["title"])
-        elif title:
-            label += " " + str(title)
         if loc.get("page"):
             label += " · p.%s" % loc["page"]
         return label
