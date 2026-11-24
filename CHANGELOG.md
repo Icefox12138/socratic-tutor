@@ -230,3 +230,19 @@ repositories. Sections are per package; dates are release dates, not commit date
 - Standalone: one `GET /v1/state/<session>` is the only sidecar call, so this
   package does not depend on the tools bundle.
 - 12 contract tests.
+
+## dsh-socratic-curriculum
+
+### 0.1.0 — 2026-11-24
+- First release: the course layer. Three tools (`curriculum_list`,
+  `curriculum_lesson`, `curriculum_start`) over the sidecar's `/v1/curriculum`
+  endpoints, and one `agent/pre-step` hook that injects the active lesson block
+  at the first step of each turn (never mutating the decision returned by
+  `next()`).
+- `curriculum_start` binds a lesson to the session state machine:
+  `/v1/state/init` with `lesson=<id>, learn=true`, or `review=true` for a
+  review-first opening.
+- The engine ships the contract, not the courses: lesson packs live in
+  `SOCRATIC_CURRICULUM` and are validated with `scripts/curriculum_check.py`.
+  Without packs the tools answer `lessons: []` and the hook is inert.
+- 10 contract tests.

@@ -35,6 +35,7 @@ on:
         options:
           - plugin-socratic
           - plugin-socratic-persona
+          - plugin-socratic-curriculum
 
 permissions:
   contents: read
@@ -75,4 +76,22 @@ jobs:
         env:
           DIR: plugin-socratic-persona
           TAG_PREFIX: dsh-socratic-persona-v
+        run: bash .github/scripts/publish-one.sh
+
+  curriculum:
+    name: dsh-socratic-curriculum
+    if: >-
+      github.event_name == 'push' && startsWith(github.ref_name, 'dsh-socratic-curriculum-v') ||
+      github.event_name == 'workflow_dispatch' && inputs.package == 'plugin-socratic-curriculum'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+      - name: Publish dsh-socratic-curriculum
+        env:
+          DIR: plugin-socratic-curriculum
+          TAG_PREFIX: dsh-socratic-curriculum-v
         run: bash .github/scripts/publish-one.sh
